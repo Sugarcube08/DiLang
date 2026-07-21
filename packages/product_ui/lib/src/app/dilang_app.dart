@@ -175,7 +175,7 @@ class TodayDashboardMainShell extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
-                    'v1.1.0-alpha • Personal Language OS',
+                    'v1.2.0-alpha • Personal Language OS',
                     style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                   ),
                 ),
@@ -227,12 +227,11 @@ class TodayDashboardMainShell extends ConsumerWidget {
                             ],
                           ),
                           InkWell(
-                            onTap: () async {
-                              await ref.read(todayDashboardNotifierProvider.notifier).recordSessionCompleted(
-                                    sessionType: 'Conversation',
-                                    title: vm.mission.subTitle,
-                                    minutesSpent: vm.mission.estimatedMinutes,
-                                  );
+                            onTap: () {
+                              ref
+                                  .read(interactiveDialogueNotifierProvider.notifier)
+                                  .startSession(BuiltInScenarios.ScenarioCafeVienna);
+                              ref.read(activeTabProvider.notifier).state = 2;
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -466,29 +465,181 @@ class VocabularyGraphSection extends StatelessWidget {
   }
 }
 
-class VoiceDialogueSection extends StatelessWidget {
+class VoiceDialogueSection extends ConsumerStatefulWidget {
   const VoiceDialogueSection({super.key});
 
   @override
+  ConsumerState<VoiceDialogueSection> createState() => _VoiceDialogueSectionState();
+}
+
+class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
+  final TextEditingController _inputController = TextEditingController();
+
+  @override
+  void dispose() {
+    _inputController.dispose();
+    super.dispose();
+  }
+
+  void _handleTurnSubmit() {
+    final text = _inputController.text.trim();
+    if (text.isNotEmpty) {
+      ref.read(interactiveDialogueNotifierProvider.notifier).submitTurn(learnerInput: text);
+      _inputController.clear();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final scenario = BuiltInScenarios.ScenarioCafeVienna;
+    final dialogueState = ref.watch(interactiveDialogueNotifierProvider);
+    final scenario = dialogueState.scenario;
 
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Voice AI Dialogue: ${scenario.title}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-          const SizedBox(height: 8),
-          Text('Persona: ${scenario.personaName} (${scenario.personaRole})', style: const TextStyle(color: Color(0xFF94A3B8))),
-          const SizedBox(height: 24),
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Voice AI Dialogue: ${scenario.title}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 4),
+                  Text('Persona: ${scenario.personaName} (${scenario.personaRole}) • CEFR ${scenario.cefrLevel}', style: const TextStyle(color: Color(0xFF94A3B8))),
+                ],
+              ),
+              if (dialogueState.isSessionActive)
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF22C55E)),
+                  onPressed: () async {
+                    await ref.read(interactiveDialogueNotifierProvider.notifier).completeSession();
+                  },
+                  icon: const Icon(Icons.check_circle, color: Colors.white),
+                  label: const Text('Finish Session & Save Replay →', style: TextStyle(color: Colors.white)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Pre-Session Briefing Card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFF172033),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
             ),
-            child: Text('Cultural Note: ${scenario.culturalNote}', style: const TextStyle(color: Color(0xFFF59E0B))),
+            child: Row(
+              children: [
+                const Icon(Icons.lightbulb, color: Color(0xFFF59E0B)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Pre-Session Coach: ${dialogueState.briefing.preSessionCoaching} Cultural Tip: ${dialogueState.briefing.culturalTip}',
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Debriefing Evidence Card if completed
+          if (dialogueState.isCompleted && dialogueState.debriefing != null) ...[
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF064E3B),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF10B981)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Session Completed & Replay Persisted to SQLite!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text(dialogueState.debriefing!.evidenceSummary, style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text(dialogueState.debriefing!.postSessionCoaching, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Turn-by-Turn Live Chat Area
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0B1020),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF1E293B)),
+              ),
+              child: dialogueState.turns.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Type your response below (e.g. "Ich möchte einen Kaffee, bitte.") to begin turn execution!',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: dialogueState.turns.length,
+                      itemBuilder: (context, index) {
+                        final turn = dialogueState.turns[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF172033),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFF334155)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Greta (Tutor): ${turn.tutorPrompt}', style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 4),
+                              Text('You: ${turn.learnerResponse}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text('Grammar Analysis: ${turn.grammarNote}', style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 12)),
+                              Text('Phonetic Accuracy: ${turn.phoneticScore.round()}%', style: const TextStyle(color: Color(0xFF22C55E), fontSize: 12)),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Interactive Input Bar
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _inputController,
+                  decoration: const InputDecoration(
+                    hintText: 'Type German response (e.g., "Ich möchte einen Kaffee, bitte")...',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _handleTurnSubmit(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  minimumSize: const Size(140, 56),
+                ),
+                onPressed: _handleTurnSubmit,
+                icon: const Icon(Icons.send, color: Colors.white),
+                label: const Text('Evaluate Turn', style: TextStyle(color: Colors.white)),
+              ),
+            ],
           ),
         ],
       ),

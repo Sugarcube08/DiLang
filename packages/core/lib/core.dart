@@ -7,6 +7,8 @@ export 'src/lifecycle/module_lifecycle.dart';
 export 'src/lifecycle/lifecycle_manager.dart';
 export 'src/event_bus/domain_event.dart';
 export 'src/event_bus/event_bus.dart';
+export 'src/event_bus/generic_runtime_event.dart';
+
 export 'src/capability_registry/capability_registry.dart';
 export 'src/capability_registry/feature_flags.dart';
 
