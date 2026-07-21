@@ -46,7 +46,7 @@ void main() {
       var vm = await dashboardUseCase.loadDashboard();
       expect(vm.username, equals('Sugar Cube'));
       expect(vm.mission.targetLanguage, equals('DE'));
-      expect(vm.mission.estimatedMinutes, equals(12));
+      expect(vm.mission.estimatedMinutes, equals(15));
       expect(vm.health.overallScore, greaterThanOrEqualTo(60));
       expect(vm.currentStreak, equals(1));
       expect(vm.timeline.isNotEmpty, isTrue);

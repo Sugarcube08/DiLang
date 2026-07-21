@@ -2,18 +2,22 @@ import 'dart:async';
 import 'package:dilang_learner/learner.dart';
 import 'package:dilang_storage/storage.dart';
 import 'package:dilang_memory/memory.dart';
+import 'package:dilang_learning_engine/learning_engine.dart';
 import 'today_dashboard_view_model.dart';
 
 class TodayDashboardUseCase {
   final IdentityRepositoryContract identityRepo;
   final SqliteStorageEngine storageEngine;
   final Fsrs45Engine fsrsEngine;
+  final MissionGenerator missionGenerator;
 
   TodayDashboardUseCase({
     required this.identityRepo,
     required this.storageEngine,
     Fsrs45Engine? fsrsEngine,
-  }) : fsrsEngine = fsrsEngine ?? const Fsrs45Engine();
+    MissionGenerator? missionGenerator,
+  })  : fsrsEngine = fsrsEngine ?? const Fsrs45Engine(),
+        missionGenerator = missionGenerator ?? const MissionGenerator();
 
   Future<TodayDashboardViewModel> loadDashboard() async {
     final user = await identityRepo.getActiveUser();
@@ -80,16 +84,24 @@ class TodayDashboardUseCase {
       statusText: calculatedScore >= 80 ? 'Optimal Recovery' : 'Review Recommended',
     );
 
-    final mission = TodayMissionViewModel(
-      title: 'Conversation Practice',
-      subTitle: 'Ordering at a Viennese Café',
-      estimatedMinutes: 12,
+    // Generate single primary mission & coaching recommendation from MissionGenerator engine
+    final generatedMission = missionGenerator.generateMission(
       targetLanguage: targetLang.toUpperCase(),
       cefrLevel: cefr,
       dueReviewsCount: dueCount,
+      timeSlot: AvailableTimeSlot.standard15Min,
     );
 
-    final insight = 'Your memory retention rate is $calculatedScore%. Completing today\'s 12-minute dialogue will maintain your $streak-day streak.';
+    final mission = TodayMissionViewModel(
+      title: generatedMission.title,
+      subTitle: generatedMission.description,
+      estimatedMinutes: generatedMission.totalDurationMinutes,
+      targetLanguage: generatedMission.targetLanguage,
+      cefrLevel: generatedMission.cefrLevel,
+      dueReviewsCount: generatedMission.dueVocabularyCount,
+    );
+
+    final insight = '${generatedMission.coaching.title}: ${generatedMission.coaching.explanation} ${generatedMission.coaching.suggestedAction}';
 
     return TodayDashboardViewModel(
       greeting: greeting,

@@ -9,3 +9,6 @@ export 'src/assessment/assessment_engine.dart';
 export 'src/progression/progression_model.dart';
 export 'src/analytics/analytics_engine.dart';
 export 'src/orchestrator/learning_engine_orchestrator.dart';
+export 'src/orchestrator/mission_generator.dart';
+export 'src/session/session_engine.dart';
+
