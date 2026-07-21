@@ -1,0 +1,23 @@
+name: dilang_product_ui
+description: Product UI Component Library & State Controllers for DiLang Cross-Platform UI.
+version: 2.1.0
+publish_to: 'none'
+resolution: workspace
+homepage: https://github.com/dilang/dilang
+
+environment:
+  sdk: '^3.5.0'
+
+dependencies:
+  dilang_core: ^1.0.0
+  dilang_language: ^1.0.0
+  dilang_learner: ^1.0.0
+  dilang_memory: ^1.0.0
+  dilang_learning_engine: ^1.0.0
+  dilang_conversation: ^2.0.0
+  dilang_design_system: ^2.0.0
+  meta: ^1.11.0
+  equatable: ^2.0.5
+
+dev_dependencies:
+  test: ^1.24.0
