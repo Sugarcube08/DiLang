@@ -25,6 +25,12 @@
 - **Decision:** Standardize on FSRS-4.5 (Free Spaced Repetition Scheduler) as the core memory algorithm in the Learner Graph Context.
 - **Consequences:** Higher memory retention rates, reduced redundant reviews, deterministic mathematical formula independent of LLMs.
 
+### ADR-008: Formal Platform Architecture Freeze (v2.0 Platform Release)
+- **Status:** Accepted  
+- **Context:** The DiLang platform infrastructure (Core Kernel, Language, Learner, Memory, AI Runtime, Storage Contracts, Sync Engine, Learning Engine, Conversation Engine, Application Layer, Design System, Mobile/Desktop entrypoints, and Extension SDK) is feature-complete across 41 source-of-truth specification contracts. Continuing to modify foundational contracts risks architectural churn.
+- **Decision:** Formally freeze the platform architecture under the `release/v2.x` maintenance branch. Foundational package boundaries, dependency graphs, and public API contracts are locked. All future v2.x iterations transition strictly to product engineering, content curation, model tuning, UX refinement, and empirical learning outcome validation.
+- **Consequences:** Platform maintainability guaranteed. Future architectural mutations require formal ADR proposals and are reserved for the v3.0 strategic research horizon.
+
 ---
 
 ## 2. Completed Milestones & System State Log
@@ -32,13 +38,15 @@
 | Milestone ID | Description | Status | Verification Date |
 | :--- | :--- | :--- | :--- |
 | `M0.1` | Initializing Documentation Suite (`01` - `10`) | **Completed** | 2026-07-22 |
-| `M0.2` | Protobuf Schema Contracts Declaration | Pending | Phase 1 |
-| `M0.3` | Native C/FFI Stub Wrappers Setup | Pending | Phase 2 |
-| `M0.4` | Drift EventStore & Projection Engine | Pending | Phase 3 |
+| `M1.0` | Core Platform Foundation & Governance (`v1.0.0-phase.2`) | **Completed** | 2026-07-22 |
+| `M2.0` | AI Compute Platform & Native SDK (`v1.0.0-phase.3`) | **Completed** | 2026-07-22 |
+| `M3.0` | Persistence & Event Replication Engine (`v1.0.0-phase.4`) | **Completed** | 2026-07-22 |
+| `M4.0` | Deterministic Learning & Assessment Platform (`v1.0.0-phase.5`) | **Completed** | 2026-07-22 |
+| `M5.0` | Conversation Engine & Multimodal Application Platform (`v2.0.0`) | **Completed** | 2026-07-22 |
 
 ---
 
 ## 3. Active System State
 
-- **Current Active Phase:** Phase 1 (Contract Specification & Core Abstractions)
-- **Active Technical Focus:** Standardizing Domain Models, Event Catalog, Capability Interfaces, and API Contracts across `docs/07` to `docs/10`.
+- **Current Active Branch:** `release/v2.x` (Architecture Frozen)
+- **Active Technical Focus:** Product Engineering, CEFR Content Aggregation, Local Model Tuning, UX Polish, and Empirical Educational Validation.
