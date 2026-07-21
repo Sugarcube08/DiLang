@@ -2,10 +2,11 @@ name: dilang_core
 description: Pure Dart Core Kernel for DiLang Language Acquisition Platform. Independent of Flutter.
 version: 1.0.0
 publish_to: 'none'
+resolution: workspace
 homepage: https://github.com/dilang/dilang
 
 environment:
-  sdk: '^3.0.0'
+  sdk: '^3.5.0'
 
 dependencies:
   meta: ^1.11.0

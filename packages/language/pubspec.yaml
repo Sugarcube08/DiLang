@@ -2,10 +2,11 @@ name: dilang_language
 description: Pure Dart Language Intelligence Domain package for DiLang. Zero AI, Zero UI, Zero Storage.
 version: 1.0.0
 publish_to: 'none'
+resolution: workspace
 homepage: https://github.com/dilang/dilang
 
 environment:
-  sdk: '^3.0.0'
+  sdk: '^3.5.0'
 
 dependencies:
   dilang_core:

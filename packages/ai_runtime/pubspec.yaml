@@ -2,10 +2,11 @@ name: dilang_ai_runtime
 description: Pure Dart AI Runtime & Native Compute Platform package for DiLang. Zero Conversation UI.
 version: 1.0.0
 publish_to: 'none'
+resolution: workspace
 homepage: https://github.com/dilang/dilang
 
 environment:
-  sdk: '^3.0.0'
+  sdk: '^3.5.0'
 
 dependencies:
   dilang_core:

@@ -2,10 +2,11 @@ name: dilang_sync
 description: Pure Dart Synchronization & Event Replication Engine for DiLang. Decoupled from UI and Cloud.
 version: 1.0.0
 publish_to: 'none'
+resolution: workspace
 homepage: https://github.com/dilang/dilang
 
 environment:
-  sdk: '^3.0.0'
+  sdk: '^3.5.0'
 
 dependencies:
   dilang_core:
