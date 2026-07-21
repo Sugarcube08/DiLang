@@ -119,12 +119,13 @@ class FtueWizardScreen extends ConsumerWidget {
                           const Text('Medium (Interface) Language', style: TextStyle(color: Colors.white70, fontSize: 12)),
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
+                            isExpanded: true,
                             value: ftueState.nativeLanguage.isNotEmpty ? ftueState.nativeLanguage : 'English',
                             items: const [
-                              DropdownMenuItem(value: 'English', child: Text('English')),
-                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
-                              DropdownMenuItem(value: 'French', child: Text('French')),
-                              DropdownMenuItem(value: 'Hindi', child: Text('Hindi')),
+                              DropdownMenuItem(value: 'English', child: Text('English', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'French', child: Text('French', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Hindi', child: Text('Hindi', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {
                               if (val != null) notifier.setLanguages(val, ftueState.targetLanguage);
@@ -142,12 +143,13 @@ class FtueWizardScreen extends ConsumerWidget {
                           const Text('Target Language', style: TextStyle(color: Colors.white70, fontSize: 12)),
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
+                            isExpanded: true,
                             value: ftueState.targetLanguage.isNotEmpty ? ftueState.targetLanguage : 'German',
                             items: const [
-                              DropdownMenuItem(value: 'German', child: Text('German (DE)')),
-                              DropdownMenuItem(value: 'French', child: Text('French (FR)')),
-                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish (ES)')),
-                              DropdownMenuItem(value: 'Japanese', child: Text('Japanese (JP)')),
+                              DropdownMenuItem(value: 'German', child: Text('German (DE)', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'French', child: Text('French (FR)', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish (ES)', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Japanese', child: Text('Japanese (JP)', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {
                               if (val != null) notifier.setLanguages(ftueState.nativeLanguage, val);
@@ -168,12 +170,13 @@ class FtueWizardScreen extends ConsumerWidget {
                     const Text('Brain Model (Cognitive Strategy)', style: TextStyle(color: Colors.white70, fontSize: 12)),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       value: 'Conversation First',
                       items: const [
-                        DropdownMenuItem(value: 'Conversation First', child: Text('Conversation First (Immersion Focus)')),
-                        DropdownMenuItem(value: 'Grammar First', child: Text('Grammar First (Rule Structure Focus)')),
-                        DropdownMenuItem(value: 'Vocabulary First', child: Text('Vocabulary First (FSRS Memory Focus)')),
-                        DropdownMenuItem(value: 'Visual', child: Text('Visual & Interactive Graph Focus')),
+                        DropdownMenuItem(value: 'Conversation First', child: Text('Conversation First', overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'Grammar First', child: Text('Grammar First', overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'Vocabulary First', child: Text('Vocabulary First', overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'Visual', child: Text('Visual & Interactive Graph', overflow: TextOverflow.ellipsis)),
                       ],
                       onChanged: (val) {},
                       decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -192,12 +195,13 @@ class FtueWizardScreen extends ConsumerWidget {
                           const Text('Learning Goal', style: TextStyle(color: Colors.white70, fontSize: 12)),
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
-                            value: ftueState.goal.isNotEmpty ? ftueState.goal : 'Daily Conversation',
+                            isExpanded: true,
+                            value: (ftueState.goal == 'Conversation' || ftueState.goal == 'Daily Conversation') ? 'Daily Conversation' : (ftueState.goal.isNotEmpty ? ftueState.goal : 'Daily Conversation'),
                             items: const [
-                              DropdownMenuItem(value: 'Daily Conversation', child: Text('Daily Conversation')),
-                              DropdownMenuItem(value: 'Travel', child: Text('Travel & Food')),
-                              DropdownMenuItem(value: 'Business', child: Text('Business & Professional')),
-                              DropdownMenuItem(value: 'Exam', child: Text('CEFR Certification')),
+                              DropdownMenuItem(value: 'Daily Conversation', child: Text('Daily Conversation', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Travel', child: Text('Travel & Food', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Business', child: Text('Business', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Exam', child: Text('CEFR Certification', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {
                               if (val != null) notifier.setGoal(val);
@@ -215,11 +219,12 @@ class FtueWizardScreen extends ConsumerWidget {
                           const Text('AI Coach Persona', style: TextStyle(color: Colors.white70, fontSize: 12)),
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
+                            isExpanded: true,
                             value: 'Friendly',
                             items: const [
-                              DropdownMenuItem(value: 'Friendly', child: Text('Friendly & Encouraging')),
-                              DropdownMenuItem(value: 'Strict', child: Text('Strict Precision Tutor')),
-                              DropdownMenuItem(value: 'Socratic', child: Text('Socratic Guidance')),
+                              DropdownMenuItem(value: 'Friendly', child: Text('Friendly', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Strict', child: Text('Strict Precision', overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'Socratic', child: Text('Socratic', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {},
                             decoration: const InputDecoration(border: OutlineInputBorder()),
