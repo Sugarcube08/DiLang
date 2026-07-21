@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dilang_core/core.dart';
 import 'package:dilang_storage/storage.dart';
@@ -10,7 +11,13 @@ final eventBusProvider = Provider<EventBus>((ref) {
 });
 
 final sqliteEngineProvider = Provider<SqliteStorageEngine>((ref) {
-  final engine = SqliteStorageEngine.inMemory();
+  final home = Platform.environment['HOME'] ?? '/tmp';
+  final dbDir = Directory('$home/.local/share/dilang');
+  if (!dbDir.existsSync()) {
+    dbDir.createSync(recursive: true);
+  }
+  final dbPath = '${dbDir.path}/dilang_storage.db';
+  final engine = SqliteStorageEngine(dbPath: dbPath);
   ref.onDispose(() => engine.dispose());
   return engine;
 });
