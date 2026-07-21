@@ -1,21 +1,22 @@
 name: dilang
+
 packages:
   - packages/*
   - apps/*
 
 command:
   bootstrap:
-    usePubGet: true
+    dontGeneratePubspecOverrides: true
 
 scripts:
   analyze:
-    run: melos exec -- "dart analyze ."
+    exec: dart analyze .
     description: Run static analysis across all packages in workspace.
 
   test:
-    run: melos exec -- "dart test"
+    exec: dart test
     description: Run unit test suites across all packages in workspace.
 
   clean:
-    run: melos exec -- "dart clean"
+    exec: dart clean
     description: Clean build artifacts across all packages.

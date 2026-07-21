@@ -9,16 +9,11 @@ environment:
   sdk: '^3.5.0'
 
 dependencies:
-  dilang_core:
-    path: ../core
-  dilang_language:
-    path: ../language
-  dilang_learner:
-    path: ../learner
-  dilang_memory:
-    path: ../memory
-  dilang_storage:
-    path: ../storage
+  dilang_core: ^1.0.0
+  dilang_language: ^1.0.0
+  dilang_learner: ^1.0.0
+  dilang_memory: ^1.0.0
+  dilang_storage: ^1.0.0
   meta: ^1.11.0
   equatable: ^2.0.5
 

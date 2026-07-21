@@ -19,10 +19,12 @@ jobs:
           sdk: stable
 
       - name: Install Melos Monorepo Tool
-        run: dart pub global activate melos
+        run: |
+          dart pub global activate melos
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
-      - name: Bootstrap Workspace Packages
-        run: melos bootstrap
+      - name: Resolve Pub Workspace Dependencies
+        run: dart pub get
 
       - name: Run Static Analysis
         run: melos run analyze
