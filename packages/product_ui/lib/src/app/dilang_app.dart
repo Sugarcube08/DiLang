@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dilang_application/application.dart';
 import 'package:dilang_conversation/conversation.dart';
-import 'package:dilang_language/language.dart';
-import 'package:dilang_learning_engine/learning_engine.dart';
 import '../providers/di_providers.dart';
 
 class DiLangAppEntry extends ConsumerWidget {
@@ -11,7 +9,7 @@ class DiLangAppEntry extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bootAsync = ref.watch(bootstrapResultProvider);
+    final runtimeState = ref.watch(dilangRuntimeKernelProvider);
 
     return MaterialApp(
       title: 'DiLang — Personal Language OS',
@@ -25,46 +23,49 @@ class DiLangAppEntry extends ConsumerWidget {
           surface: Color(0xFF172033),
         ),
       ),
-      home: bootAsync.when(
-        data: (result) {
-          if (result.status == BootstrapStatus.onboardingRequired) {
-            return const FtueWizardScreen();
-          }
-          return const TodayDashboardMainShell();
-        },
-        loading: () => const Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(color: Color(0xFF3B82F6)),
-                SizedBox(height: 16),
-                Text(
-                  'DiLang OS Bootstrapping Pipeline...',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+      home: !runtimeState.isBootstrapped
+          ? const Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: Color(0xFF3B82F6)),
+                    SizedBox(height: 16),
+                    Text('Initializing DiLang Authoritative Runtime Kernel...', style: TextStyle(color: Colors.white70)),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ),
-        error: (err, stack) => Scaffold(
-          body: Center(
-            child: Text('Bootstrap Failure: $err', style: const TextStyle(color: Colors.red)),
-          ),
-        ),
-      ),
+              ),
+            )
+          : runtimeState.isOnboardingRequired
+              ? const FtueWizardScreen()
+              : const TodayDashboardMainShell(),
     );
   }
 }
 
-class FtueWizardScreen extends ConsumerWidget {
+class FtueWizardScreen extends ConsumerStatefulWidget {
   const FtueWizardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ftueState = ref.watch(ftueNotifierProvider);
-    final notifier = ref.read(ftueNotifierProvider.notifier);
+  ConsumerState<FtueWizardScreen> createState() => _FtueWizardScreenState();
+}
 
+class _FtueWizardScreenState extends ConsumerState<FtueWizardScreen> {
+  final TextEditingController _nameController = TextEditingController(text: 'Learner');
+  String _mediumLanguage = 'English';
+  String _targetLanguage = 'German';
+  String _brainModel = 'Conversation First';
+  String _learningGoal = 'Daily Conversation';
+  String _aiCoachPersona = 'Friendly';
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -98,14 +99,14 @@ class FtueWizardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // 1. Username Input
+                // 1. Learner Name Input
                 TextField(
+                  controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Learner Name',
                     hintText: 'Enter your name or nickname',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (val) => notifier.updateIdentity(val, 'pass123'),
                 ),
                 const SizedBox(height: 16),
 
@@ -120,7 +121,7 @@ class FtueWizardScreen extends ConsumerWidget {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             isExpanded: true,
-                            value: ftueState.nativeLanguage.isNotEmpty ? ftueState.nativeLanguage : 'English',
+                            value: _mediumLanguage,
                             items: const [
                               DropdownMenuItem(value: 'English', child: Text('English', overflow: TextOverflow.ellipsis)),
                               DropdownMenuItem(value: 'Spanish', child: Text('Spanish', overflow: TextOverflow.ellipsis)),
@@ -128,7 +129,7 @@ class FtueWizardScreen extends ConsumerWidget {
                               DropdownMenuItem(value: 'Hindi', child: Text('Hindi', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {
-                              if (val != null) notifier.setLanguages(val, ftueState.targetLanguage);
+                              if (val != null) setState(() => _mediumLanguage = val);
                             },
                             decoration: const InputDecoration(border: OutlineInputBorder()),
                           ),
@@ -144,7 +145,7 @@ class FtueWizardScreen extends ConsumerWidget {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             isExpanded: true,
-                            value: ftueState.targetLanguage.isNotEmpty ? ftueState.targetLanguage : 'German',
+                            value: _targetLanguage,
                             items: const [
                               DropdownMenuItem(value: 'German', child: Text('German (DE)', overflow: TextOverflow.ellipsis)),
                               DropdownMenuItem(value: 'French', child: Text('French (FR)', overflow: TextOverflow.ellipsis)),
@@ -152,7 +153,7 @@ class FtueWizardScreen extends ConsumerWidget {
                               DropdownMenuItem(value: 'Japanese', child: Text('Japanese (JP)', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {
-                              if (val != null) notifier.setLanguages(ftueState.nativeLanguage, val);
+                              if (val != null) setState(() => _targetLanguage = val);
                             },
                             decoration: const InputDecoration(border: OutlineInputBorder()),
                           ),
@@ -163,7 +164,7 @@ class FtueWizardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // 3. Brain Model (Cognitive Profile)
+                // 3. Brain Model (Cognitive Strategy)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -171,21 +172,23 @@ class FtueWizardScreen extends ConsumerWidget {
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
                       isExpanded: true,
-                      value: 'Conversation First',
+                      value: _brainModel,
                       items: const [
                         DropdownMenuItem(value: 'Conversation First', child: Text('Conversation First', overflow: TextOverflow.ellipsis)),
                         DropdownMenuItem(value: 'Grammar First', child: Text('Grammar First', overflow: TextOverflow.ellipsis)),
                         DropdownMenuItem(value: 'Vocabulary First', child: Text('Vocabulary First', overflow: TextOverflow.ellipsis)),
                         DropdownMenuItem(value: 'Visual', child: Text('Visual & Interactive Graph', overflow: TextOverflow.ellipsis)),
                       ],
-                      onChanged: (val) {},
+                      onChanged: (val) {
+                        if (val != null) setState(() => _brainModel = val);
+                      },
                       decoration: const InputDecoration(border: OutlineInputBorder()),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
 
-                // 4. Learning Objective & AI Coach Persona
+                // 4. Learning Goal & AI Coach Persona
                 Row(
                   children: [
                     Expanded(
@@ -196,7 +199,7 @@ class FtueWizardScreen extends ConsumerWidget {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             isExpanded: true,
-                            value: (ftueState.goal == 'Conversation' || ftueState.goal == 'Daily Conversation') ? 'Daily Conversation' : (ftueState.goal.isNotEmpty ? ftueState.goal : 'Daily Conversation'),
+                            value: _learningGoal,
                             items: const [
                               DropdownMenuItem(value: 'Daily Conversation', child: Text('Daily Conversation', overflow: TextOverflow.ellipsis)),
                               DropdownMenuItem(value: 'Travel', child: Text('Travel & Food', overflow: TextOverflow.ellipsis)),
@@ -204,7 +207,7 @@ class FtueWizardScreen extends ConsumerWidget {
                               DropdownMenuItem(value: 'Exam', child: Text('CEFR Certification', overflow: TextOverflow.ellipsis)),
                             ],
                             onChanged: (val) {
-                              if (val != null) notifier.setGoal(val);
+                              if (val != null) setState(() => _learningGoal = val);
                             },
                             decoration: const InputDecoration(border: OutlineInputBorder()),
                           ),
@@ -220,13 +223,15 @@ class FtueWizardScreen extends ConsumerWidget {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             isExpanded: true,
-                            value: 'Friendly',
+                            value: _aiCoachPersona,
                             items: const [
                               DropdownMenuItem(value: 'Friendly', child: Text('Friendly', overflow: TextOverflow.ellipsis)),
                               DropdownMenuItem(value: 'Strict', child: Text('Strict Precision', overflow: TextOverflow.ellipsis)),
                               DropdownMenuItem(value: 'Socratic', child: Text('Socratic', overflow: TextOverflow.ellipsis)),
                             ],
-                            onChanged: (val) {},
+                            onChanged: (val) {
+                              if (val != null) setState(() => _aiCoachPersona = val);
+                            },
                             decoration: const InputDecoration(border: OutlineInputBorder()),
                           ),
                         ],
@@ -246,7 +251,15 @@ class FtueWizardScreen extends ConsumerWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () async {
-                      await notifier.completeOnboarding();
+                      final name = _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : 'Learner';
+                      await ref.read(dilangRuntimeKernelProvider.notifier).createProfile(
+                            name: name,
+                            mediumLanguage: _mediumLanguage,
+                            targetLanguage: _targetLanguage,
+                            brainModel: _brainModel,
+                            learningGoal: _learningGoal,
+                            aiCoachPersona: _aiCoachPersona,
+                          );
                     },
                     child: const Text('Initialize DiLang Engine & Start Mission #1 →', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                   ),
@@ -266,7 +279,7 @@ class TodayDashboardMainShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activeTab = ref.watch(activeTabProvider);
-    final vmAsync = ref.watch(todayDashboardNotifierProvider);
+    final runtimeState = ref.watch(dilangRuntimeKernelProvider);
 
     return Scaffold(
       body: Row(
@@ -309,7 +322,7 @@ class TodayDashboardMainShell extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
-                    'v1.4.0-alpha • Personal Language OS',
+                    'v2.0-beta • Single Authoritative Kernel',
                     style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                   ),
                 ),
@@ -323,9 +336,9 @@ class TodayDashboardMainShell extends ConsumerWidget {
             ),
           ),
 
-          // Workspace Content Route Switcher
+          // Workspace Content Switcher Reading 100% from Authoritative Kernel State
           Expanded(
-            child: _buildWorkspaceRoute(activeTab, vmAsync, ref),
+            child: _buildWorkspaceRoute(activeTab, runtimeState, ref),
           ),
         ],
       ),
@@ -334,7 +347,7 @@ class TodayDashboardMainShell extends ConsumerWidget {
 
   Widget _buildWorkspaceRoute(
     int activeTab,
-    AsyncValue<TodayDashboardViewModel> vmAsync,
+    DiLangRuntimeState runtimeState,
     WidgetRef ref,
   ) {
     switch (activeTab) {
@@ -348,147 +361,151 @@ class TodayDashboardMainShell extends ConsumerWidget {
         return const SettingsSection();
       case 0:
       default:
-        return vmAsync.when(
-          data: (vm) => SingleChildScrollView(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Greeting Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${vm.greeting}, ${vm.username}',
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${vm.mission.targetLanguage} (${vm.mission.cefrLevel}) • Streak: ${vm.currentStreak} Days 🔥',
-                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    InkWell(
-                      onTap: () {
-                        ref
-                            .read(interactiveDialogueNotifierProvider.notifier)
-                            .startSession(BuiltInScenarios.ScenarioCafeVienna);
-                        ref.read(activeTabProvider.notifier).state = 2;
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.play_arrow, color: Colors.white),
-                            const SizedBox(width: 8),
-                            Text(
-                              "Today's Mission: ${vm.mission.title}",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
+        final name = runtimeState.learner?.profile.displayName ?? 'Learner';
+        final targetLang = runtimeState.learner?.primaryLanguageProfile?.targetLanguage ?? 'German';
+        final streak = runtimeState.currentStreak;
+        final overallScore = (runtimeState.cognitiveModel.calculateOverallHealth() * 100).round();
+        final vocabScore = (runtimeState.cognitiveModel.vocabularyMastery * 100).round();
+        final grammarScore = (runtimeState.cognitiveModel.grammarMastery * 100).round();
+        final recallScore = (runtimeState.cognitiveModel.recallStability * 100).round();
 
-                // Scorecard Tiles
-                const Text(
-                  "TODAY'S SCORECARD",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    color: Color(0xFF94A3B8),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ScoreTile(
-                        label: 'Overall Health',
-                        value: '${vm.health.overallScore}%',
-                        subtitle: vm.health.statusText,
-                        color: const Color(0xFF22C55E),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _ScoreTile(
-                        label: 'Vocabulary',
-                        value: '${vm.health.vocabularyScore}%',
-                        subtitle: 'FSRS Retention',
-                        color: const Color(0xFF3B82F6),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _ScoreTile(
-                        label: 'Grammar',
-                        value: '${vm.health.grammarScore}%',
-                        subtitle: 'Accusative Focus',
-                        color: const Color(0xFF22D3EE),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _ScoreTile(
-                        label: 'Fluency',
-                        value: '${vm.health.fluencyScore}%',
-                        subtitle: 'Turn Confidence',
-                        color: const Color(0xFF8B5CF6),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Single Coaching Insight
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF172033),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF334155)),
-                  ),
-                  child: Row(
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Greeting Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.lightbulb, color: Color(0xFFF59E0B)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          vm.singleInsight,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                      Text(
+                        'Willkommen, $name',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$targetLang (A1) • Streak: $streak Days 🔥 • Completed Sessions: ${runtimeState.completedSessionsCount}',
+                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                       ),
                     ],
                   ),
+                  InkWell(
+                    onTap: () {
+                      ref.read(dilangRuntimeKernelProvider.notifier).startSession(BuiltInScenarios.ScenarioCafeVienna);
+                      ref.read(activeTabProvider.notifier).state = 2;
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.play_arrow, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Today's Mission: ${runtimeState.activeScenario.title}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // Scorecard Tiles
+              const Text(
+                "AUTHORITATIVE RUNTIME SCORECARD",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                  color: Color(0xFF94A3B8),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _ScoreTile(
+                      label: 'Overall Health',
+                      value: '$overallScore%',
+                      subtitle: overallScore > 0 ? 'Optimal' : 'Clean Initial State',
+                      color: const Color(0xFF22C55E),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _ScoreTile(
+                      label: 'Vocabulary',
+                      value: '$vocabScore%',
+                      subtitle: 'FSRS Stability',
+                      color: const Color(0xFF3B82F6),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _ScoreTile(
+                      label: 'Grammar',
+                      value: '$grammarScore%',
+                      subtitle: 'Syntax Accuracy',
+                      color: const Color(0xFF22D3EE),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _ScoreTile(
+                      label: 'Recall Stability',
+                      value: '$recallScore%',
+                      subtitle: 'Turn Confidence',
+                      color: const Color(0xFF8B5CF6),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // Single Coaching Insight
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF172033),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF334155)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lightbulb, color: Color(0xFFF59E0B)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        runtimeState.completedSessionsCount == 0
+                            ? 'Welcome! Complete your first session ("Ordering at a Viennese Café") to seed your FSRS memory and cognitive intelligence engine.'
+                            : 'Great progress! Your completed session replay has been persisted to SQLite, updating your cognitive model.',
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Error loading dashboard: $err')),
         );
     }
   }
@@ -575,12 +592,13 @@ class _ScoreTile extends StatelessWidget {
   }
 }
 
-class VocabularyGraphSection extends StatelessWidget {
+class VocabularyGraphSection extends ConsumerWidget {
   const VocabularyGraphSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final graph = UniversalKnowledgeGraph.createGermanA1Graph();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final runtimeState = ref.watch(dilangRuntimeKernelProvider);
+    final graph = runtimeState.knowledgeGraph;
 
     return Padding(
       padding: const EdgeInsets.all(32),
@@ -589,7 +607,7 @@ class VocabularyGraphSection extends StatelessWidget {
         children: [
           const Text('Universal Knowledge Graph', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 4),
-          const Text('Directed Acyclic Graph (DAG) connecting Grammar Rules, Scenarios, and CEFR Objectives', style: TextStyle(color: Color(0xFF94A3B8))),
+          Text('Live Runtime Graph for ${runtimeState.learner?.primaryLanguageProfile?.targetLanguage ?? "German"}', style: const TextStyle(color: Color(0xFF94A3B8))),
           const SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
@@ -633,15 +651,15 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
   void _handleTurnSubmit() {
     final text = _inputController.text.trim();
     if (text.isNotEmpty) {
-      ref.read(interactiveDialogueNotifierProvider.notifier).submitTurn(learnerInput: text);
+      ref.read(dilangRuntimeKernelProvider.notifier).submitTurn(text);
       _inputController.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dialogueState = ref.watch(interactiveDialogueNotifierProvider);
-    final scenario = dialogueState.scenario;
+    final runtimeState = ref.watch(dilangRuntimeKernelProvider);
+    final scenario = runtimeState.activeScenario;
 
     return Padding(
       padding: const EdgeInsets.all(32),
@@ -677,18 +695,18 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
                     ],
                     onChanged: (id) {
                       if (id == BuiltInScenarios.ScenarioDoctorAppointment.id) {
-                        ref.read(interactiveDialogueNotifierProvider.notifier).startSession(BuiltInScenarios.ScenarioDoctorAppointment);
+                        ref.read(dilangRuntimeKernelProvider.notifier).startSession(BuiltInScenarios.ScenarioDoctorAppointment);
                       } else {
-                        ref.read(interactiveDialogueNotifierProvider.notifier).startSession(BuiltInScenarios.ScenarioCafeVienna);
+                        ref.read(dilangRuntimeKernelProvider.notifier).startSession(BuiltInScenarios.ScenarioCafeVienna);
                       }
                     },
                   ),
                   const SizedBox(width: 16),
-                  if (dialogueState.isSessionActive)
+                  if (runtimeState.isSessionActive)
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF22C55E)),
                       onPressed: () async {
-                        await ref.read(interactiveDialogueNotifierProvider.notifier).completeSession();
+                        await ref.read(dilangRuntimeKernelProvider.notifier).completeSession();
                       },
                       icon: const Icon(Icons.check_circle, color: Colors.white),
                       label: const Text('Finish Session & Save Replay →', style: TextStyle(color: Colors.white)),
@@ -713,7 +731,7 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Pre-Session Coach: ${dialogueState.briefing.preSessionCoaching} Cultural Tip: ${dialogueState.briefing.culturalTip}',
+                    'Pre-Session Coach: ${runtimeState.activeBriefing.preSessionCoaching} Cultural Tip: ${runtimeState.activeBriefing.culturalTip}',
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                   ),
                 ),
@@ -723,7 +741,7 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
           const SizedBox(height: 16),
 
           // Debriefing Evidence Card if completed
-          if (dialogueState.isCompleted && dialogueState.debriefing != null) ...[
+          if (runtimeState.isSessionCompleted && runtimeState.activeDebriefing != null) ...[
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -736,9 +754,9 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
                 children: [
                   const Text('Session Completed & Replay Persisted to SQLite!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
-                  Text(dialogueState.debriefing!.evidenceSummary, style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 14)),
+                  Text(runtimeState.activeDebriefing!.evidenceSummary, style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 14)),
                   const SizedBox(height: 4),
-                  Text(dialogueState.debriefing!.postSessionCoaching, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text(runtimeState.activeDebriefing!.postSessionCoaching, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                 ],
               ),
             ),
@@ -754,7 +772,7 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFF1E293B)),
               ),
-              child: dialogueState.turns.isEmpty
+              child: runtimeState.activeTurns.isEmpty
                   ? const Center(
                       child: Text(
                         'Type your response below (e.g. "Ich möchte einen Kaffee, bitte.") to begin turn execution!',
@@ -762,9 +780,9 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: dialogueState.turns.length,
+                      itemCount: runtimeState.activeTurns.length,
                       itemBuilder: (context, index) {
-                        final turn = dialogueState.turns[index];
+                        final turn = runtimeState.activeTurns[index];
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(12),
@@ -827,13 +845,8 @@ class LanguageHealthSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const intelEngine = LearnerIntelligenceEngine();
-    final model = intelEngine.inferCognitiveModel(
-      userId: 'usr_learner',
-      totalSessions: 1,
-      averageAccuracy: 0.92,
-      dueReviewsCount: 3,
-    );
+    final runtimeState = ref.watch(dilangRuntimeKernelProvider);
+    final model = runtimeState.cognitiveModel;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32),
@@ -842,7 +855,7 @@ class LanguageHealthSection extends ConsumerWidget {
         children: [
           const Text('Language Health & Cognitive Diagnostics', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 4),
-          const Text('Multi-dimensional capability inference derived from live session replays', style: TextStyle(color: Color(0xFF94A3B8))),
+          Text('Live Runtime Diagnostics for ${runtimeState.learner?.profile.displayName ?? "Learner"}', style: const TextStyle(color: Color(0xFF94A3B8))),
           const SizedBox(height: 24),
           Row(
             children: [
@@ -894,7 +907,8 @@ class SettingsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bootAsync = ref.watch(bootstrapResultProvider);
+    final runtimeState = ref.watch(dilangRuntimeKernelProvider);
+    final user = runtimeState.learner;
 
     return Padding(
       padding: const EdgeInsets.all(32),
@@ -903,26 +917,25 @@ class SettingsSection extends ConsumerWidget {
         children: [
           const Text('System & Learner Settings', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 16),
-          bootAsync.when(
-            data: (res) => Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF172033),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Learner Name: ${res.user?.profile.displayName ?? "Learner"}', style: const TextStyle(color: Colors.white, fontSize: 16)),
-                  const SizedBox(height: 8),
-                  Text('Native Language: ${res.user?.profile.nativeLanguage ?? "English"}', style: const TextStyle(color: Colors.white70)),
-                  Text('Target Language: ${res.user?.primaryLanguageProfile?.targetLanguage ?? "German"}', style: const TextStyle(color: Colors.white70)),
-                  Text('SQLite Engine Status: WAL Mode Enabled • Pristine DDL Migrations Applied', style: const TextStyle(color: Color(0xFF22C55E))),
-                ],
-              ),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF172033),
+              borderRadius: BorderRadius.circular(12),
             ),
-            loading: () => const CircularProgressIndicator(),
-            error: (err, _) => Text('Error: $err'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Learner Name: ${user?.profile.displayName ?? "Learner"}', style: const TextStyle(color: Colors.white, fontSize: 16)),
+                const SizedBox(height: 8),
+                Text('Medium Language: ${user?.profile.nativeLanguage ?? "English"}', style: const TextStyle(color: Colors.white70)),
+                Text('Target Language: ${user?.primaryLanguageProfile?.targetLanguage ?? "German"}', style: const TextStyle(color: Colors.white70)),
+                Text('Brain Model: ${user?.primaryLanguageProfile?.brainModel ?? "Conversation First"}', style: const TextStyle(color: Colors.white70)),
+                Text('AI Coach Persona: ${user?.primaryLanguageProfile?.aiCoachPersona ?? "Friendly"}', style: const TextStyle(color: Colors.white70)),
+                const SizedBox(height: 12),
+                const Text('SQLite Engine Status: WAL Mode Enabled • Pristine Single Authoritative Kernel', style: TextStyle(color: Color(0xFF22C55E))),
+              ],
+            ),
           ),
         ],
       ),

@@ -27,6 +27,18 @@ class LearnerCognitiveModel extends Equatable {
     required this.estimatedCefrReadiness,
   });
 
+  double calculateOverallHealth() {
+    return (vocabularyMastery +
+            grammarMastery +
+            pronunciationConfidence +
+            listeningComprehension +
+            readingFluency +
+            writingFluency +
+            recallStability +
+            estimatedCefrReadiness) /
+        8.0;
+  }
+
   @override
   List<Object?> get props => [
         userId,

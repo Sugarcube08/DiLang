@@ -93,4 +93,27 @@ class SqliteReplayRepository implements ReplayRepositoryContract {
       );
     }).toList();
   }
+
+  Future<List<LearningReplayTranscript>> getAllTranscripts() async {
+    final db = engine.db;
+    final res = db.select(
+      'SELECT transcript_id, session_id, scenario_id, timestamp, confidence_before, confidence_after, evidence_summary, turns_json FROM replay_transcripts;',
+    );
+
+    return res.map((row) {
+      final turnsListRaw = jsonDecode(row['turns_json'] as String) as List;
+      final turns = turnsListRaw.map((t) => LearningReplayTurn.fromJson(t as Map<String, dynamic>)).toList();
+
+      return LearningReplayTranscript(
+        transcriptId: row['transcript_id'] as String,
+        sessionId: row['session_id'] as String,
+        scenarioId: row['scenario_id'] as String,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(row['timestamp'] as int),
+        turns: turns,
+        speakingConfidenceBefore: row['confidence_before'] as int,
+        speakingConfidenceAfter: row['confidence_after'] as int,
+        evidenceSummary: row['evidence_summary'] as String,
+      );
+    }).toList();
+  }
 }
