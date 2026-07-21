@@ -3,7 +3,8 @@ import 'fsrs_4_5.dart';
 class MemoryEngine {
   final Fsrs45Engine _fsrsEngine;
 
-  MemoryEngine({Fsrs45Engine? fsrsEngine}) : _fsrsEngine = fsrsEngine ?? const Fsrs45Engine();
+  const MemoryEngine({Fsrs45Engine fsrsEngine = const Fsrs45Engine()})
+      : _fsrsEngine = fsrsEngine;
 
   FsrsItemState processReview({
     required FsrsItemState currentState,

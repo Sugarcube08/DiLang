@@ -4,7 +4,7 @@ import 'package:dilang_memory/memory.dart';
 void main() {
   group('Human Memory Engine (FSRS-4.5) Tests', () {
     final now = DateTime(2026, 7, 22, 12, 0);
-    final engine = MemoryEngine();
+    const engine = MemoryEngine();
 
     test('1. Initial review on new item sets stability & scheduled due date', () {
       final state = FsrsItemState.initial(now);
