@@ -1,0 +1,62 @@
+name: DiLang CI/CD Automated Build & Validation Pipeline
+
+on:
+  push:
+    branches: [ release/v2.x, main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ release/v2.x, main ]
+
+jobs:
+  validate-and-build:
+    name: Validate Quality Gates & Package Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter & Dart SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: |
+          flutter doctor -v
+          npx melos bootstrap
+
+      - name: Static Code Analysis (Zero Warnings)
+        run: flutter analyze
+
+      - name: Run Workspace Tests Across Five Quality Gates
+        run: |
+          cd packages/storage && dart test
+          cd ../core && dart test
+          cd ../memory && dart test
+          cd ../learning_engine && dart test
+          cd ../conversation && dart test
+          cd ../application && dart test
+
+      - name: Build Linux Desktop Release Bundle
+        run: |
+          cd apps/desktop
+          flutter build linux --release
+
+      - name: Build Android Release APK
+        run: |
+          cd apps/desktop
+          flutter build apk --release --no-pub
+
+      - name: Upload Linux Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dilang-desktop-linux-x64
+          path: apps/desktop/build/linux/x64/release/bundle/
+
+      - name: Upload Android APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dilang-mobile-android-apk
+          path: apps/desktop/build/app/outputs/flutter-apk/app-release.apk
