@@ -6,6 +6,7 @@ class IconRegistry {
   static const String navProgress = 'assets/icons/nav_progress.svg';
   static const String navSettings = 'assets/icons/nav_settings.svg';
 
+  static const String appIcon = 'assets/icons/app_icon.svg';
   static const String voiceMic = 'assets/icons/voice_mic.svg';
   static const String voiceWaveform = 'assets/icons/voice_waveform.svg';
   static const String fsrsFlashcard = 'assets/icons/fsrs_flashcard.svg';

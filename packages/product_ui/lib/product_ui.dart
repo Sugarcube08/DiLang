@@ -7,3 +7,5 @@ export 'src/journeys/ux_performance_kpis.dart';
 export 'src/timeline/learning_timeline.dart';
 export 'src/health/language_health_dashboard.dart';
 export 'src/beta/closed_beta_manager.dart';
+export 'src/content/language_pack_validator.dart';
+export 'src/feedback/beta_feedback_controller.dart';

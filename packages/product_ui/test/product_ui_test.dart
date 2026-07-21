@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:dilang_product_ui/product_ui.dart';
 
 void main() {
-  group('Product UI State, Journeys & Closed Beta Tests', () {
+  group('Product UI State, Journeys, Beta & Content Validation Tests', () {
     test('1. DashboardUiState initializes with default values', () {
       const state = DashboardUiState();
       expect(state.recommendations, isEmpty);
@@ -85,6 +85,32 @@ void main() {
       );
 
       expect(report.passesBetaGates(), isTrue);
+    });
+
+    test('8. LanguagePackValidator validates language content pack manifest', () {
+      final validator = LanguagePackValidator();
+      const manifest = LanguagePackManifest(
+        packId: 'de_a1_pack',
+        targetLanguage: 'de-DE',
+        version: '1.0.0',
+        totalVocabularyEntries: 500,
+        totalGrammarRules: 45,
+      );
+
+      expect(validator.validateManifest(manifest), isTrue);
+    });
+
+    test('9. BetaFeedbackController collects in-app bug and feedback reports', () {
+      final controller = BetaFeedbackController();
+      final report = controller.submitFeedback(
+        feedbackText: 'Great onboarding flow!',
+        hasScreenshot: true,
+        logs: 'LogLevel.info',
+      );
+
+      expect(controller.submittedReports.length, equals(1));
+      expect(report.feedbackText, equals('Great onboarding flow!'));
+      expect(report.hasScreenshotAttached, isTrue);
     });
   });
 }
