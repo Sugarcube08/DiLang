@@ -8,6 +8,8 @@ export 'src/lifecycle/lifecycle_manager.dart';
 export 'src/event_bus/domain_event.dart';
 export 'src/event_bus/event_bus.dart';
 export 'src/capability_registry/capability_registry.dart';
+export 'src/capability_registry/feature_flags.dart';
+
 export 'src/plugin_system/plugin_manifest.dart';
 export 'src/plugin_system/plugin_contract.dart';
 export 'src/plugin_system/plugin_manager.dart';
