@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:dilang_product_ui/product_ui.dart';
 
 void main() {
-  group('Product UI State, Journeys & Health Tests', () {
+  group('Product UI State, Journeys & Closed Beta Tests', () {
     test('1. DashboardUiState initializes with default values', () {
       const state = DashboardUiState();
       expect(state.recommendations, isEmpty);
@@ -75,6 +75,16 @@ void main() {
 
       final overall = health.calculateOverallHealth();
       expect(overall, closeTo(0.8275, 0.01));
+    });
+
+    test('7. ClosedBetaReport validates beta release readiness gates', () {
+      const report = ClosedBetaReport(
+        crashFreeRate: 0.998,
+        isOfflineVerified: true,
+        buildVersion: '2.5.0-beta.1',
+      );
+
+      expect(report.passesBetaGates(), isTrue);
     });
   });
 }
