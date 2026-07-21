@@ -15,6 +15,12 @@ workspace:
   - packages/storage
   - packages/sync
   - packages/learning_engine
+  - packages/conversation
+  - packages/application
+  - packages/design_system
+  - apps/mobile
+  - apps/desktop
+  - benchmarks
 
 dev_dependencies:
   melos: ^6.0.0

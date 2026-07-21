@@ -1,0 +1,16 @@
+name: dilang_design_system
+description: Design System & Design Tokens for DiLang UI.
+version: 2.0.0
+publish_to: 'none'
+resolution: workspace
+homepage: https://github.com/dilang/dilang
+
+environment:
+  sdk: '^3.5.0'
+
+dependencies:
+  meta: ^1.11.0
+  equatable: ^2.0.5
+
+dev_dependencies:
+  test: ^1.24.0

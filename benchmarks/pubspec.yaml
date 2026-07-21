@@ -1,0 +1,19 @@
+name: dilang_benchmarks
+description: Performance Benchmark Suite for DiLang.
+version: 2.0.0
+publish_to: 'none'
+resolution: workspace
+homepage: https://github.com/dilang/dilang
+
+environment:
+  sdk: '^3.5.0'
+
+dependencies:
+  dilang_core: ^1.0.0
+  dilang_application: ^2.0.0
+  dilang_memory: ^1.0.0
+  dilang_learning_engine: ^1.0.0
+  meta: ^1.11.0
+
+dev_dependencies:
+  test: ^1.24.0
