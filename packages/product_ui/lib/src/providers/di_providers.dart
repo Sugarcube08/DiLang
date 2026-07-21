@@ -82,8 +82,8 @@ class DiLangRuntimeKernelNotifier extends StateNotifier<DiLangRuntimeState> {
     kernel.startSession(scenario);
   }
 
-  void submitTurn(String learnerInput) {
-    kernel.submitTurn(learnerInput);
+  Future<void> submitTurn(String learnerInput) async {
+    await kernel.submitTurn(learnerInput);
   }
 
   Future<void> completeSession() async {

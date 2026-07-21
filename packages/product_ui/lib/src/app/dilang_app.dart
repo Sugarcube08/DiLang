@@ -648,11 +648,11 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
     super.dispose();
   }
 
-  void _handleTurnSubmit() {
+  Future<void> _handleTurnSubmit() async {
     final text = _inputController.text.trim();
     if (text.isNotEmpty) {
-      ref.read(dilangRuntimeKernelProvider.notifier).submitTurn(text);
       _inputController.clear();
+      await ref.read(dilangRuntimeKernelProvider.notifier).submitTurn(text);
     }
   }
 

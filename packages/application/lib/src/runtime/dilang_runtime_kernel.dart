@@ -310,12 +310,16 @@ class DiLangRuntimeKernel {
     _notifyListeners();
   }
 
-  void submitTurn(String learnerInput) {
-    if (!_state.isSessionActive || learnerInput.trim().isEmpty) return;
+  Future<void> submitTurn(String learnerInput) async {
+    if (!_state.isSessionActive || learnerInput.trim().isEmpty || _state.learner == null) return;
 
-    final manager = DialogueManager(scenario: _state.activeScenario);
+    final conversationRuntime = ConversationRuntime(
+      scenario: _state.activeScenario,
+      learner: _state.learner!,
+    );
+
     for (final existingTurn in _state.activeTurns) {
-      manager.processTurn(
+      conversationRuntime.dialogueManager.processTurn(
         tutorPrompt: existingTurn.tutorPrompt,
         learnerResponse: existingTurn.learnerResponse,
         correctedResponse: existingTurn.correctedResponse,
@@ -324,32 +328,16 @@ class DiLangRuntimeKernel {
       );
     }
 
-    String corrected = learnerInput;
-    String note = 'Grammar structure is natural.';
-    double score = 95.0;
-
-    if (learnerInput.contains('heiße Kaffee') || learnerInput.contains('ein Kaffee')) {
-      corrected = 'Ich möchte einen heißen Kaffee, bitte.';
-      note = 'Masculine accusative requires weak adjective ending "-en" ("einen heißen Kaffee").';
-      score = 78.0;
-    }
-
-    final newTurn = manager.processTurn(
-      tutorPrompt: 'Guten Tag! Was darf ich Ihnen bringen?',
-      learnerResponse: learnerInput,
-      correctedResponse: corrected,
-      grammarNote: note,
-      phoneticScore: score,
-    );
+    final newTurn = await conversationRuntime.processTurn(learnerInput: learnerInput);
 
     _state = _state.copyWith(
-      activeTurns: List.from(manager.turns),
+      activeTurns: List.from(conversationRuntime.turns),
     );
 
     eventBus.publish(GenericRuntimeEvent(
       eventName: 'TurnProcessed',
       aggregateId: _state.activeScenario.id,
-      payload: {'turnIndex': newTurn.turnIndex, 'score': score},
+      payload: {'turnIndex': newTurn.turnIndex, 'score': newTurn.phoneticScore},
     ));
     _notifyListeners();
   }
