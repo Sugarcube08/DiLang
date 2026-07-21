@@ -4,19 +4,32 @@ import 'package:dilang_learner/learner.dart';
 
 void main() {
   group('Storage Infrastructure & Repository Contract Tests', () {
-    test('1. InMemoryLearnerRepository saves and retrieves learner graphs', () async {
-      final repo = InMemoryLearnerRepository();
-      const graph = LearnerKnowledgeGraph(
-        learnerId: 'usr_001',
-        targetLanguage: 'de-DE',
+    test('1. PersistentIdentityRepository saves and retrieves identity user', () async {
+      final repo = PersistentIdentityRepository();
+      const userId = UserId('usr_001');
+      const profile = Profile(
+        userId: userId,
+        displayName: 'Learner',
+        avatarUrl: '',
+        nativeLanguage: 'en',
+        timezone: 'UTC',
+      );
+      final user = DiLangUser(
+        id: userId,
+        username: 'usr_001',
+        email: 'test@example.com',
+        createdAt: DateTime.utc(2026, 1, 1),
+        lastActiveAt: DateTime.utc(2026, 1, 1),
+        profile: profile,
+        languageProfiles: const [],
+        syncAccount: const SyncAccount(syncId: 's1', isSyncEnabled: true, syncStatus: 'idle'),
       );
 
-      await repo.saveLearnerGraph(graph);
-      final retrieved = await repo.getLearnerGraph('usr_001');
+      await repo.saveUser(user);
+      final retrieved = await repo.getActiveUser();
 
       expect(retrieved, isNotNull);
-      expect(retrieved!.learnerId, equals('usr_001'));
-      expect(retrieved.targetLanguage, equals('de-DE'));
+      expect(retrieved!.id, equals(userId));
     });
 
     test('2. StorageEncryptionManager encrypts and decrypts payloads symmetrically', () {

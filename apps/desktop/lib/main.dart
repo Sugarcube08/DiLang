@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:dilang_application/application.dart';
-import 'package:dilang_design_system/design_system.dart';
 import 'package:dilang_product_ui/product_ui.dart';
 
 void main() async {
@@ -8,39 +7,21 @@ void main() async {
   final controller = await AppLifecycleController.createDefault();
   await controller.bootPlatform();
 
-  runApp(DiLangDesktopApp(controller: controller));
+  runApp(DiLangLanguageOsApp(controller: controller));
 }
 
-class DiLangDesktopApp extends StatelessWidget {
+class DiLangLanguageOsApp extends StatelessWidget {
   final AppLifecycleController controller;
 
-  const DiLangDesktopApp({super.key, required this.controller});
+  const DiLangLanguageOsApp({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    const health = LanguageHealthMetrics();
-    final timelineController = LearningTimelineController()
-      ..addEntry(
-        TimelineEntry(
-          id: '1',
-          timestamp: DateTime.now(),
-          title: 'Reviewed 18 Vocabulary Items',
-          description: 'FSRS-4.5 Memory Recall (Stability +2.4d)',
-          type: TimelineEntryType.review,
-        ),
-      )
-      ..addEntry(
-        TimelineEntry(
-          id: '2',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
-          title: 'B1 Dialogue: Ordering Food',
-          description: 'Local Voice Conversation (Whisper STT + Qwen 1B)',
-          type: TimelineEntryType.conversation,
-        ),
-      );
+    const todayState = TodayDashboardState();
+    final foodGraph = VocabularyKnowledgeGraph.sampleFoodGraph();
 
     return MaterialApp(
-      title: 'DiLang — Offline AI Language Acquisition',
+      title: 'DiLang — Personal Language OS',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF0B1020),
@@ -75,7 +56,7 @@ class DiLangDesktopApp extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       const Text(
-                        'DiLang',
+                        'DiLang OS',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -92,16 +73,16 @@ class DiLangDesktopApp extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
-                      'v2.5.0-beta • Offline Local AI',
+                      'v3.0.0-rc1 • Personal Language OS',
                       style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const _NavItem(icon: Icons.dashboard, label: 'Dashboard', isSelected: true),
-                  const _NavItem(icon: Icons.school, label: 'Learn'),
-                  const _NavItem(icon: Icons.record_voice_over, label: 'Conversation'),
-                  const _NavItem(icon: Icons.style, label: 'Review Queue'),
-                  const _NavItem(icon: Icons.bar_chart, label: 'Progress & Health'),
+                  const _NavItem(icon: Icons.today, label: 'TODAY', isSelected: true),
+                  const _NavItem(icon: Icons.hub, label: 'Vocabulary Web'),
+                  const _NavItem(icon: Icons.record_voice_over, label: 'Voice AI Dialogue'),
+                  const _NavItem(icon: Icons.health_and_safety, label: 'Language Health'),
+                  const _NavItem(icon: Icons.auto_awesome, label: 'AI Engine Setup'),
                   const _NavItem(icon: Icons.settings, label: 'Settings'),
                   const Spacer(),
                   Container(
@@ -131,7 +112,7 @@ class DiLangDesktopApp extends StatelessWidget {
               ),
             ),
 
-            // Main Content Area
+            // TODAY Workspace Area
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(32),
@@ -144,24 +125,24 @@ class DiLangDesktopApp extends StatelessWidget {
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'Guten Tag, Learner!',
-                              style: TextStyle(
-                                fontSize: 28,
+                              'Good Morning, ${todayState.learnerName}',
+                              style: const TextStyle(
+                                fontSize: 32,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              'German (de-DE) • CEFR Target B1.2',
+                            const SizedBox(height: 4),
+                            const Text(
+                              'German (de-DE) • Streak: 32 Days 🔥',
                               style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                             ),
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
@@ -173,10 +154,11 @@ class DiLangDesktopApp extends StatelessWidget {
                               Icon(Icons.play_arrow, color: Colors.white),
                               SizedBox(width: 8),
                               Text(
-                                'Start Recommended Session',
+                                "Today's Mission: Conversation",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                               ),
                             ],
@@ -186,57 +168,63 @@ class DiLangDesktopApp extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
 
-                    // Health Metric Cards Row
+                    // WHOOP-Style Daily Scorecard Section
+                    const Text(
+                      "TODAY'S SCORECARD",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
-                          child: _MetricCard(
-                            title: 'Overall Language Health',
-                            value: '${(health.calculateOverallHealth() * 100).toInt()}%',
-                            subtitle: '8 Core Modalities',
-                            color: const Color(0xFF3B82F6),
-                            icon: Icons.health_and_safety,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _MetricCard(
-                            title: 'Vocabulary Health',
-                            value: '${(health.vocabularyHealth * 100).toInt()}%',
-                            subtitle: 'FSRS Retention: High',
+                          child: _ScorecardTile(
+                            label: 'Learning Load',
+                            value: todayState.scorecard.learningLoad,
+                            subtitle: 'Target Balance',
                             color: const Color(0xFF22C55E),
-                            icon: Icons.translate,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: _MetricCard(
-                            title: 'Grammar Health',
-                            value: '${(health.grammarHealth * 100).toInt()}%',
-                            subtitle: 'V2 Syntax Mastered',
+                          child: _ScorecardTile(
+                            label: 'Memory Gain',
+                            value: '+${todayState.scorecard.memoryGainPercent}%',
+                            subtitle: 'FSRS Stability Boost',
+                            color: const Color(0xFF3B82F6),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _ScorecardTile(
+                            label: 'Pronunciation',
+                            value: '+${todayState.scorecard.pronunciationGainPercent}%',
+                            subtitle: 'Phonetic Accuracy',
                             color: const Color(0xFF22D3EE),
-                            icon: Icons.menu_book,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: _MetricCard(
-                            title: 'Memory Stability',
-                            value: '${(health.memoryHealth * 100).toInt()}%',
-                            subtitle: 'Predicted Retrievability',
+                          child: _ScorecardTile(
+                            label: 'Vocabulary',
+                            value: '+${todayState.scorecard.vocabularyCountGained}',
+                            subtitle: 'New Mastered Nodes',
                             color: const Color(0xFF8B5CF6),
-                            icon: Icons.psychology,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 32),
 
-                    // Recommendation & Timeline Split
+                    // 30-Day Progress Story & Vocabulary Web Split
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Recommendation Feed
+                        // 30-Day Narrative Story
                         Expanded(
                           flex: 3,
                           child: Container(
@@ -251,10 +239,10 @@ class DiLangDesktopApp extends StatelessWidget {
                               children: [
                                 const Row(
                                   children: [
-                                    Icon(Icons.auto_awesome, color: Color(0xFF3B82F6)),
+                                    Icon(Icons.auto_stories, color: Color(0xFF38BDF8)),
                                     SizedBox(width: 10),
                                     Text(
-                                      'Learning Engine Recommendation',
+                                      '30-Day Language Evolution Story',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -263,32 +251,25 @@ class DiLangDesktopApp extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  'You have learned ${todayState.narrative.totalWordsLearned} words.',
+                                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'You can now understand ${(todayState.narrative.comprehensionPercentage * 100).toInt()}% of everyday German.',
+                                  style: const TextStyle(fontSize: 15, color: Color(0xFF38BDF8), fontWeight: FontWeight.w600),
+                                ),
                                 const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF0B1020),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: const Color(0xFF334155)),
-                                  ),
-                                  child: const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'FSRS Spaced Repetition Review',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF38BDF8),
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        'Reason: Retrievability dropped below 0.90 threshold for 3 vocabulary items.',
-                                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
+                                Row(
+                                  children: [
+                                    _TagChip(label: 'Estimated CEFR: ${todayState.narrative.estimatedCefr}', color: const Color(0xFF8B5CF6)),
+                                    const SizedBox(width: 8),
+                                    _TagChip(label: 'Strongest: ${todayState.narrative.strongestSkill}', color: const Color(0xFF22C55E)),
+                                    const SizedBox(width: 8),
+                                    _TagChip(label: 'Weakest: ${todayState.narrative.weakestSkill}', color: const Color(0xFFEF4444)),
+                                  ],
                                 ),
                               ],
                             ),
@@ -296,7 +277,7 @@ class DiLangDesktopApp extends StatelessWidget {
                         ),
                         const SizedBox(width: 24),
 
-                        // Learning Timeline
+                        // Personal Language Knowledge Graph (Vocabulary Web)
                         Expanded(
                           flex: 2,
                           child: Container(
@@ -311,10 +292,10 @@ class DiLangDesktopApp extends StatelessWidget {
                               children: [
                                 const Row(
                                   children: [
-                                    Icon(Icons.history, color: Color(0xFF8B5CF6)),
+                                    Icon(Icons.hub, color: Color(0xFF8B5CF6)),
                                     SizedBox(width: 10),
                                     Text(
-                                      'Learning Timeline',
+                                      'Personal Vocabulary Web',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -324,34 +305,51 @@ class DiLangDesktopApp extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(height: 16),
-                                ...timelineController.state.entries.map((entry) => Container(
-                                      margin: const EdgeInsets.only(bottom: 12),
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF0B1020),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            entry.title,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
+                                Column(
+                                  children: foodGraph.nodes
+                                      .map((node) => Container(
+                                            margin: const EdgeInsets.only(bottom: 8),
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF0B1020),
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: const Color(0xFF334155)),
                                             ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            entry.description,
-                                            style: const TextStyle(
-                                              color: Color(0xFF94A3B8),
-                                              fontSize: 12,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      node.word,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${node.translation} • ${node.ipaPronunciation}',
+                                                      style: const TextStyle(
+                                                        color: Color(0xFF94A3B8),
+                                                        fontSize: 11,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  'FSRS: ${node.fsrsStabilityDays}d',
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF22C55E),
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
+                                          ))
+                                      .toList(),
+                                ),
                               ],
                             ),
                           ),
@@ -407,58 +405,60 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  final String title;
+class _ScorecardTile extends StatelessWidget {
+  final String label;
   final String value;
   final String subtitle;
   final Color color;
-  final IconData icon;
 
-  const _MetricCard({
-    required this.title,
+  const _ScorecardTile({
+    required this.label,
     required this.value,
     required this.subtitle,
     required this.color,
-    required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF172033),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF1E293B)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-              ),
-              Icon(icon, color: color, size: 20),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
+          Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+          const SizedBox(height: 8),
+          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
           const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
-          ),
+          Text(subtitle, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
         ],
+      ),
+    );
+  }
+}
+
+class _TagChip extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _TagChip({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.5)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
       ),
     );
   }

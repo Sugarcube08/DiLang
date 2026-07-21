@@ -26,3 +26,17 @@ abstract class SettingsRepositoryContract {
   Future<String?> getSetting(String key);
   Future<void> setSetting(String key, String value);
 }
+
+abstract class IdentityRepositoryContract {
+  Future<DiLangUser?> getActiveUser();
+  Future<void> saveUser(DiLangUser user);
+  Future<List<LanguageProfile>> getLanguageProfiles(UserId userId);
+  Future<void> updateActiveLanguage(UserId userId, String targetLanguage);
+}
+
+abstract class BootstrapRepositoryContract {
+  Future<bool> isFirstLaunch();
+  Future<void> markOnboardingCompleted();
+  Future<Map<String, String>> loadSystemSettings();
+}
+
