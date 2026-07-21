@@ -156,6 +156,9 @@ class FtueNotifier extends StateNotifier<FtueState> {
       cefrLevel: 'A1',
       learningGoal: state.goal,
       dailyGoalMinutes: 15,
+      brainModel: 'Conversation First',
+      aiCoachPersona: 'Friendly',
+      voicePreference: 'Female',
     );
 
     ref.read(eventBusProvider).publish(GenericRuntimeEvent(eventName: 'IdentityCreated', aggregateId: 'user', payload: {'username': state.username}));

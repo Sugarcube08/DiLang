@@ -77,6 +77,9 @@ class LanguageProfile extends Equatable {
   final String learningGoal;
   final int dailyGoalMinutes;
   final bool isPrimary;
+  final String brainModel;
+  final String aiCoachPersona;
+  final String voicePreference;
 
   const LanguageProfile({
     required this.id,
@@ -86,6 +89,9 @@ class LanguageProfile extends Equatable {
     required this.learningGoal,
     required this.dailyGoalMinutes,
     required this.isPrimary,
+    this.brainModel = 'Conversation First',
+    this.aiCoachPersona = 'Friendly',
+    this.voicePreference = 'Female',
   });
 
   @override
@@ -97,6 +103,9 @@ class LanguageProfile extends Equatable {
         learningGoal,
         dailyGoalMinutes,
         isPrimary,
+        brainModel,
+        aiCoachPersona,
+        voicePreference,
       ];
 }
 

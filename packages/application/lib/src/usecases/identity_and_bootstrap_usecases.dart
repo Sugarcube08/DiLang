@@ -84,6 +84,9 @@ class CreateIdentityUseCase {
     required String cefrLevel,
     required String learningGoal,
     required int dailyGoalMinutes,
+    String brainModel = 'Conversation First',
+    String aiCoachPersona = 'Friendly',
+    String voicePreference = 'Female',
   }) async {
     final now = DateTime.now();
     final userId = UserId('user_${now.millisecondsSinceEpoch}');
@@ -104,6 +107,9 @@ class CreateIdentityUseCase {
       learningGoal: learningGoal,
       dailyGoalMinutes: dailyGoalMinutes,
       isPrimary: true,
+      brainModel: brainModel,
+      aiCoachPersona: aiCoachPersona,
+      voicePreference: voicePreference,
     );
 
     final syncAccount = SyncAccount(

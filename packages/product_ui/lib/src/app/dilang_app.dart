@@ -66,59 +66,187 @@ class FtueWizardScreen extends ConsumerWidget {
 
     return Scaffold(
       body: Center(
-        child: Container(
-          width: 500,
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: const Color(0xFF172033),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF334155)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'DiLang Onboarding Companion',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Learn a language that stays with you forever.',
-                style: TextStyle(color: Color(0xFF94A3B8)),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            width: 540,
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: const Color(0xFF172033),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.psychology, color: Color(0xFF3B82F6), size: 32),
+                    SizedBox(width: 12),
+                    Text(
+                      'DiLang Companion Setup',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ],
                 ),
-                onChanged: (val) => notifier.updateIdentity(val, 'pass123'),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Native: English', style: TextStyle(color: Colors.white70)),
-                  ElevatedButton(
-                    onPressed: () => notifier.setLanguages('English', 'German'),
-                    child: const Text('Target: German (DE)'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                  ),
-                  onPressed: () => notifier.completeOnboarding(),
-                  child: const Text('Complete Setup & Start Learning →', style: TextStyle(color: Colors.white)),
+                const SizedBox(height: 8),
+                const Text(
+                  'Configure your learner identity, brain model, and target language.',
+                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+
+                // 1. Username Input
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Learner Name',
+                    hintText: 'Enter your name or nickname',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (val) => notifier.updateIdentity(val, 'pass123'),
+                ),
+                const SizedBox(height: 16),
+
+                // 2. Medium & Target Language Selection
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Medium (Interface) Language', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            value: ftueState.nativeLanguage.isNotEmpty ? ftueState.nativeLanguage : 'English',
+                            items: const [
+                              DropdownMenuItem(value: 'English', child: Text('English')),
+                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
+                              DropdownMenuItem(value: 'French', child: Text('French')),
+                              DropdownMenuItem(value: 'Hindi', child: Text('Hindi')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) notifier.setLanguages(val, ftueState.targetLanguage);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Target Language', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            value: ftueState.targetLanguage.isNotEmpty ? ftueState.targetLanguage : 'German',
+                            items: const [
+                              DropdownMenuItem(value: 'German', child: Text('German (DE)')),
+                              DropdownMenuItem(value: 'French', child: Text('French (FR)')),
+                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish (ES)')),
+                              DropdownMenuItem(value: 'Japanese', child: Text('Japanese (JP)')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) notifier.setLanguages(ftueState.nativeLanguage, val);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // 3. Brain Model (Cognitive Profile)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Brain Model (Cognitive Strategy)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    const SizedBox(height: 6),
+                    DropdownButtonFormField<String>(
+                      value: 'Conversation First',
+                      items: const [
+                        DropdownMenuItem(value: 'Conversation First', child: Text('Conversation First (Immersion Focus)')),
+                        DropdownMenuItem(value: 'Grammar First', child: Text('Grammar First (Rule Structure Focus)')),
+                        DropdownMenuItem(value: 'Vocabulary First', child: Text('Vocabulary First (FSRS Memory Focus)')),
+                        DropdownMenuItem(value: 'Visual', child: Text('Visual & Interactive Graph Focus')),
+                      ],
+                      onChanged: (val) {},
+                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // 4. Learning Objective & AI Coach Persona
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Learning Goal', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            value: ftueState.goal.isNotEmpty ? ftueState.goal : 'Daily Conversation',
+                            items: const [
+                              DropdownMenuItem(value: 'Daily Conversation', child: Text('Daily Conversation')),
+                              DropdownMenuItem(value: 'Travel', child: Text('Travel & Food')),
+                              DropdownMenuItem(value: 'Business', child: Text('Business & Professional')),
+                              DropdownMenuItem(value: 'Exam', child: Text('CEFR Certification')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) notifier.setGoal(val);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('AI Coach Persona', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            value: 'Friendly',
+                            items: const [
+                              DropdownMenuItem(value: 'Friendly', child: Text('Friendly & Encouraging')),
+                              DropdownMenuItem(value: 'Strict', child: Text('Strict Precision Tutor')),
+                              DropdownMenuItem(value: 'Socratic', child: Text('Socratic Guidance')),
+                            ],
+                            onChanged: (val) {},
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // 5. Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3B82F6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () async {
+                      await notifier.completeOnboarding();
+                    },
+                    child: const Text('Initialize DiLang Engine & Start Mission #1 →', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
