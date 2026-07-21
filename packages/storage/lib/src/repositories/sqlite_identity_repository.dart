@@ -91,6 +91,62 @@ class SqliteIdentityRepository implements IdentityRepositoryContract {
     );
   }
 
+  Future<List<DiLangUser>> getAllUsers() async {
+    final userResult = _db.select(
+      'SELECT id, username, email, created_at, last_active_at FROM users ORDER BY last_active_at DESC;',
+    );
+
+    final users = <DiLangUser>[];
+    for (final uRow in userResult) {
+      final userIdVal = uRow['id'] as String;
+      final userId = UserId(userIdVal);
+
+      final profileResult = _db.select(
+        'SELECT display_name, avatar_url, native_language, timezone FROM profiles WHERE user_id = ?;',
+        [userIdVal],
+      );
+      if (profileResult.isEmpty) continue;
+      final pRow = profileResult.first;
+
+      final profile = Profile(
+        userId: userId,
+        displayName: pRow['display_name'] as String,
+        avatarUrl: pRow['avatar_url'] as String,
+        nativeLanguage: pRow['native_language'] as String,
+        timezone: pRow['timezone'] as String,
+      );
+
+      final langResult = _db.select(
+        'SELECT id, target_language, cefr_level, learning_goal, daily_goal_minutes, is_primary FROM language_profiles WHERE user_id = ?;',
+        [userIdVal],
+      );
+
+      final languageProfiles = langResult.map((lRow) {
+        return LanguageProfile(
+          id: lRow['id'] as String,
+          userId: userId,
+          targetLanguage: lRow['target_language'] as String,
+          cefrLevel: lRow['cefr_level'] as String,
+          learningGoal: lRow['learning_goal'] as String,
+          dailyGoalMinutes: lRow['daily_goal_minutes'] as int,
+          isPrimary: (lRow['is_primary'] as int) == 1,
+        );
+      }).toList();
+
+      users.add(DiLangUser(
+        id: userId,
+        username: uRow['username'] as String,
+        email: uRow['email'] as String,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(uRow['created_at'] as int),
+        lastActiveAt: DateTime.fromMillisecondsSinceEpoch(uRow['last_active_at'] as int),
+        profile: profile,
+        languageProfiles: languageProfiles,
+        syncAccount: SyncAccount(syncId: 'sync_$userIdVal', isSyncEnabled: true, syncStatus: 'idle'),
+      ));
+    }
+    return users;
+  }
+
   @override
   Future<void> saveUser(DiLangUser user) async {
     _db.execute('BEGIN TRANSACTION;');

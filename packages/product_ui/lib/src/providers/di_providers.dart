@@ -91,17 +91,27 @@ class DiLangRuntimeKernelNotifier extends StateNotifier<DiLangRuntimeState> {
   }
 
   Future<void> updateSettings({
+    required String displayName,
     required String nativeLanguage,
     required String targetLanguage,
     required String brainModel,
     required String aiCoachPersona,
   }) async {
     await kernel.updateSettings(
+      displayName: displayName,
       nativeLanguage: nativeLanguage,
       targetLanguage: targetLanguage,
       brainModel: brainModel,
       aiCoachPersona: aiCoachPersona,
     );
+  }
+
+  Future<void> softLogout() async {
+    await kernel.softLogout();
+  }
+
+  Future<void> factoryReset() async {
+    await kernel.factoryReset();
   }
 }
 

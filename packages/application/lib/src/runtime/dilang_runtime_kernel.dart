@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:dilang_core/core.dart';
 import 'package:dilang_learner/learner.dart';
@@ -10,6 +11,7 @@ class DiLangRuntimeState extends Equatable {
   final bool isBootstrapped;
   final bool isOnboardingRequired;
   final DiLangUser? learner;
+  final List<DiLangUser> availableProfiles;
   final UniversalKnowledgeGraph knowledgeGraph;
   final LearnerCognitiveModel cognitiveModel;
   final ConversationScenario activeScenario;
@@ -26,6 +28,7 @@ class DiLangRuntimeState extends Equatable {
     required this.isBootstrapped,
     required this.isOnboardingRequired,
     this.learner,
+    this.availableProfiles = const [],
     required this.knowledgeGraph,
     required this.cognitiveModel,
     required this.activeScenario,
@@ -47,6 +50,7 @@ class DiLangRuntimeState extends Equatable {
       isBootstrapped: false,
       isOnboardingRequired: true,
       learner: null,
+      availableProfiles: const [],
       knowledgeGraph: UniversalKnowledgeGraph.createGermanA1Graph(),
       cognitiveModel: const LearnerCognitiveModel(
         userId: 'uninitialized',
@@ -77,6 +81,7 @@ class DiLangRuntimeState extends Equatable {
     bool? isBootstrapped,
     bool? isOnboardingRequired,
     DiLangUser? learner,
+    List<DiLangUser>? availableProfiles,
     UniversalKnowledgeGraph? knowledgeGraph,
     LearnerCognitiveModel? cognitiveModel,
     ConversationScenario? activeScenario,
@@ -93,6 +98,7 @@ class DiLangRuntimeState extends Equatable {
       isBootstrapped: isBootstrapped ?? this.isBootstrapped,
       isOnboardingRequired: isOnboardingRequired ?? this.isOnboardingRequired,
       learner: learner ?? this.learner,
+      availableProfiles: availableProfiles ?? this.availableProfiles,
       knowledgeGraph: knowledgeGraph ?? this.knowledgeGraph,
       cognitiveModel: cognitiveModel ?? this.cognitiveModel,
       activeScenario: activeScenario ?? this.activeScenario,
@@ -112,6 +118,7 @@ class DiLangRuntimeState extends Equatable {
         isBootstrapped,
         isOnboardingRequired,
         learner,
+        availableProfiles,
         knowledgeGraph,
         cognitiveModel,
         activeScenario,
@@ -162,11 +169,13 @@ class DiLangRuntimeKernel {
 
   Future<void> initializeRuntime() async {
     final activeUser = await identityRepo.getActiveUser();
+    final allUsers = await identityRepo.getAllUsers();
 
     if (activeUser == null) {
       _state = _state.copyWith(
         isBootstrapped: true,
         isOnboardingRequired: true,
+        availableProfiles: allUsers,
       );
     } else {
       final history = await replayRepo.getAllTranscripts();
@@ -189,6 +198,7 @@ class DiLangRuntimeKernel {
         isBootstrapped: true,
         isOnboardingRequired: false,
         learner: activeUser,
+        availableProfiles: allUsers,
         cognitiveModel: cognitiveModel,
         sessionHistory: history,
         completedSessionsCount: history.length,
@@ -248,10 +258,12 @@ class DiLangRuntimeKernel {
     );
 
     await identityRepo.saveUser(user);
+    final allUsers = await identityRepo.getAllUsers();
 
     _state = _state.copyWith(
       isOnboardingRequired: false,
       learner: user,
+      availableProfiles: allUsers,
       cognitiveModel: LearnerCognitiveModel(
         userId: userId.value,
         vocabularyMastery: 0.0,
@@ -400,6 +412,7 @@ class DiLangRuntimeKernel {
   }
 
   Future<void> updateSettings({
+    required String displayName,
     required String nativeLanguage,
     required String targetLanguage,
     required String brainModel,
@@ -410,7 +423,7 @@ class DiLangRuntimeKernel {
     final user = _state.learner!;
     final profile = Profile(
       userId: user.id,
-      displayName: user.profile.displayName,
+      displayName: displayName.isNotEmpty ? displayName : user.profile.displayName,
       avatarUrl: user.profile.avatarUrl,
       nativeLanguage: nativeLanguage,
       timezone: user.profile.timezone,
@@ -442,12 +455,54 @@ class DiLangRuntimeKernel {
 
     await identityRepo.saveUser(updatedUser);
 
-    _state = _state.copyWith(learner: updatedUser);
+    _state = _state.copyWith(
+      learner: updatedUser,
+      knowledgeGraph: targetLanguage == 'French'
+          ? UniversalKnowledgeGraph(initialNodes: const [])
+          : UniversalKnowledgeGraph.createGermanA1Graph(),
+    );
 
     eventBus.publish(GenericRuntimeEvent(
       eventName: 'SettingsUpdated',
       aggregateId: user.id.value,
-      payload: {'targetLanguage': targetLanguage, 'brainModel': brainModel},
+      payload: {'displayName': displayName, 'targetLanguage': targetLanguage},
+    ));
+    _notifyListeners();
+  }
+
+  Future<void> softLogout() async {
+    _state = DiLangRuntimeState.initial().copyWith(
+      isBootstrapped: true,
+      isOnboardingRequired: true,
+      availableProfiles: await identityRepo.getAllUsers(),
+    );
+
+    eventBus.publish(GenericRuntimeEvent(
+      eventName: 'SoftLogoutExecuted',
+      aggregateId: 'kernel',
+      payload: {},
+    ));
+    _notifyListeners();
+  }
+
+  Future<void> factoryReset() async {
+    storageEngine.dispose();
+
+    final dbFile = File(storageEngine.dbPath);
+    if (dbFile.existsSync()) {
+      dbFile.deleteSync();
+    }
+
+    _state = DiLangRuntimeState.initial().copyWith(
+      isBootstrapped: true,
+      isOnboardingRequired: true,
+      availableProfiles: const [],
+    );
+
+    eventBus.publish(GenericRuntimeEvent(
+      eventName: 'FactoryResetExecuted',
+      aggregateId: 'kernel',
+      payload: {},
     ));
     _notifyListeners();
   }

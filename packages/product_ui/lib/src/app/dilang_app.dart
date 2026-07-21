@@ -902,38 +902,261 @@ class _HealthMetricCard extends StatelessWidget {
   }
 }
 
-class SettingsSection extends ConsumerWidget {
+class SettingsSection extends ConsumerStatefulWidget {
   const SettingsSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsSection> createState() => _SettingsSectionState();
+}
+
+class _SettingsSectionState extends ConsumerState<SettingsSection> {
+  late TextEditingController _nameController;
+  late String _mediumLanguage;
+  late String _targetLanguage;
+  late String _brainModel;
+  late String _aiCoachPersona;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(dilangRuntimeKernelProvider).learner;
+    _nameController = TextEditingController(text: user?.profile.displayName ?? 'Learner');
+    _mediumLanguage = user?.profile.nativeLanguage ?? 'English';
+    _targetLanguage = user?.primaryLanguageProfile?.targetLanguage ?? 'German';
+    _brainModel = user?.primaryLanguageProfile?.brainModel ?? 'Conversation First';
+    _aiCoachPersona = user?.primaryLanguageProfile?.aiCoachPersona ?? 'Friendly';
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final runtimeState = ref.watch(dilangRuntimeKernelProvider);
     final user = runtimeState.learner;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('System & Learner Settings', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          const Text('Edit learner profile identity, swap target language, or manage system state.', style: TextStyle(color: Color(0xFF94A3B8))),
+          const SizedBox(height: 24),
+
+          // 1. Learner Profile Configuration Card
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: const Color(0xFF172033),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Learner Name: ${user?.profile.displayName ?? "Learner"}', style: const TextStyle(color: Colors.white, fontSize: 16)),
-                const SizedBox(height: 8),
-                Text('Medium Language: ${user?.profile.nativeLanguage ?? "English"}', style: const TextStyle(color: Colors.white70)),
-                Text('Target Language: ${user?.primaryLanguageProfile?.targetLanguage ?? "German"}', style: const TextStyle(color: Colors.white70)),
-                Text('Brain Model: ${user?.primaryLanguageProfile?.brainModel ?? "Conversation First"}', style: const TextStyle(color: Colors.white70)),
-                Text('AI Coach Persona: ${user?.primaryLanguageProfile?.aiCoachPersona ?? "Friendly"}', style: const TextStyle(color: Colors.white70)),
-                const SizedBox(height: 12),
-                const Text('SQLite Engine Status: WAL Mode Enabled • Pristine Single Authoritative Kernel', style: TextStyle(color: Color(0xFF22C55E))),
+                const Text('LEARNER IDENTITY & COGNITIVE MODEL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF38BDF8), letterSpacing: 1.1)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Display Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Medium (Interface) Language', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value: _mediumLanguage,
+                            items: const [
+                              DropdownMenuItem(value: 'English', child: Text('English')),
+                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
+                              DropdownMenuItem(value: 'French', child: Text('French')),
+                              DropdownMenuItem(value: 'Hindi', child: Text('Hindi')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) setState(() => _mediumLanguage = val);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Target Language (Swaps Graph & Scenarios)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value: _targetLanguage,
+                            items: const [
+                              DropdownMenuItem(value: 'German', child: Text('German (DE)')),
+                              DropdownMenuItem(value: 'French', child: Text('French (FR)')),
+                              DropdownMenuItem(value: 'Spanish', child: Text('Spanish (ES)')),
+                              DropdownMenuItem(value: 'Japanese', child: Text('Japanese (JP)')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) setState(() => _targetLanguage = val);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Brain Model (Cognitive Focus)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value: _brainModel,
+                            items: const [
+                              DropdownMenuItem(value: 'Conversation First', child: Text('Conversation First')),
+                              DropdownMenuItem(value: 'Grammar First', child: Text('Grammar First')),
+                              DropdownMenuItem(value: 'Vocabulary First', child: Text('Vocabulary First')),
+                              DropdownMenuItem(value: 'Visual', child: Text('Visual & Interactive Graph')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) setState(() => _brainModel = val);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('AI Coach Persona', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value: _aiCoachPersona,
+                            items: const [
+                              DropdownMenuItem(value: 'Friendly', child: Text('Friendly')),
+                              DropdownMenuItem(value: 'Strict', child: Text('Strict Precision')),
+                              DropdownMenuItem(value: 'Socratic', child: Text('Socratic')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) setState(() => _aiCoachPersona = val);
+                            },
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF3B82F6), minimumSize: const Size(200, 48)),
+                  onPressed: () async {
+                    await ref.read(dilangRuntimeKernelProvider.notifier).updateSettings(
+                          displayName: _nameController.text.trim(),
+                          nativeLanguage: _mediumLanguage,
+                          targetLanguage: _targetLanguage,
+                          brainModel: _brainModel,
+                          aiCoachPersona: _aiCoachPersona,
+                        );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Profile identity and target language updated instantly across all views!')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.sync, color: Colors.white),
+                  label: const Text('Save & Synchronize Runtime →', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // 2. System Operations & Maintenance Card
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF172033),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('SYSTEM OPERATIONS & AUTHENTICATION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFF59E0B), letterSpacing: 1.1)),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF475569), minimumSize: const Size(180, 48)),
+                      onPressed: () async {
+                        await ref.read(dilangRuntimeKernelProvider.notifier).softLogout();
+                      },
+                      icon: const Icon(Icons.logout, color: Colors.white),
+                      label: const Text('Soft Logout (Switch Profile)', style: TextStyle(color: Colors.white)),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626), minimumSize: const Size(180, 48)),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            backgroundColor: const Color(0xFF172033),
+                            title: const Text('Confirm Factory Reset', style: TextStyle(color: Colors.white)),
+                            content: const Text(
+                              'This will permanently delete your SQLite database (~/.local/share/dilang/dilang_storage.db), wipe all learner identity records, session replays, and cognitive models, and restart fresh onboarding.',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+                                onPressed: () async {
+                                  Navigator.of(ctx).pop();
+                                  await ref.read(dilangRuntimeKernelProvider.notifier).factoryReset();
+                                },
+                                child: const Text('Factory Reset & Delete Data', style: TextStyle(color: Colors.white)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.delete_forever, color: Colors.white),
+                      label: const Text('Factory Reset (Wipe Database)', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text('Active Profile ID: ${user?.id.value ?? "None"}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                const Text('SQLite Database Location: ~/.local/share/dilang/dilang_storage.db', style: TextStyle(color: Color(0xFF10B981), fontSize: 12)),
               ],
             ),
           ),
