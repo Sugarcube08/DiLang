@@ -9,6 +9,8 @@ export 'src/scenarios/declarative_scenario_parser.dart';
 export 'src/llm/llm_provider_contract.dart';
 export 'src/prompt/adaptive_prompt_assembler.dart';
 export 'src/runtime/conversation_runtime.dart';
+export 'src/speech/speech_service_contract.dart';
+
 
 
 

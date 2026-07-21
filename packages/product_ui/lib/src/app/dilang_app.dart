@@ -811,24 +811,54 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
           ),
           const SizedBox(height: 16),
 
-          // Interactive Input Bar
+          // Interactive Input Bar with Speech STT & TTS Synthesizer Controls
           Row(
             children: [
+              IconButton(
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  minimumSize: const Size(48, 48),
+                ),
+                icon: const Icon(Icons.mic, color: Color(0xFF38BDF8)),
+                tooltip: 'Speech-to-Text Microphone Input',
+                onPressed: () async {
+                  final speechService = ProductionSpeechService();
+                  final text = await speechService.listenToMicrophone();
+                  _inputController.text = text;
+                },
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: _inputController,
                   decoration: const InputDecoration(
-                    hintText: 'Type German response (e.g., "Ich möchte einen Kaffee, bitte")...',
+                    hintText: 'Type or speak German response (e.g., "Ich möchte einen Kaffee, bitte")...',
                     border: OutlineInputBorder(),
                   ),
                   onSubmitted: (_) => _handleTurnSubmit(),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
+              IconButton(
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  minimumSize: const Size(48, 48),
+                ),
+                icon: const Icon(Icons.volume_up, color: Color(0xFF22C55E)),
+                tooltip: 'Synthesize Audio Speech TTS',
+                onPressed: () async {
+                  final speechService = ProductionSpeechService();
+                  final text = _inputController.text.isNotEmpty
+                      ? _inputController.text
+                      : 'Ich möchte einen heißen Kaffee, bitte.';
+                  await speechService.speakText(text);
+                },
+              ),
+              const SizedBox(width: 8),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3B82F6),
-                  minimumSize: const Size(140, 56),
+                  minimumSize: const Size(140, 48),
                 ),
                 onPressed: _handleTurnSubmit,
                 icon: const Icon(Icons.send, color: Colors.white),

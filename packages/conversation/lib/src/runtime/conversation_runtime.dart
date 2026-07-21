@@ -17,7 +17,7 @@ class ConversationRuntime {
     required this.learner,
     LlmProviderContract? llmProvider,
     this.promptAssembler = const AdaptivePromptAssembler(),
-  })  : llmProvider = llmProvider ?? MockLlmProvider(),
+  })  : llmProvider = llmProvider ?? ProductionLlmProvider(),
         dialogueManager = DialogueManager(scenario: scenario);
 
   SessionBriefing generatePreSessionBriefing() {
