@@ -9,10 +9,15 @@ environment:
   sdk: '^3.5.0'
 
 dependencies:
+  flutter:
+    sdk: flutter
   dilang_core: ^1.0.0
   dilang_application: ^2.0.0
   dilang_design_system: ^2.0.0
+  dilang_product_ui: ^2.1.0
   meta: ^1.11.0
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   test: ^1.24.0
