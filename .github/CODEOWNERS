@@ -1,0 +1,10 @@
+# Global Codeowners
+* @dilang/maintainers
+
+# Package Specific Owners
+/docs/ @dilang/architects
+/packages/core/ @dilang/core-team
+/packages/language/ @dilang/linguistics-team
+/packages/learner/ @dilang/learning-engine-team
+/packages/memory/ @dilang/learning-engine-team
+/native/ @dilang/native-team

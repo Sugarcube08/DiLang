@@ -1,0 +1,31 @@
+name: DiLang CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install Melos Monorepo Tool
+        run: dart pub global activate melos
+
+      - name: Bootstrap Workspace Packages
+        run: melos bootstrap
+
+      - name: Run Static Analysis
+        run: melos run analyze
+
+      - name: Execute Unit Test Suites
+        run: melos run test

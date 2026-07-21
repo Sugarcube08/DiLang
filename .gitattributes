@@ -1,0 +1,30 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Explicit text file types
+*.dart text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.proto text eol=lf
+*.c text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.ico binary
+*.gguf binary
+*.onnx binary
+*.bin binary
+*.zip binary
+*.tar.gz binary
+
+# Linguist Overrides for GitHub language stats
+protos/* linguist-language=Protocol-Buffer
+packages/core/* linguist-language=Dart
+packages/language/* linguist-language=Dart
+packages/learner/* linguist-language=Dart
+packages/memory/* linguist-language=Dart
+docs/* linguist-documentation=true

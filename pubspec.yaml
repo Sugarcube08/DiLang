@@ -1,0 +1,16 @@
+name: dilang_monorepo
+description: DiLang Language Acquisition Platform Monorepo Workspace
+version: 1.0.0
+private: true
+
+environment:
+  sdk: '^3.0.0'
+
+workspace:
+  - packages/core
+  - packages/language
+  - packages/learner
+  - packages/memory
+
+dev_dependencies:
+  melos: ^6.0.0
