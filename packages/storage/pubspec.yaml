@@ -1,0 +1,23 @@
+name: dilang_storage
+description: Pure Dart Storage Infrastructure & Repository Contracts for DiLang. Decoupled from Domain.
+version: 1.0.0
+publish_to: 'none'
+homepage: https://github.com/dilang/dilang
+
+environment:
+  sdk: '^3.0.0'
+
+dependencies:
+  dilang_core:
+    path: ../core
+  dilang_language:
+    path: ../language
+  dilang_learner:
+    path: ../learner
+  dilang_memory:
+    path: ../memory
+  meta: ^1.11.0
+  equatable: ^2.0.5
+
+dev_dependencies:
+  test: ^1.24.0

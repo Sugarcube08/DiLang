@@ -4,7 +4,7 @@ version: 1.0.0
 private: true
 
 environment:
-  sdk: '^3.0.0'
+  sdk: '^3.12.2'
 
 workspace:
   - packages/core
@@ -12,6 +12,8 @@ workspace:
   - packages/learner
   - packages/memory
   - packages/ai_runtime
+  - packages/storage
+  - packages/sync
 
 dev_dependencies:
   melos: ^6.0.0
