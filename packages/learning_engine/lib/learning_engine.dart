@@ -13,5 +13,7 @@ export 'src/orchestrator/mission_generator.dart';
 export 'src/session/session_engine.dart';
 export 'src/intelligence/learner_cognitive_model.dart';
 export 'src/intelligence/learner_intelligence_engine.dart';
+export 'src/evaluation/automated_evaluation_framework.dart';
+
 
 

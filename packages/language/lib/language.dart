@@ -8,3 +8,5 @@ export 'src/vocabulary/semantic_relation.dart';
 export 'src/vocabulary/vocabulary_entry.dart';
 export 'src/grammar/grammar_rule.dart';
 export 'src/phrases/phrase.dart';
+export 'src/graph/knowledge_node.dart';
+
