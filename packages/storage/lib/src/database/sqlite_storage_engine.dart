@@ -167,9 +167,30 @@ class SqliteStorageEngine {
             turns_json TEXT NOT NULL
           );
 
+          CREATE TABLE cognitive_models (
+            user_id TEXT PRIMARY KEY,
+            vocab_mastery REAL NOT NULL,
+            grammar_mastery REAL NOT NULL,
+            recall_stability REAL NOT NULL,
+            cefr_readiness REAL NOT NULL,
+            updated_at INTEGER NOT NULL
+          );
+
+          CREATE TABLE error_intelligence (
+            error_id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            mistake_text TEXT NOT NULL,
+            error_category TEXT NOT NULL,
+            underlying_cause TEXT NOT NULL,
+            occurrences INTEGER NOT NULL,
+            recoveries INTEGER NOT NULL,
+            intervention TEXT NOT NULL
+          );
+
           CREATE INDEX idx_language_profiles_user ON language_profiles(user_id);
           CREATE INDEX idx_sync_change_log_synced ON sync_change_log(synced);
           CREATE INDEX idx_replay_transcripts_session ON replay_transcripts(session_id);
+          CREATE INDEX idx_error_intelligence_user ON error_intelligence(user_id);
 
           INSERT INTO schema_migrations (version, applied_at) 
           VALUES (1, ${DateTime.now().millisecondsSinceEpoch});
