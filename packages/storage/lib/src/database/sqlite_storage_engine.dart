@@ -156,8 +156,20 @@ class SqliteStorageEngine {
             updated_at INTEGER NOT NULL
           );
 
+          CREATE TABLE replay_transcripts (
+            transcript_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            scenario_id TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            confidence_before INTEGER NOT NULL,
+            confidence_after INTEGER NOT NULL,
+            evidence_summary TEXT NOT NULL,
+            turns_json TEXT NOT NULL
+          );
+
           CREATE INDEX idx_language_profiles_user ON language_profiles(user_id);
           CREATE INDEX idx_sync_change_log_synced ON sync_change_log(synced);
+          CREATE INDEX idx_replay_transcripts_session ON replay_transcripts(session_id);
 
           INSERT INTO schema_migrations (version, applied_at) 
           VALUES (1, ${DateTime.now().millisecondsSinceEpoch});
