@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:dilang_product_ui/product_ui.dart';
 
 void main() {
-  group('Product UI State & User Journey Tests', () {
+  group('Product UI State, Journeys & Health Tests', () {
     test('1. DashboardUiState initializes with default values', () {
       const state = DashboardUiState();
       expect(state.recommendations, isEmpty);
@@ -41,6 +41,40 @@ void main() {
       );
 
       expect(report.passesKpiThresholds(), isTrue);
+    });
+
+    test('5. LearningTimelineController tracks chronological entries', () {
+      final controller = LearningTimelineController();
+      final entry = TimelineEntry(
+        id: 't_1',
+        timestamp: DateTime.now(),
+        title: 'Reviewed 18 Words',
+        description: 'FSRS Spaced Repetition',
+        type: TimelineEntryType.review,
+      );
+
+      controller.addEntry(entry);
+      expect(controller.state.entries.length, equals(1));
+      expect(controller.state.entries.first.title, equals('Reviewed 18 Words'));
+
+      controller.updateWeeklyGoalProgress(0.67);
+      expect(controller.state.weeklyGoalProgress, closeTo(0.67, 0.01));
+    });
+
+    test('6. LanguageHealthMetrics computes aggregate overall health score', () {
+      const health = LanguageHealthMetrics(
+        vocabularyHealth: 0.84,
+        grammarHealth: 0.89,
+        speakingHealth: 0.73,
+        listeningHealth: 0.81,
+        readingHealth: 0.95,
+        writingHealth: 0.69,
+        conversationHealth: 0.78,
+        memoryHealth: 0.93,
+      );
+
+      final overall = health.calculateOverallHealth();
+      expect(overall, closeTo(0.8275, 0.01));
     });
   });
 }
