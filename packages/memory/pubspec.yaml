@@ -1,0 +1,19 @@
+name: dilang_memory
+description: Pure Dart Human Memory Engine implementing FSRS-4.5 deterministic spaced-repetition math.
+version: 1.0.0
+publish_to: 'none'
+homepage: https://github.com/dilang/dilang
+
+environment:
+  sdk: '^3.0.0'
+
+dependencies:
+  dilang_core:
+    path: ../core
+  dilang_learner:
+    path: ../learner
+  meta: ^1.11.0
+  equatable: ^2.0.5
+
+dev_dependencies:
+  test: ^1.24.0
