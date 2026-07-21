@@ -670,13 +670,15 @@ class _VoiceDialogueSectionState extends ConsumerState<VoiceDialogueSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Voice AI Dialogue: ${scenario.title}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(height: 4),
-                  Text('Persona: ${scenario.personaName} (${scenario.personaRole}) • CEFR ${scenario.cefrLevel}', style: const TextStyle(color: Color(0xFF94A3B8))),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Voice AI Dialogue: ${scenario.title}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white), overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Text('Persona: ${scenario.personaName} (${scenario.personaRole}) • CEFR ${scenario.cefrLevel}', style: const TextStyle(color: Color(0xFF94A3B8)), overflow: TextOverflow.ellipsis),
+                  ],
+                ),
               ),
               Row(
                 children: [
