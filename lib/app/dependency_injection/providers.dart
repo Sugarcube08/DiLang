@@ -61,11 +61,14 @@ class DiLangRuntimeNotifier extends StateNotifier<DiLangRuntimeState> {
   }
 }
 
-final dilangRuntimeProvider = StateNotifierProvider<DiLangRuntimeNotifier, DiLangRuntimeState>((ref) {
+final runtimeProvider = StateNotifierProvider<DiLangRuntimeNotifier, DiLangRuntimeState>((ref) {
   final eventBus = ref.watch(eventBusProvider);
   final engine = ref.watch(sqliteEngineProvider);
   final runtime = DiLangRuntime(eventBus: eventBus, storageEngine: engine);
   return DiLangRuntimeNotifier(runtime);
 });
+
+// Alias for backwards compatibility
+final dilangRuntimeProvider = runtimeProvider;
 
 final activeTabProvider = StateProvider<int>((ref) => 0);

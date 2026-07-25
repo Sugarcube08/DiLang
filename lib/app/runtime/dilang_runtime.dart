@@ -5,6 +5,60 @@ import '../../core/events/domain_event.dart';
 import '../../core/models/user_id.dart';
 import '../../infrastructure/sqlite/sqlite_storage_engine.dart';
 
+// Domain Managers (Internal to DiLangRuntime)
+class IdentityManager {
+  final SqliteStorageEngine engine;
+
+  IdentityManager({required this.engine});
+
+  Future<LearnerProfileData?> loadActiveUser() async {
+    final db = engine.db;
+    final usersRes = db.select('SELECT id, username FROM users LIMIT 1;');
+    if (usersRes.isEmpty) return null;
+
+    final userRow = usersRes.first;
+    final userId = UserId(userRow['id'] as String);
+
+    final profileRes = db.select('SELECT display_name, native_language FROM profiles WHERE user_id = ?;', [userId.value]);
+    final langRes = db.select('SELECT target_language, brain_model, ai_coach_persona FROM language_profiles WHERE user_id = ?;', [userId.value]);
+
+    final name = profileRes.isNotEmpty ? (profileRes.first['display_name'] as String) : 'Learner';
+    final nativeLang = profileRes.isNotEmpty ? (profileRes.first['native_language'] as String) : 'English';
+    final targetLang = langRes.isNotEmpty ? (langRes.first['target_language'] as String) : 'German';
+    final brainModel = langRes.isNotEmpty ? (langRes.first['brain_model'] as String) : 'Conversation First';
+    final persona = langRes.isNotEmpty ? (langRes.first['ai_coach_persona'] as String) : 'Friendly';
+
+    return LearnerProfileData(
+      id: userId,
+      displayName: name,
+      nativeLanguage: nativeLang,
+      targetLanguage: targetLang,
+      brainModel: brainModel,
+      aiCoachPersona: persona,
+    );
+  }
+}
+
+class ConversationManager {
+  const ConversationManager();
+}
+
+class LearningManager {
+  const LearningManager();
+}
+
+class SpeechManager {
+  const SpeechManager();
+}
+
+class SettingsManager {
+  const SettingsManager();
+}
+
+class DiagnosticsManager {
+  const DiagnosticsManager();
+}
+
 class LearnerProfileData extends Equatable {
   final UserId id;
   final String displayName;
@@ -87,13 +141,27 @@ class DiLangRuntime {
   final EventBus eventBus;
   final SqliteStorageEngine storageEngine;
 
+  late final IdentityManager identityManager;
+  late final ConversationManager conversationManager;
+  late final LearningManager learningManager;
+  late final SpeechManager speechManager;
+  late final SettingsManager settingsManager;
+  late final DiagnosticsManager diagnosticsManager;
+
   DiLangRuntimeState _state = DiLangRuntimeState.initial();
   final List<void Function(DiLangRuntimeState)> _listeners = [];
 
   DiLangRuntime({
     required this.eventBus,
     required this.storageEngine,
-  });
+  }) {
+    identityManager = IdentityManager(engine: storageEngine);
+    conversationManager = const ConversationManager();
+    learningManager = const LearningManager();
+    speechManager = const SpeechManager();
+    settingsManager = const SettingsManager();
+    diagnosticsManager = const DiagnosticsManager();
+  }
 
   DiLangRuntimeState get state => _state;
 
@@ -112,38 +180,18 @@ class DiLangRuntime {
   }
 
   Future<void> initialize() async {
-    final db = storageEngine.db;
-    final usersRes = db.select('SELECT id, username FROM users LIMIT 1;');
+    final activeLearner = await identityManager.loadActiveUser();
 
-    if (usersRes.isEmpty) {
+    if (activeLearner == null) {
       _state = _state.copyWith(
         isBootstrapped: true,
         isOnboardingRequired: true,
       );
     } else {
-      final userRow = usersRes.first;
-      final userId = UserId(userRow['id'] as String);
-
-      final profileRes = db.select('SELECT display_name, native_language FROM profiles WHERE user_id = ?;', [userId.value]);
-      final langRes = db.select('SELECT target_language, brain_model, ai_coach_persona FROM language_profiles WHERE user_id = ?;', [userId.value]);
-
-      final name = profileRes.isNotEmpty ? (profileRes.first['display_name'] as String) : 'Learner';
-      final nativeLang = profileRes.isNotEmpty ? (profileRes.first['native_language'] as String) : 'English';
-      final targetLang = langRes.isNotEmpty ? (langRes.first['target_language'] as String) : 'German';
-      final brainModel = langRes.isNotEmpty ? (langRes.first['brain_model'] as String) : 'Conversation First';
-      final persona = langRes.isNotEmpty ? (langRes.first['ai_coach_persona'] as String) : 'Friendly';
-
       _state = _state.copyWith(
         isBootstrapped: true,
         isOnboardingRequired: false,
-        learner: LearnerProfileData(
-          id: userId,
-          displayName: name,
-          nativeLanguage: nativeLang,
-          targetLanguage: targetLang,
-          brainModel: brainModel,
-          aiCoachPersona: persona,
-        ),
+        learner: activeLearner,
       );
     }
 
