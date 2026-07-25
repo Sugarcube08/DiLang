@@ -8,7 +8,7 @@ void main() {
     test('1. SqliteStorageEngine initializes in-memory database with migrations', () {
       final engine = SqliteStorageEngine.inMemory();
       final res = engine.db.select('SELECT MAX(version) as ver FROM schema_migrations;');
-      expect(res.first['ver'], equals(1));
+      expect(res.first['ver'], equals(5));
       engine.dispose();
     });
 

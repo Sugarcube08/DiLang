@@ -24,9 +24,9 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.text('DiLang Runtime Health Diagnostic'), findsOneWidget);
+      expect(find.text('DiLang Runtime & Database Diagnostics'), findsOneWidget);
       expect(find.text('Bootstrap Pipeline'), findsOneWidget);
-      expect(find.text('SQLite Database Engine'), findsOneWidget);
+      expect(find.text('SQLite Infrastructure Metrics'), findsOneWidget);
       expect(find.text('AI Infrastructure Provider'), findsOneWidget);
       expect(find.text('Speech Infrastructure Provider'), findsOneWidget);
 

@@ -1,6 +1,6 @@
 # DiLang Architecture Constitution
 
-**Version**: 2.1-CONSTITUTIONAL  
+**Version**: 2.2-CONSTITUTIONAL  
 **Status**: Highest Engineering Policy (Non-Negotiable)  
 
 ---
@@ -37,13 +37,14 @@
 ### Bootstrap Rule
 > **Bootstrap never contains business logic.**
 > 
-> Its responsibilities are strictly technical:
-> - Initialize
-> - Compose
-> - Register
-> - Dispose
-> 
+> Its responsibilities are strictly technical: initialize, compose, register, dispose.
 > It MUST NEVER decide anything related to learning, conversations, FSRS, AI, or user progress.
+
+### Schema Migration Rule
+> **Every schema change must be accompanied by a migration script and corresponding tests.**
+> 
+> No direct edits to the live schema. No manual database modifications.
+> The versioned migration history becomes the authoritative record of how the database evolves.
 
 ---
 
@@ -60,9 +61,11 @@ Service (Business Logic)
   ↓
 Repository (Data Access Contract)
   ↓
-Infrastructure (Platform Drivers)
+DAO (Data Access Object)
   ↓
-SQLite / AI / Filesystem
+SqliteStorageEngine (Platform Driver)
+  ↓
+SQLite Database (WAL Mode)
 ```
 
 ---
@@ -73,12 +76,14 @@ SQLite / AI / Filesystem
 - Controllers: `IdentityController`, `ConversationController`
 - Services: `ConversationService`, `LearningService`
 - Contracts: `ReplayRepository`, `IdentityRepository`
+- DAOs: `UserDao`, `LearningDao`, `ConversationDao`, `KnowledgeGraphDao`
 - SQLite Implementations: `SqliteReplayRepository`, `SqliteIdentityRepository`
 - AI Providers: `OpenAiProvider`, `GeminiProvider`, `LocalLlmProvider`
 
 ### Files
 - `identity_controller.dart`
 - `conversation_service.dart`
+- `user_dao.dart`
 - `sqlite_replay_repository.dart`
 
 ### Providers
@@ -87,10 +92,9 @@ SQLite / AI / Filesystem
 - `runtimeProvider`
 
 ### Tables
-- `users`
-- `language_profiles`
-- `learning_sessions`
-- `conversation_turns`
-- `knowledge_nodes`
-- `fsrs_cards`
-- `settings`
+- `users`, `language_profiles`
+- `fsrs_cards`, `learning_sessions`, `learning_reviews`, `missions`
+- `conversation_sessions`, `conversation_turns`, `conversation_replays`
+- `knowledge_nodes`, `knowledge_edges`, `vocabulary`
+- `settings`, `preferences`
+- `runtime_logs`, `performance_metrics`, `crash_reports`
