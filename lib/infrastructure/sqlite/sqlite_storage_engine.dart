@@ -182,6 +182,14 @@ class SqliteStorageEngine {
         rethrow;
       }
     }
+
+    // Safety checks for existing schema columns
+    try {
+      _db.execute('ALTER TABLE language_profiles ADD COLUMN brain_model TEXT NOT NULL DEFAULT "Conversation First";');
+    } catch (_) {}
+    try {
+      _db.execute('ALTER TABLE language_profiles ADD COLUMN ai_coach_persona TEXT NOT NULL DEFAULT "Friendly";');
+    } catch (_) {}
   }
 
   void dispose() {

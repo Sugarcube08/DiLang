@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/dependency_injection/providers.dart';
+import 'app/bootstrap/bootstrap_pipeline.dart';
+import 'app/bootstrap/runtime_health_screen.dart';
 import 'shared/theme/dilang_theme.dart';
 import 'shared/theme/color_tokens.dart';
 import 'shared/theme/typography.dart';
@@ -8,6 +10,7 @@ import 'modules/design_system/pages/component_gallery_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await BootstrapPipeline.initialize();
 
   runApp(
     const ProviderScope(
@@ -185,63 +188,63 @@ class AppShellScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 _NavTile(icon: Icons.today, label: 'TODAY', index: 0, activeIndex: activeTab),
-                _NavTile(icon: Icons.hub, label: 'Knowledge Graph', index: 1, activeIndex: activeTab),
-                _NavTile(icon: Icons.record_voice_over, label: 'Dialogue', index: 2, activeIndex: activeTab),
-                _NavTile(icon: Icons.palette, label: 'UI Gallery', index: 3, activeIndex: activeTab),
-                _NavTile(icon: Icons.bug_report, label: 'Diagnostics', index: 4, activeIndex: activeTab),
-                _NavTile(icon: Icons.settings, label: 'Settings', index: 5, activeIndex: activeTab),
+                _NavTile(icon: Icons.monitor_heart, label: 'Runtime Health', index: 1, activeIndex: activeTab),
+                _NavTile(icon: Icons.palette, label: 'UI Gallery', index: 2, activeIndex: activeTab),
+                _NavTile(icon: Icons.settings, label: 'Settings', index: 3, activeIndex: activeTab),
               ],
             ),
           ),
           Expanded(
-            child: activeTab == 3
-                ? const ComponentGalleryPage()
-                : Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Willkommen, ${runtimeState.learner?.displayName ?? "Learner"}',
-                          style: TypographyTokens.headingLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Target: ${runtimeState.learner?.targetLanguage ?? "German"} • Brain Strategy: ${runtimeState.learner?.brainModel ?? "Conversation First"}',
-                          style: TypographyTokens.bodyMedium,
-                        ),
-                        const SizedBox(height: 24),
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: ColorTokens.slate800,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: ColorTokens.slate700),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('SINGLE RUNTIME & SQLITE ENGINE ONLINE', style: TypographyTokens.labelSmall),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'Database Path: ~/.local/share/dilang/dilang_storage.db',
-                                style: TextStyle(color: ColorTokens.emerald500, fontSize: 13),
+            child: activeTab == 1
+                ? const RuntimeHealthScreen()
+                : activeTab == 2
+                    ? const ComponentGalleryPage()
+                    : Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Willkommen, ${runtimeState.learner?.displayName ?? "Learner"}',
+                              style: TypographyTokens.headingLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Target: ${runtimeState.learner?.targetLanguage ?? "German"} • Brain Strategy: ${runtimeState.learner?.brainModel ?? "Conversation First"}',
+                              style: TypographyTokens.bodyMedium,
+                            ),
+                            const SizedBox(height: 24),
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: ColorTokens.slate800,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: ColorTokens.slate700),
                               ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(backgroundColor: ColorTokens.coralRed500),
-                                onPressed: () async {
-                                  await ref.read(runtimeProvider.notifier).factoryReset();
-                                },
-                                icon: const Icon(Icons.delete_forever, color: Colors.white),
-                                label: const Text('Factory Reset SQLite Database', style: TextStyle(color: Colors.white)),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('SINGLE RUNTIME & SQLITE ENGINE ONLINE', style: TypographyTokens.labelSmall),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'Database Path: ~/.local/share/dilang/dilang_storage.db',
+                                    style: TextStyle(color: ColorTokens.emerald500, fontSize: 13),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(backgroundColor: ColorTokens.coralRed500),
+                                    onPressed: () async {
+                                      await ref.read(runtimeProvider.notifier).factoryReset();
+                                    },
+                                    icon: const Icon(Icons.delete_forever, color: Colors.white),
+                                    label: const Text('Factory Reset SQLite Database', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
           ),
         ],
       ),

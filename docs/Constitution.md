@@ -1,6 +1,6 @@
 # DiLang Architecture Constitution
 
-**Version**: 2.0-CONSTITUTIONAL  
+**Version**: 2.1-CONSTITUTIONAL  
 **Status**: Highest Engineering Policy (Non-Negotiable)  
 
 ---
@@ -20,8 +20,9 @@
 
 ---
 
-## 2. Development Pipeline Rule
+## 2. Development Pipeline Rules
 
+### Contract-First Rule
 > **Every implementation must begin with its contract.**
 > 
 > 1. **Define the interface.**
@@ -32,6 +33,17 @@
 > 6. **Connect to UI.**
 > 
 > **Never implement UI first.**
+
+### Bootstrap Rule
+> **Bootstrap never contains business logic.**
+> 
+> Its responsibilities are strictly technical:
+> - Initialize
+> - Compose
+> - Register
+> - Dispose
+> 
+> It MUST NEVER decide anything related to learning, conversations, FSRS, AI, or user progress.
 
 ---
 
