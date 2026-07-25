@@ -7,6 +7,7 @@ import 'shared/theme/dilang_theme.dart';
 import 'shared/theme/color_tokens.dart';
 import 'shared/theme/typography.dart';
 import 'modules/design_system/pages/component_gallery_page.dart';
+import 'modules/identity/pages/onboarding_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,119 +45,8 @@ class DiLangApp extends ConsumerWidget {
               ),
             )
           : runtimeState.isOnboardingRequired
-              ? const FtueOnboardingScreen()
+              ? const OnboardingPage()
               : const AppShellScreen(),
-    );
-  }
-}
-
-class FtueOnboardingScreen extends ConsumerStatefulWidget {
-  const FtueOnboardingScreen({super.key});
-
-  @override
-  ConsumerState<FtueOnboardingScreen> createState() => _FtueOnboardingScreenState();
-}
-
-class _FtueOnboardingScreenState extends ConsumerState<FtueOnboardingScreen> {
-  final TextEditingController _nameController = TextEditingController(text: 'Learner');
-  String _nativeLang = 'English';
-  String _targetLang = 'German';
-  final String _brainModel = 'Conversation First';
-  final String _persona = 'Friendly';
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            width: 500,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: ColorTokens.slate800,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: ColorTokens.slate600),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.psychology, color: ColorTokens.azure500, size: 32),
-                    SizedBox(width: 12),
-                    Text('DiLang Setup Wizard', style: TypographyTokens.headingMedium),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Text('Initialize your learner identity and AI brain strategy.', style: TypographyTokens.bodyMedium),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Learner Name', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _nativeLang,
-                        items: const [
-                          DropdownMenuItem(value: 'English', child: Text('English')),
-                          DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) setState(() => _nativeLang = v);
-                        },
-                        decoration: const InputDecoration(labelText: 'Native Language', border: OutlineInputBorder()),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _targetLang,
-                        items: const [
-                          DropdownMenuItem(value: 'German', child: Text('German (DE)')),
-                          DropdownMenuItem(value: 'French', child: Text('French (FR)')),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) setState(() => _targetLang = v);
-                        },
-                        decoration: const InputDecoration(labelText: 'Target Language', border: OutlineInputBorder()),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: ColorTokens.azure500),
-                    onPressed: () async {
-                      await ref.read(runtimeProvider.notifier).createProfile(
-                            name: _nameController.text.trim(),
-                            nativeLanguage: _nativeLang,
-                            targetLanguage: _targetLang,
-                            brainModel: _brainModel,
-                            aiCoachPersona: _persona,
-                          );
-                    },
-                    child: const Text('Initialize DiLang OS →', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

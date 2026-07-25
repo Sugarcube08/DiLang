@@ -7,6 +7,8 @@ import 'package:dilang/infrastructure/sqlite/daos/knowledge_graph_dao.dart';
 import 'package:dilang/infrastructure/sqlite/daos/settings_dao.dart';
 import 'package:dilang/infrastructure/sqlite/daos/diagnostics_dao.dart';
 import 'package:dilang/infrastructure/sqlite/repositories/sqlite_identity_repository.dart';
+import 'package:dilang/modules/identity/models/user.dart';
+import 'package:dilang/modules/identity/models/language_profile.dart';
 
 void main() {
   group('Step 3 SQLite Infrastructure & Persistence Tests', () {
@@ -72,20 +74,33 @@ void main() {
       expect(dueCards.first['card_id'], equals('card_1'));
     });
 
-    test('4. ConversationDao & SqliteIdentityRepository execute transactionally', () {
+    test('4. ConversationDao & SqliteIdentityRepository execute transactionally', () async {
       final repo = SqliteIdentityRepository(engine.db);
-      repo.createLearnerIdentity(
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final u = User(
         id: 'usr_202',
-        name: 'Jane Learner',
-        nativeLanguage: 'English',
+        displayName: 'Jane Learner',
+        email: 'jane@dilang.ai',
+        createdAt: now,
+        updatedAt: now,
+      );
+      const lp = LanguageProfile(
+        userId: 'usr_202',
         targetLanguage: 'German',
+        nativeLanguage: 'English',
+        currentCefrLevel: 'A1',
+        targetCefrLevel: 'B2',
+        dailyGoalMinutes: 15,
+        motivation: 'Work',
         brainModel: 'Conversation First',
         aiCoachPersona: 'Friendly',
       );
 
-      final convDao = ConversationDao(engine.db);
-      final now = DateTime.now().millisecondsSinceEpoch;
+      await repo.createUser(u);
+      await repo.saveLanguageProfile(lp);
 
+      final convDao = ConversationDao(engine.db);
       convDao.insertSession(
         sessionId: 'sess_1',
         userId: 'usr_202',

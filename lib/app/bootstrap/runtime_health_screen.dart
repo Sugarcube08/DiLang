@@ -37,6 +37,10 @@ class RuntimeHealthScreen extends ConsumerWidget {
       }
     } catch (_) {}
 
+    final isIdentityReady = runtimeState.identityState.isReady;
+    final learnerName = runtimeState.learner?.displayName ?? 'Learner';
+    final targetLang = runtimeState.learner?.targetLanguage ?? 'German';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('DiLang Runtime & Database Diagnostics'),
@@ -48,11 +52,29 @@ class RuntimeHealthScreen extends ConsumerWidget {
           children: [
             Text('Persistence & Runtime Status Dashboard', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: semantic.textPrimary)),
             const SizedBox(height: 8),
-            Text('Technical diagnostic overview of SQLite schema, migrations, DAOs, and active runtime.', style: TextStyle(color: semantic.textSecondary)),
+            Text('Technical diagnostic overview of Identity Module, SQLite schema, DAOs, and active runtime.', style: TextStyle(color: semantic.textSecondary)),
             const SizedBox(height: 24),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Expanded(
+                  child: AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Learner Identity Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: semantic.textPrimary)),
+                        const Divider(height: 24),
+                        _MetricRow(label: 'Identity Status', value: isIdentityReady ? 'READY' : 'ONBOARDING_REQUIRED', isOk: isIdentityReady),
+                        _MetricRow(label: 'Onboarding Status', value: isIdentityReady ? 'Completed' : 'Pending', isOk: isIdentityReady),
+                        _MetricRow(label: 'Learner Display Name', value: learnerName),
+                        _MetricRow(label: 'Target Language', value: targetLang),
+                        const _MetricRow(label: 'CEFR Trajectory', value: 'A1 → B2'),
+                        const _MetricRow(label: 'Daily Commitment', value: '15 mins/day'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 24),
                 Expanded(
                   child: AppCard(
                     child: Column(
@@ -67,26 +89,6 @@ class RuntimeHealthScreen extends ConsumerWidget {
                         const _MetricRow(label: 'Open Connections', value: '1 Connection'),
                         const _MetricRow(label: 'Active Transaction State', value: 'IDLE'),
                         _MetricRow(label: 'Database File Size', value: '${(fileSize / 1024).toStringAsFixed(1)} KB'),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  child: AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('System Bootstrap & Runtime Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: semantic.textPrimary)),
-                        const Divider(height: 24),
-                        _HealthRow(label: 'Bootstrap Pipeline', isReady: runtimeState.isBootstrapped),
-                        const _HealthRow(label: 'SQLite DAOs & Repositories', isReady: true),
-                        const _HealthRow(label: 'Preferences Adapter', isReady: true),
-                        _HealthRow(label: 'DiLangRuntime Kernel', isReady: runtimeState.isBootstrapped),
-                        const _HealthRow(label: 'Dependency Injection Graph', isReady: true),
-                        const _HealthRow(label: 'Theme Engine & Semantic Tokens', isReady: true),
-                        const _HealthRow(label: 'AI Infrastructure Provider', isReady: false, subtext: 'Not Configured (NoOp)'),
-                        const _HealthRow(label: 'Speech Infrastructure Provider', isReady: false, subtext: 'Not Configured (NoOp)'),
                       ],
                     ),
                   ),
@@ -131,55 +133,6 @@ class _MetricRow extends StatelessWidget {
                 fontSize: 13,
                 color: isOk ? semantic.accentSuccess : semantic.accentWarning,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HealthRow extends StatelessWidget {
-  final String label;
-  final bool isReady;
-  final String? subtext;
-
-  const _HealthRow({
-    required this.label,
-    required this.isReady,
-    this.subtext,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final semantic = DiLangTheme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(
-            isReady ? Icons.check_circle : Icons.warning_amber_rounded,
-            color: isReady ? semantic.accentSuccess : semantic.accentWarning,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: semantic.textPrimary)),
-                if (subtext != null)
-                  Text(subtext!, style: TextStyle(fontSize: 12, color: semantic.textSecondary)),
-              ],
-            ),
-          ),
-          Text(
-            isReady ? 'READY' : 'NOT CONFIG',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: isReady ? semantic.accentSuccess : semantic.accentWarning,
             ),
           ),
         ],

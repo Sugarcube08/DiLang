@@ -4,38 +4,91 @@ import '../../core/events/event_bus.dart';
 import '../../core/events/domain_event.dart';
 import '../../core/models/user_id.dart';
 import '../../infrastructure/sqlite/sqlite_storage_engine.dart';
+import '../../infrastructure/sqlite/repositories/sqlite_identity_repository.dart';
+import '../../modules/identity/models/user.dart';
+import '../../modules/identity/models/language_profile.dart';
+import '../../modules/identity/models/learning_preferences.dart';
+import '../../modules/identity/models/identity_state.dart';
 
 // Domain Managers (Internal to DiLangRuntime)
 class IdentityManager {
-  final SqliteStorageEngine engine;
+  final SqliteIdentityRepository repository;
+  IdentityState state = IdentityState.uninitialized();
 
-  IdentityManager({required this.engine});
+  User? currentUser;
+  LanguageProfile? currentLanguageProfile;
+  LearningPreferences currentPreferences = LearningPreferences.defaults();
 
-  Future<LearnerProfileData?> loadActiveUser() async {
-    final db = engine.db;
-    final usersRes = db.select('SELECT id, username FROM users LIMIT 1;');
-    if (usersRes.isEmpty) return null;
+  IdentityManager({required SqliteStorageEngine engine})
+      : repository = SqliteIdentityRepository(engine.db);
 
-    final userRow = usersRes.first;
-    final userId = UserId(userRow['id'] as String);
+  Future<IdentityState> loadIdentity() async {
+    state = IdentityState.loading();
+    try {
+      currentUser = await repository.loadUser();
+      currentPreferences = await repository.loadPreferences();
 
-    final profileRes = db.select('SELECT display_name, native_language FROM profiles WHERE user_id = ?;', [userId.value]);
-    final langRes = db.select('SELECT target_language, brain_model, ai_coach_persona FROM language_profiles WHERE user_id = ?;', [userId.value]);
+      if (currentUser == null || !currentPreferences.onboardingCompleted) {
+        state = IdentityState.onboardingRequired();
+      } else {
+        currentLanguageProfile = await repository.loadLanguageProfile(currentUser!.id);
+        state = IdentityState.ready();
+      }
+    } catch (e) {
+      state = IdentityState.error(e.toString());
+    }
+    return state;
+  }
 
-    final name = profileRes.isNotEmpty ? (profileRes.first['display_name'] as String) : 'Learner';
-    final nativeLang = profileRes.isNotEmpty ? (profileRes.first['native_language'] as String) : 'English';
-    final targetLang = langRes.isNotEmpty ? (langRes.first['target_language'] as String) : 'German';
-    final brainModel = langRes.isNotEmpty ? (langRes.first['brain_model'] as String) : 'Conversation First';
-    final persona = langRes.isNotEmpty ? (langRes.first['ai_coach_persona'] as String) : 'Friendly';
+  Future<void> createLearnerProfile({
+    required String name,
+    required String nativeLanguage,
+    required String targetLanguage,
+    required String currentCefr,
+    required String targetCefr,
+    required String motivation,
+    required int dailyMinutes,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final userId = 'usr_$now';
 
-    return LearnerProfileData(
+    final user = User(
       id: userId,
       displayName: name,
-      nativeLanguage: nativeLang,
-      targetLanguage: targetLang,
-      brainModel: brainModel,
-      aiCoachPersona: persona,
+      email: '${name.toLowerCase().replaceAll(' ', '')}@dilang.ai',
+      createdAt: now,
+      updatedAt: now,
     );
+
+    final langProfile = LanguageProfile(
+      userId: userId,
+      targetLanguage: targetLanguage,
+      nativeLanguage: nativeLanguage,
+      currentCefrLevel: currentCefr,
+      targetCefrLevel: targetCefr,
+      dailyGoalMinutes: dailyMinutes,
+      motivation: motivation,
+      brainModel: 'Conversation First',
+      aiCoachPersona: 'Friendly',
+    );
+
+    final prefs = LearningPreferences(
+      dailyMinutes: dailyMinutes,
+      reminderEnabled: true,
+      speechEnabled: true,
+      preferredVoice: 'Female',
+      interfaceLanguage: nativeLanguage,
+      onboardingCompleted: true,
+    );
+
+    await repository.createUser(user);
+    await repository.saveLanguageProfile(langProfile);
+    await repository.savePreferences(prefs);
+
+    currentUser = user;
+    currentLanguageProfile = langProfile;
+    currentPreferences = prefs;
+    state = IdentityState.ready();
   }
 }
 
@@ -83,6 +136,7 @@ class LearnerProfileData extends Equatable {
 class DiLangRuntimeState extends Equatable {
   final bool isBootstrapped;
   final bool isOnboardingRequired;
+  final IdentityState identityState;
   final LearnerProfileData? learner;
   final int completedSessionsCount;
   final int currentStreak;
@@ -91,6 +145,7 @@ class DiLangRuntimeState extends Equatable {
   const DiLangRuntimeState({
     required this.isBootstrapped,
     required this.isOnboardingRequired,
+    required this.identityState,
     this.learner,
     this.completedSessionsCount = 0,
     this.currentStreak = 0,
@@ -98,9 +153,10 @@ class DiLangRuntimeState extends Equatable {
   });
 
   factory DiLangRuntimeState.initial() {
-    return const DiLangRuntimeState(
+    return DiLangRuntimeState(
       isBootstrapped: false,
       isOnboardingRequired: true,
+      identityState: IdentityState.uninitialized(),
       learner: null,
       completedSessionsCount: 0,
       currentStreak: 0,
@@ -111,6 +167,7 @@ class DiLangRuntimeState extends Equatable {
   DiLangRuntimeState copyWith({
     bool? isBootstrapped,
     bool? isOnboardingRequired,
+    IdentityState? identityState,
     LearnerProfileData? learner,
     int? completedSessionsCount,
     int? currentStreak,
@@ -119,6 +176,7 @@ class DiLangRuntimeState extends Equatable {
     return DiLangRuntimeState(
       isBootstrapped: isBootstrapped ?? this.isBootstrapped,
       isOnboardingRequired: isOnboardingRequired ?? this.isOnboardingRequired,
+      identityState: identityState ?? this.identityState,
       learner: learner ?? this.learner,
       completedSessionsCount: completedSessionsCount ?? this.completedSessionsCount,
       currentStreak: currentStreak ?? this.currentStreak,
@@ -130,6 +188,7 @@ class DiLangRuntimeState extends Equatable {
   List<Object?> get props => [
         isBootstrapped,
         isOnboardingRequired,
+        identityState,
         learner,
         completedSessionsCount,
         currentStreak,
@@ -180,18 +239,30 @@ class DiLangRuntime {
   }
 
   Future<void> initialize() async {
-    final activeLearner = await identityManager.loadActiveUser();
+    final identityStatus = await identityManager.loadIdentity();
 
-    if (activeLearner == null) {
+    if (identityStatus.isOnboardingRequired || identityManager.currentUser == null) {
       _state = _state.copyWith(
         isBootstrapped: true,
         isOnboardingRequired: true,
+        identityState: identityStatus,
       );
     } else {
+      final u = identityManager.currentUser!;
+      final lp = identityManager.currentLanguageProfile;
+
       _state = _state.copyWith(
         isBootstrapped: true,
         isOnboardingRequired: false,
-        learner: activeLearner,
+        identityState: identityStatus,
+        learner: LearnerProfileData(
+          id: UserId(u.id),
+          displayName: u.displayName,
+          nativeLanguage: lp?.nativeLanguage ?? 'English',
+          targetLanguage: lp?.targetLanguage ?? 'German',
+          brainModel: lp?.brainModel ?? 'Conversation First',
+          aiCoachPersona: lp?.aiCoachPersona ?? 'Friendly',
+        ),
       );
     }
 
@@ -213,55 +284,35 @@ class DiLangRuntime {
     required String brainModel,
     required String aiCoachPersona,
   }) async {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final userId = UserId('usr_$now');
-
-    final db = storageEngine.db;
-    db.execute('BEGIN TRANSACTION;');
-    try {
-      db.execute(
-        'INSERT INTO users (id, username, email, created_at, last_active_at) VALUES (?, ?, ?, ?, ?);',
-        [userId.value, name.toLowerCase().replaceAll(' ', '_'), '${name.toLowerCase()}@dilang.ai', now, now],
-      );
-
-      db.execute(
-        'INSERT INTO profiles (user_id, display_name, avatar_url, native_language, timezone) VALUES (?, ?, ?, ?, ?);',
-        [userId.value, name, '', nativeLanguage, DateTime.now().timeZoneName],
-      );
-
-      db.execute(
-        '''
-        INSERT INTO language_profiles (
-          id, user_id, target_language, cefr_level, learning_goal,
-          daily_goal_minutes, is_primary, brain_model, ai_coach_persona, voice_preference
-        ) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?);
-        ''',
-        ['lp_$now', userId.value, targetLanguage, 'A1', 'Daily Conversation', 15, brainModel, aiCoachPersona, 'Female'],
-      );
-
-      db.execute('COMMIT;');
-    } catch (e) {
-      db.execute('ROLLBACK;');
-      rethrow;
-    }
-
-    final learner = LearnerProfileData(
-      id: userId,
-      displayName: name,
+    await identityManager.createLearnerProfile(
+      name: name,
       nativeLanguage: nativeLanguage,
       targetLanguage: targetLanguage,
-      brainModel: brainModel,
-      aiCoachPersona: aiCoachPersona,
+      currentCefr: 'A1',
+      targetCefr: 'B2',
+      motivation: 'Daily Conversation',
+      dailyMinutes: 15,
     );
+
+    final u = identityManager.currentUser!;
+    final lp = identityManager.currentLanguageProfile!;
 
     _state = _state.copyWith(
       isOnboardingRequired: false,
-      learner: learner,
+      identityState: IdentityState.ready(),
+      learner: LearnerProfileData(
+        id: UserId(u.id),
+        displayName: u.displayName,
+        nativeLanguage: lp.nativeLanguage,
+        targetLanguage: lp.targetLanguage,
+        brainModel: lp.brainModel,
+        aiCoachPersona: lp.aiCoachPersona,
+      ),
     );
 
     eventBus.publish(GenericRuntimeEvent(
-      eventId: 'evt_$now',
-      aggregateId: userId.value,
+      eventId: 'evt_${DateTime.now().millisecondsSinceEpoch}',
+      aggregateId: u.id,
       timestamp: DateTime.now(),
       producerModule: 'app.runtime',
       eventName: 'LearnerProfileCreated',
@@ -280,6 +331,7 @@ class DiLangRuntime {
     _state = DiLangRuntimeState.initial().copyWith(
       isBootstrapped: true,
       isOnboardingRequired: true,
+      identityState: IdentityState.onboardingRequired(),
     );
 
     eventBus.publish(GenericRuntimeEvent(
