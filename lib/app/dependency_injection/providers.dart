@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/events/event_bus.dart';
 import '../../infrastructure/sqlite/sqlite_storage_engine.dart';
+import '../../infrastructure/ai/ai_runtime.dart';
 import '../runtime/dilang_runtime.dart';
 
 final eventBusProvider = Provider<EventBus>((ref) {
@@ -16,6 +17,12 @@ final sqliteEngineProvider = Provider<SqliteStorageEngine>((ref) {
   final engine = SqliteStorageEngine(dbPath: dbPath);
   ref.onDispose(() => engine.dispose());
   return engine;
+});
+
+final aiRuntimeProvider = Provider<AiRuntime>((ref) {
+  final ai = AiRuntime();
+  ref.onDispose(() => ai.dispose());
+  return ai;
 });
 
 class DiLangRuntimeNotifier extends StateNotifier<DiLangRuntimeState> {
@@ -68,7 +75,6 @@ final runtimeProvider = StateNotifierProvider<DiLangRuntimeNotifier, DiLangRunti
   return DiLangRuntimeNotifier(runtime);
 });
 
-// Alias for backwards compatibility
 final dilangRuntimeProvider = runtimeProvider;
 
 final activeTabProvider = StateProvider<int>((ref) => 0);

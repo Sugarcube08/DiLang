@@ -13,6 +13,7 @@ class RuntimeHealthScreen extends ConsumerWidget {
     final semantic = DiLangTheme.of(context);
     final runtimeState = ref.watch(runtimeProvider);
     final sqliteEngine = ref.watch(sqliteEngineProvider);
+    final aiRuntime = ref.watch(aiRuntimeProvider);
 
     int dbVersion = 0;
     String journalMode = 'UNKNOWN';
@@ -52,26 +53,48 @@ class RuntimeHealthScreen extends ConsumerWidget {
           children: [
             Text('Persistence & Runtime Status Dashboard', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: semantic.textPrimary)),
             const SizedBox(height: 8),
-            Text('Technical diagnostic overview of Identity Module, SQLite schema, DAOs, and active runtime.', style: TextStyle(color: semantic.textSecondary)),
+            Text('Technical diagnostic overview of AI Runtime, Identity Module, SQLite schema, and active dependencies.', style: TextStyle(color: semantic.textSecondary)),
             const SizedBox(height: 24),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Learner Identity Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: semantic.textPrimary)),
-                        const Divider(height: 24),
-                        _MetricRow(label: 'Identity Status', value: isIdentityReady ? 'READY' : 'ONBOARDING_REQUIRED', isOk: isIdentityReady),
-                        _MetricRow(label: 'Onboarding Status', value: isIdentityReady ? 'Completed' : 'Pending', isOk: isIdentityReady),
-                        _MetricRow(label: 'Learner Display Name', value: learnerName),
-                        _MetricRow(label: 'Target Language', value: targetLang),
-                        const _MetricRow(label: 'CEFR Trajectory', value: 'A1 → B2'),
-                        const _MetricRow(label: 'Daily Commitment', value: '15 mins/day'),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      AppCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('AI Infrastructure Runtime', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: semantic.textPrimary)),
+                            const Divider(height: 24),
+                            const _MetricRow(label: 'AI Runtime Status', value: 'READY'),
+                            _MetricRow(label: 'Active AI Provider', value: aiRuntime.activeProvider.name),
+                            _MetricRow(label: 'Active Model', value: aiRuntime.activeModel.displayName),
+                            _MetricRow(label: 'Context Window', value: '${aiRuntime.activeModel.contextWindowTokens} Tokens'),
+                            _MetricRow(label: 'Streaming Capability', value: aiRuntime.activeProvider.capabilities.supportsStreaming ? 'Supported' : 'Unsupported'),
+                            _MetricRow(label: 'JSON Output Capability', value: aiRuntime.activeProvider.capabilities.supportsJsonOutput ? 'Supported' : 'Unsupported'),
+                            const _MetricRow(label: 'Prompt Assembly Pipeline', value: 'READY'),
+                            _MetricRow(label: 'Last Response Latency', value: '${aiRuntime.lastResponseLatencyMs} ms'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      AppCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Learner Identity Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: semantic.textPrimary)),
+                            const Divider(height: 24),
+                            _MetricRow(label: 'Identity Status', value: isIdentityReady ? 'READY' : 'ONBOARDING_REQUIRED', isOk: isIdentityReady),
+                            _MetricRow(label: 'Onboarding Status', value: isIdentityReady ? 'Completed' : 'Pending', isOk: isIdentityReady),
+                            _MetricRow(label: 'Learner Display Name', value: learnerName),
+                            _MetricRow(label: 'Target Language', value: targetLang),
+                            const _MetricRow(label: 'CEFR Trajectory', value: 'A1 → B2'),
+                            const _MetricRow(label: 'Daily Commitment', value: '15 mins/day'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 24),
