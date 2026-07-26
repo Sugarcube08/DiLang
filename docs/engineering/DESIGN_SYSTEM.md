@@ -1,23 +1,26 @@
-# DiLang Design System Specification
+# DiLang Design System Specification (v1.0 Frozen)
+
+> **GOVERNANCE RULE**: Design System v1.0 is officially **FROZEN**. No new UI component may be introduced unless it can be composed directly from existing design tokens and the atomic component library (`DiLangButton`, `DiLangCard`, `DiLangInput`, `DiLangProgress`, `GlassContainer`).
+
+---
 
 ## 1. Design Tokens Reference
 
 ### Spacing System (8-Point)
 `4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 64px`
 
-### Icon Sizes
-- Small: `16px`
-- Standard: `20px` / `24px`
-- Large: `28px` / `32px`
+### Icon Abstraction (`DiIcons`)
+- `DiIcons.settings`, `DiIcons.mic`, `DiIcons.brain`, `DiIcons.analytics`, `DiIcons.learning`, `DiIcons.play`, `DiIcons.tune`, `DiIcons.themeToggle`, `DiIcons.spark`, `DiIcons.check`, `DiIcons.warning`, `DiIcons.refresh`.
+- **Constraint**: UI code must NEVER reference `Icons.*` directly.
 
-### Touch Target
-- Minimum interactive footprint: `48px x 48px`
+### Asset Registry (`AppAssets`)
+- Strongly typed getters in `AppAssets.logoIcon`, `AppAssets.logoFull`, `AppAssets.logoMono`, `AppAssets.flags*`.
 
-### Corner Radii
-- Small: `8px` (Chips, Input fields, Tooltips)
-- Medium: `14px` (Cards, Buttons, List Items)
-- Large: `20px` (Modals, Large Cards)
-- Floating: `28px` (Floating Action Bars, Player Pill)
+### Semantic Color Access (`context.colors`)
+- Raw color instantiations (`Color(0xFF...)`) are PROHIBITED outside `app_colors.dart`.
+- Access semantic color tokens via `context.colors`:
+  - `primary`, `secondary`, `accent`, `surface`, `background`, `container`, `outline`, `success`, `warning`, `error`, `info`
+  - Domain semantic tokens: `conversationUser`, `conversationAI`, `vocabularyKnown`, `vocabularyWeak`, `grammarWeak`, `grammarStrong`.
 
 ### Glassmorphism Rules
 - **Blur Radius**: `20px` to `24px`
