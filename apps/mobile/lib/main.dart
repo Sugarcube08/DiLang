@@ -42,14 +42,16 @@ Future<void> main() async {
 
 Future<void> _initRustLibrary() async {
   final String libName = Platform.isWindows
-      ? 'ffi.dll'
+      ? 'dilang_ffi.dll'
       : Platform.isMacOS
-          ? 'libffi.dylib'
-          : 'libffi.so';
+          ? 'libdilang_ffi.dylib'
+          : 'libdilang_ffi.so';
 
   final List<String> candidatePaths = [
-    // 1. Bundle directory / RPATH lookup
-    libName,
+    // 1. Bundle directory / RPATH relative to executable
+    '${Directory.current.path}/lib/$libName',
+    '${Directory.current.path}/build/linux/x64/debug/bundle/lib/$libName',
+    '${Directory.current.path}/build/linux/x64/release/bundle/lib/$libName',
     // 2. Relative from apps/mobile directory to workspace target directory
     '../../target/debug/$libName',
     '../../target/release/$libName',
@@ -58,22 +60,25 @@ Future<void> _initRustLibrary() async {
     '${Directory.current.path}/../../target/release/$libName',
     '${Directory.current.path}/target/debug/$libName',
     '${Directory.current.path}/target/release/$libName',
+    libName,
   ];
 
   ExternalLibrary? externalLibrary;
 
   for (final path in candidatePaths) {
     try {
-      if (path == libName) {
-        externalLibrary = ExternalLibrary.open(path);
-        debugPrint("=== RUST FFI: Loaded dynamic library via bundle/system name: $path ===");
-        break;
-      }
       final file = File(path);
       if (file.existsSync()) {
         externalLibrary = ExternalLibrary.open(file.absolute.path);
         debugPrint("=== RUST FFI: Loaded dynamic library from file path: ${file.absolute.path} ===");
         break;
+      } else if (path == libName) {
+        // Fallback bare system name attempt
+        try {
+          externalLibrary = ExternalLibrary.open(path);
+          debugPrint("=== RUST FFI: Loaded dynamic library via system name: $path ===");
+          break;
+        } catch (_) {}
       }
     } catch (e) {
       debugPrint("RUST FFI candidate path failed ($path): $e");

@@ -169,12 +169,17 @@ pub fn initialize_schema() -> Result<()> {
 }
 
 pub fn get_connection() -> Result<Connection> {
-    if let Some(path) = crate::get_db_path() {
+    let conn = if let Some(path) = crate::get_db_path() {
+        info!("Opening SQLite connection at: {:?}", path);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        Ok(Connection::open(path)?)
+        Connection::open(path)?
     } else {
-        Ok(Connection::open_in_memory()?)
-    }
+        info!("Opening in-memory SQLite connection");
+        Connection::open_in_memory()?
+    };
+
+    conn.execute_batch(DDL_SCHEMA_V1)?;
+    Ok(conn)
 }

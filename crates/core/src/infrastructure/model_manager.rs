@@ -107,9 +107,8 @@ impl ModelManager {
         ModelDownloader::create_local_file(&target_path, content)
             .map_err(|e| AppError::internal(&format!("Failed to create model file: {}", e)))?;
 
-        let is_valid = self
-            .verify_checksum(&target_path, "dummy_hash")
-            .unwrap_or(true);
+        let actual_sha = FileVerifier::calculate_sha256(&target_path)
+            .map_err(|e| AppError::internal(&format!("Failed to calculate SHA-256: {}", e)))?;
 
         let size = content.len() as u64;
         let record = InstalledModelRecord {
@@ -117,11 +116,45 @@ impl ModelManager {
             name: model_name.to_string(),
             version: version.to_string(),
             path: target_path.to_string_lossy().to_string(),
-            sha256: if is_valid {
-                "dummy_hash".to_string()
-            } else {
-                "invalid".to_string()
-            },
+            sha256: actual_sha,
+            size_bytes: size,
+            installed_at: Utc::now().to_rfc3339(),
+        };
+
+        self.register_installed_model(&record)?;
+        Ok(record)
+    }
+
+    pub fn verify_and_register_model(
+        &self,
+        target_path: &Path,
+        model_name: &str,
+        version: &str,
+        expected_sha256: &str,
+    ) -> CoreResult<InstalledModelRecord> {
+        let matches = FileVerifier::verify_sha256(target_path, expected_sha256)
+            .map_err(|e| AppError::internal(&format!("SHA-256 error: {}", e)))?;
+
+        if !matches {
+            let _ = std::fs::remove_file(target_path);
+            return Err(AppError::internal(&format!(
+                "SHA-256 checksum verification failed for model {}. Target file deleted.",
+                model_name
+            )));
+        }
+
+        let actual_sha = FileVerifier::calculate_sha256(target_path)
+            .unwrap_or_else(|_| expected_sha256.to_string());
+        let size = std::fs::metadata(target_path)
+            .map(|m| m.len())
+            .unwrap_or(0);
+
+        let record = InstalledModelRecord {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: model_name.to_string(),
+            version: version.to_string(),
+            path: target_path.to_string_lossy().to_string(),
+            sha256: actual_sha,
             size_bytes: size,
             installed_at: Utc::now().to_rfc3339(),
         };

@@ -32,16 +32,39 @@ impl UserRepositoryImpl {
 
 impl UserRepositoryContract for UserRepositoryImpl {
     fn create_user(&self, username: &str, native_lang: &str, target_lang: &str) -> Result<User> {
-        info!("Inserting real user into SQLite database: {}", username);
-        let user = User::new(username, native_lang, target_lang);
         let conn = get_connection()?;
+        let active = self.get_active_user()?;
 
-        conn.execute(
-            "INSERT INTO users (id, username, native_language, target_language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![user.id, user.username, user.native_language, user.target_language, user.created_at.to_rfc3339()],
-        )?;
+        if let Some(mut existing) = active {
+            info!(
+                "Updating existing active user in SQLite: id={}, username='{}', native='{}', target='{}'",
+                existing.id, username, native_lang, target_lang
+            );
+            if !username.is_empty() {
+                existing.username = username.to_string();
+            }
+            if !native_lang.is_empty() {
+                existing.native_language = native_lang.to_string();
+            }
+            if !target_lang.is_empty() {
+                existing.target_language = target_lang.to_string();
+            }
 
-        Ok(user)
+            conn.execute(
+                "UPDATE users SET username = ?1, native_language = ?2, target_language = ?3 WHERE id = ?4",
+                params![existing.username, existing.native_language, existing.target_language, existing.id],
+            )?;
+
+            Ok(existing)
+        } else {
+            info!("Inserting initial user into SQLite database: {}", username);
+            let user = User::new(username, native_lang, target_lang);
+            conn.execute(
+                "INSERT INTO users (id, username, native_language, target_language, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![user.id, user.username, user.native_language, user.target_language, user.created_at.to_rfc3339()],
+            )?;
+            Ok(user)
+        }
     }
 
     fn save_user_profile(

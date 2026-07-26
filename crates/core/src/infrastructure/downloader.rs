@@ -10,8 +10,8 @@ use tracing::info;
 pub struct FileVerifier;
 
 impl FileVerifier {
-    pub fn verify_sha256(file_path: &Path, expected_sha256: &str) -> Result<bool> {
-        info!("Verifying SHA-256 for file: {:?}", file_path);
+    pub fn calculate_sha256(file_path: &Path) -> Result<String> {
+        info!("Calculating SHA-256 for file: {:?}", file_path);
         let mut file = File::open(file_path)?;
         let mut hasher = Sha256::new();
         let mut buffer = [0u8; 8192];
@@ -23,6 +23,12 @@ impl FileVerifier {
             hasher.update(&buffer[..n]);
         }
         let hash_result = format!("{:x}", hasher.finalize());
+        info!("SHA-256 calculated: {}", hash_result);
+        Ok(hash_result)
+    }
+
+    pub fn verify_sha256(file_path: &Path, expected_sha256: &str) -> Result<bool> {
+        let hash_result = Self::calculate_sha256(file_path)?;
         let matches = hash_result.eq_ignore_ascii_case(expected_sha256);
         info!(
             "SHA-256 calculated: {}, expected: {}, match: {}",

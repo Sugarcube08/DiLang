@@ -6,6 +6,7 @@ authors.workspace = true
 license.workspace = true
 
 [lib]
+name = "dilang_ffi"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
