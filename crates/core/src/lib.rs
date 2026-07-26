@@ -5,17 +5,23 @@ use tracing_subscriber::FmtSubscriber;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-pub mod api;
 pub mod analytics;
+pub mod api;
+pub mod app_runtime;
 pub mod conversation;
+pub mod di;
+pub mod events;
 pub mod grammar;
+pub mod lifecycle;
 pub mod models;
 pub mod plugin_api;
 pub mod providers;
+pub mod repositories;
 pub mod review;
 pub mod storage;
 pub mod sync;
 pub mod vocabulary;
+pub mod workers;
 
 static LOG_INITIALIZED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 
@@ -78,6 +84,7 @@ fn get_db_path() -> Option<PathBuf> {
 mod tests {
     use super::*;
     use api::DiLangEngineFacade;
+    use events::{global_event_bus, ConversationEventPayload};
 
     #[test]
     fn test_ping_core() {
@@ -99,5 +106,12 @@ mod tests {
         assert!(conv.is_ok());
         assert_eq!(conv.unwrap().scenario_id, "cafe_order");
         assert!(engine.shutdown().is_ok());
+    }
+
+    #[test]
+    fn test_event_bus() {
+        let bus = global_event_bus();
+        let payload = ConversationEventPayload::ConversationStarted { scenario_id: "test".to_string() };
+        assert!(bus.publish("conversation", &payload).is_ok());
     }
 }

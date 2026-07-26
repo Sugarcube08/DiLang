@@ -30,3 +30,11 @@ pub fn get_analytics_snapshot() -> String {
         Err(err) => format!("Error: {}", err),
     }
 }
+
+pub fn shutdown_engine() -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.shutdown() {
+        Ok(_) => "Engine Shutdown OK".to_string(),
+        Err(err) => format!("Error: {}", err),
+    }
+}

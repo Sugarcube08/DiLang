@@ -51,8 +51,10 @@ impl EventBus {
 
     pub fn publish<T: Serialize>(&self, event_type: &str, payload: &T) -> anyhow::Result<usize> {
         let json_payload = serde_json::to_string(payload)?;
-        let count = self.sender.send((event_type.to_string(), json_payload))?;
-        Ok(count)
+        match self.sender.send((event_type.to_string(), json_payload)) {
+            Ok(count) => Ok(count),
+            Err(_) => Ok(0), // Ignore SendError::NoReceivers when no active subscribers exist
+        }
     }
 
     pub fn subscribe(&self) -> broadcast::Receiver::<(String, String)> {

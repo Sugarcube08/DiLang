@@ -28,3 +28,7 @@ pub fn start_conversation_impl(scenario_id: String) -> String {
 pub fn get_analytics_snapshot_impl() -> String {
     crate::api::get_analytics_snapshot()
 }
+
+pub fn shutdown_engine_impl() -> String {
+    crate::api::shutdown_engine()
+}

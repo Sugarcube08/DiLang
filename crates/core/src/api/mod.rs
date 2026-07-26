@@ -1,42 +1,39 @@
-//! Public High-Level Engine API Facade
-//! Clean, thread-safe entry point for native apps and FFI bindings.
+//! Public Engine API Facade Specification
 
 use anyhow::Result;
 use crate::models::{Conversation, ProgressSnapshot, ReviewCard, Vocabulary};
-use crate::conversation::{ConversationEngine, DefaultConversationEngine};
+use crate::repositories::{ConversationRepositoryContract, ConversationRepositoryImpl};
+use crate::lifecycle::AppLifecycleManager;
 
 pub struct DiLangEngineFacade {
-    conversation_engine: Box<dyn ConversationEngine>,
+    conversation_repo: Box<dyn ConversationRepositoryContract>,
 }
 
 impl DiLangEngineFacade {
     pub fn new() -> Self {
         Self {
-            conversation_engine: Box::new(DefaultConversationEngine),
+            conversation_repo: Box::new(ConversationRepositoryImpl::new()),
         }
     }
 
-    /// Global engine initialization
+    /// Global engine cold start initialization
     pub fn initialize(&self) -> Result<()> {
-        crate::init_logging();
-        crate::storage::schema::initialize_schema()?;
-        Ok(())
+        AppLifecycleManager::cold_start()
     }
 
     /// Graceful engine shutdown
     pub fn shutdown(&self) -> Result<()> {
-        tracing::info!("Shutting down DiLang Core Engine");
-        Ok(())
+        AppLifecycleManager::shutdown()
     }
 
     /// Start a new dialogue roleplay conversation
     pub fn conversation_start(&self, scenario_id: &str) -> Result<Conversation> {
-        self.conversation_engine.start_session(scenario_id)
+        self.conversation_repo.start(scenario_id)
     }
 
     /// Reply to an ongoing conversation
     pub fn conversation_reply(&self, conversation_id: &str, user_text: &str) -> Result<String> {
-        self.conversation_engine.send_reply(conversation_id, user_text)
+        self.conversation_repo.reply(conversation_id, user_text)
     }
 
     /// Lookup vocabulary term
