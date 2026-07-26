@@ -7,6 +7,7 @@ use crate::repositories::{
     UserRepositoryContract, UserRepositoryImpl,
     SettingsRepositoryContract, SettingsRepositoryImpl,
 };
+use crate::conversation::{ConversationEngine, DefaultConversationEngine, MessageRecord, scenarios::ScenarioDefinition};
 use crate::lifecycle::AppLifecycleManager;
 use crate::infrastructure::{
     CapabilityRegistry, Capability, MetricsCollector, InternalMetrics,
@@ -14,7 +15,8 @@ use crate::infrastructure::{
 };
 
 pub struct DiLangEngineFacade {
-    conversation_repo: Box<dyn ConversationRepositoryContract>,
+    conversation_engine: Box<dyn ConversationEngine>,
+    _conversation_repo: Box<dyn ConversationRepositoryContract>,
     user_repo: Box<dyn UserRepositoryContract>,
     _settings_repo: Box<dyn SettingsRepositoryContract>,
     capability_registry: CapabilityRegistry,
@@ -25,7 +27,8 @@ pub struct DiLangEngineFacade {
 impl DiLangEngineFacade {
     pub fn new() -> Self {
         Self {
-            conversation_repo: Box::new(ConversationRepositoryImpl::new()),
+            conversation_engine: Box::new(DefaultConversationEngine::new()),
+            _conversation_repo: Box::new(ConversationRepositoryImpl::new()),
             user_repo: Box::new(UserRepositoryImpl::new()),
             _settings_repo: Box::new(SettingsRepositoryImpl::new()),
             capability_registry: CapabilityRegistry::new(),
@@ -67,6 +70,26 @@ impl DiLangEngineFacade {
         self.user_repo.get_active_user()
     }
 
+    /// List available dialogue roleplay scenarios
+    pub fn get_available_scenarios(&self) -> Vec<ScenarioDefinition> {
+        self.conversation_engine.get_available_scenarios()
+    }
+
+    /// Start a new dialogue roleplay conversation
+    pub fn conversation_start(&self, scenario_id: &str) -> Result<Conversation> {
+        self.conversation_engine.start_session(scenario_id)
+    }
+
+    /// Reply to an ongoing conversation
+    pub fn conversation_reply(&self, conversation_id: &str, user_text: &str) -> Result<String> {
+        self.conversation_engine.send_reply(conversation_id, user_text)
+    }
+
+    /// Retrieve full message history for a conversation
+    pub fn get_conversation_history(&self, conversation_id: &str) -> Result<Vec<MessageRecord>> {
+        self.conversation_engine.get_history(conversation_id)
+    }
+
     /// Install & register model file with real SHA-256 calculation
     pub fn install_model(&self, name: &str, version: &str, content: &[u8]) -> Result<InstalledModelRecord> {
         self.model_manager.install_model_file(name, version, content)
@@ -82,16 +105,6 @@ impl DiLangEngineFacade {
     /// Inspect device system hardware resource budget
     pub fn get_system_resource_budget(&self) -> SystemBudget {
         self.resource_manager.inspect_budget()
-    }
-
-    /// Start a new dialogue roleplay conversation
-    pub fn conversation_start(&self, scenario_id: &str) -> Result<Conversation> {
-        self.conversation_repo.start(scenario_id)
-    }
-
-    /// Reply to an ongoing conversation
-    pub fn conversation_reply(&self, conversation_id: &str, user_text: &str) -> Result<String> {
-        self.conversation_repo.reply(conversation_id, user_text)
     }
 
     /// Lookup vocabulary term

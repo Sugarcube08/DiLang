@@ -47,6 +47,36 @@ pub fn get_active_user() -> String {
     }
 }
 
+pub fn get_available_scenarios() -> String {
+    let engine = DiLangEngineFacade::new();
+    let scenarios = engine.get_available_scenarios();
+    serde_json::to_string(&scenarios).unwrap_or_default()
+}
+
+pub fn start_conversation(scenario_id: String) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.conversation_start(&scenario_id) {
+        Ok(conv) => conv.id,
+        Err(err) => format!("Error: {}", err),
+    }
+}
+
+pub fn send_dialogue_turn(conversation_id: String, text: String) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.conversation_reply(&conversation_id, &text) {
+        Ok(reply) => reply,
+        Err(err) => format!("Error: {}", err),
+    }
+}
+
+pub fn get_conversation_history(conversation_id: String) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.get_conversation_history(&conversation_id) {
+        Ok(msgs) => serde_json::to_string(&msgs).unwrap_or_default(),
+        Err(err) => format!("Error: {}", err),
+    }
+}
+
 pub fn install_model(name: String, version: String, content: Vec<u8>) -> String {
     let engine = DiLangEngineFacade::new();
     match engine.install_model(&name, &version, &content) {
@@ -67,14 +97,6 @@ pub fn get_system_resource_budget() -> String {
     let engine = DiLangEngineFacade::new();
     let budget = engine.get_system_resource_budget();
     serde_json::to_string(&budget).unwrap_or_default()
-}
-
-pub fn start_conversation(scenario_id: String) -> String {
-    let engine = DiLangEngineFacade::new();
-    match engine.conversation_start(&scenario_id) {
-        Ok(conv) => conv.id,
-        Err(err) => format!("Error: {}", err),
-    }
 }
 
 pub fn get_analytics_snapshot() -> String {

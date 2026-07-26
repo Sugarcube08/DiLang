@@ -6,6 +6,7 @@ import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
 import '../theme/app_gradients.dart';
 import '../components/dilang_card.dart';
+import 'conversation_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -172,13 +173,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(
                         child: DiLangCard(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ConversationScreen(
+                                  scenarioId: 'cafe_order',
+                                  scenarioTitle: 'Ordering Coffee in Berlin',
+                                ),
+                              ),
+                            );
+                          },
                           child: Column(
                             children: [
                               Icon(DiIcons.mic, size: 32, color: colors.primary),
                               const SizedBox(height: 8),
                               const Text('Roleplay AI', style: TextStyle(fontWeight: FontWeight.bold)),
                               const SizedBox(height: 4),
-                              Text('Phase 9', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
+                              Text('Active', style: TextStyle(color: colors.success, fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),

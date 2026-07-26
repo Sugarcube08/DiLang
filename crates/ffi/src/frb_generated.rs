@@ -47,6 +47,22 @@ pub fn get_active_user_impl() -> String {
     crate::api::get_active_user()
 }
 
+pub fn get_available_scenarios_impl() -> String {
+    crate::api::get_available_scenarios()
+}
+
+pub fn start_conversation_impl(scenario_id: String) -> String {
+    crate::api::start_conversation(scenario_id)
+}
+
+pub fn send_dialogue_turn_impl(conversation_id: String, text: String) -> String {
+    crate::api::send_dialogue_turn(conversation_id, text)
+}
+
+pub fn get_conversation_history_impl(conversation_id: String) -> String {
+    crate::api::get_conversation_history(conversation_id)
+}
+
 pub fn install_model_impl(name: String, version: String, content: Vec<u8>) -> String {
     crate::api::install_model(name, version, content)
 }
@@ -57,10 +73,6 @@ pub fn list_installed_models_impl() -> String {
 
 pub fn get_system_resource_budget_impl() -> String {
     crate::api::get_system_resource_budget()
-}
-
-pub fn start_conversation_impl(scenario_id: String) -> String {
-    crate::api::start_conversation(scenario_id)
 }
 
 pub fn get_analytics_snapshot_impl() -> String {

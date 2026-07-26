@@ -32,6 +32,26 @@ class DiLangNativeBridge {
     return '{"id":"user-001","username":"Learner","native_language":"English","target_language":"German"}';
   }
 
+  static String getAvailableScenarios() {
+    _logger.info('Fetching available roleplay scenarios...');
+    return '[{"id":"cafe_order","title":"Ordering Coffee in Berlin","description":"Practice ordering coffee and pastries in German at a busy café.","target_language":"German","cefr_level":"A1"},{"id":"hotel_checkin","title":"Hotel Check-in in Madrid","description":"Check into your hotel room and request extra towels in Spanish.","target_language":"Spanish","cefr_level":"A2"},{"id":"directions_tokyo","title":"Asking Directions in Tokyo","description":"Ask a local for directions to Shibuya station in Japanese.","target_language":"Japanese","cefr_level":"N5"}]';
+  }
+
+  static String startConversation(String scenarioId) {
+    _logger.info('Starting conversation session for scenario: $scenarioId');
+    return 'conv-${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  static String sendDialogueTurn(String conversationId, String text) {
+    _logger.info('Sending dialogue turn to Gemma LLM engine...');
+    return 'Wunderbar! You said "$text". Ich verstehe!';
+  }
+
+  static String getConversationHistory(String conversationId) {
+    _logger.info('Fetching dialogue history for conversation: $conversationId');
+    return '[{"id":"m-1","conversation_id":"$conversationId","sender":"model","text":"Guten Tag! Willkommen im Café. Was möchten Sie bestellen?","timestamp":"2026-07-27T00:00:00Z"}]';
+  }
+
   static String installModel(String name, String version, List<int> bytes) {
     _logger.info('Installing model file in Rust core: $name ($version)');
     return '{"id":"m-001","name":"$name","version":"$version","size_bytes":${bytes.length}}';
@@ -50,5 +70,10 @@ class DiLangNativeBridge {
   static String getAnalyticsSnapshot() {
     _logger.info('Fetching analytics snapshot...');
     return 'Known Words: 150, Mastered Grammar: 12, Practice Hours: 4.5h';
+  }
+
+  static String queryCapability(String capName) {
+    _logger.info('Querying capability: $capName');
+    return 'Gemma 3 1B (llama.cpp)';
   }
 }
