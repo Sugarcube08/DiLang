@@ -19,6 +19,16 @@ use crate::repositories::{
 use crate::review::{FsrsReviewEngine, ReviewEngine};
 use crate::vocabulary::{DefaultVocabularyEngine, VocabularyEngine};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum StartupState {
+    NeedsProfile,
+    NeedsLanguages,
+    NeedsPermissions,
+    NeedsModels,
+    Ready,
+}
 
 pub struct DiLangEngineFacade {
     conversation_engine: Box<dyn ConversationEngine>,
@@ -67,6 +77,32 @@ impl DiLangEngineFacade {
     /// Graceful engine shutdown
     pub fn shutdown(&self) -> Result<()> {
         AppLifecycleManager::shutdown()
+    }
+
+    /// Rust Backend Startup State Machine
+    /// Queries SQLite database to determine application launch state
+    pub fn get_startup_state(&self) -> StartupState {
+        let active_user = self.user_repo.get_active_user().unwrap_or_default();
+
+        if active_user.is_none() {
+            return StartupState::NeedsProfile;
+        }
+
+        let user = active_user.unwrap();
+        if user.target_language.is_empty() {
+            return StartupState::NeedsLanguages;
+        }
+
+        let models = self
+            .model_manager
+            .list_installed_models()
+            .unwrap_or_default();
+
+        if models.is_empty() {
+            return StartupState::NeedsModels;
+        }
+
+        StartupState::Ready
     }
 
     /// Create User Profile & Learning Goal in SQLite

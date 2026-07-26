@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/app_runtime_provider.dart';
-import '../providers/user_profile_provider.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/di_icons.dart';
 
@@ -34,11 +33,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (!mounted) return;
 
-    final userState = ref.read(userProfileProvider);
-    if (userState.activeUser != null) {
-      context.go('/home');
-    } else {
-      context.go('/onboarding/profile');
+    final runtimeState = ref.read(appRuntimeProvider);
+    switch (runtimeState.startupState) {
+      case 'NeedsProfile':
+        context.go('/onboarding/profile');
+        break;
+      case 'NeedsLanguages':
+        context.go('/onboarding/languages');
+        break;
+      case 'NeedsPermissions':
+        context.go('/onboarding/permissions');
+        break;
+      case 'NeedsModels':
+        context.go('/onboarding/model-download');
+        break;
+      case 'Ready':
+      default:
+        context.go('/home');
+        break;
     }
   }
 

@@ -12,6 +12,17 @@ pub fn check_db_health() -> String {
     }
 }
 
+pub fn get_startup_state() -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.get_startup_state() {
+        core::api::StartupState::NeedsProfile => "NeedsProfile".to_string(),
+        core::api::StartupState::NeedsLanguages => "NeedsLanguages".to_string(),
+        core::api::StartupState::NeedsPermissions => "NeedsPermissions".to_string(),
+        core::api::StartupState::NeedsModels => "NeedsModels".to_string(),
+        core::api::StartupState::Ready => "Ready".to_string(),
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn create_user_profile(
     username: String,

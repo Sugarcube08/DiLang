@@ -6,6 +6,7 @@ class AppRuntimeState {
   final bool isInitializing;
   final String statusMessage;
   final bool isDbHealthy;
+  final String startupState; // NeedsProfile, NeedsLanguages, NeedsPermissions, NeedsModels, Ready
   final Map<String, dynamic> resourceBudget;
   final String? error;
 
@@ -13,6 +14,7 @@ class AppRuntimeState {
     required this.isInitializing,
     required this.statusMessage,
     required this.isDbHealthy,
+    required this.startupState,
     required this.resourceBudget,
     this.error,
   });
@@ -21,6 +23,7 @@ class AppRuntimeState {
     bool? isInitializing,
     String? statusMessage,
     bool? isDbHealthy,
+    String? startupState,
     Map<String, dynamic>? resourceBudget,
     String? error,
   }) {
@@ -28,6 +31,7 @@ class AppRuntimeState {
       isInitializing: isInitializing ?? this.isInitializing,
       statusMessage: statusMessage ?? this.statusMessage,
       isDbHealthy: isDbHealthy ?? this.isDbHealthy,
+      startupState: startupState ?? this.startupState,
       resourceBudget: resourceBudget ?? this.resourceBudget,
       error: error,
     );
@@ -40,17 +44,18 @@ class AppRuntimeNotifier extends StateNotifier<AppRuntimeState> {
           isInitializing: true,
           statusMessage: 'Starting Runtime...',
           isDbHealthy: false,
+          startupState: 'NeedsProfile',
           resourceBudget: {},
         ));
 
   Future<void> initializeRuntime(void Function(String) onProgress) async {
     try {
       onProgress('Initializing SQLite Engine...');
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 150));
       final dbHealth = DiLangNativeBridge.checkDbHealth();
 
       onProgress('Checking Hardware Resource Budget...');
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 150));
       final budgetJson = DiLangNativeBridge.getSystemResourceBudget();
       Map<String, dynamic> budgetMap = {};
       if (budgetJson.isNotEmpty && !budgetJson.startsWith('Error')) {
@@ -59,16 +64,15 @@ class AppRuntimeNotifier extends StateNotifier<AppRuntimeState> {
         } catch (_) {}
       }
 
-      onProgress('Discovering Installed Models...');
-      await Future.delayed(const Duration(milliseconds: 200));
-
-      onProgress('Checking Active User Profile...');
-      await Future.delayed(const Duration(milliseconds: 200));
+      onProgress('Querying Backend Startup State Machine...');
+      await Future.delayed(const Duration(milliseconds: 150));
+      final stateStr = DiLangNativeBridge.getStartupState();
 
       state = state.copyWith(
         isInitializing: false,
         statusMessage: 'Runtime Operational',
         isDbHealthy: dbHealth.contains('Healthy'),
+        startupState: stateStr,
         resourceBudget: budgetMap,
       );
     } catch (e) {

@@ -13,6 +13,19 @@ class DiLangNativeBridge {
     return 'SQLite 3 is Healthy';
   }
 
+  static String getStartupState() {
+    _logger.info('Querying Rust backend for application startup state...');
+    final activeUser = getActiveUser();
+    if (activeUser.isEmpty || activeUser.startsWith('Error')) {
+      return 'NeedsProfile';
+    }
+    final models = listInstalledModels();
+    if (models.isEmpty || models == '[]' || models.startsWith('Error')) {
+      return 'NeedsModels';
+    }
+    return 'Ready';
+  }
+
   static String createUserProfile(
     String username,
     String nativeLang,
