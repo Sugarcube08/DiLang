@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/glass.dart';
 import '../theme/design_tokens.dart';
-import '../theme/app_colors.dart';
+import '../theme/theme_extensions.dart';
 
 class DiLangCard extends StatelessWidget {
   final Widget child;
@@ -27,14 +27,14 @@ class DiLangCard extends StatelessWidget {
       );
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
     Widget cardContent = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
         border: Border.all(
-          color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+          color: colors.outline,
           width: DesignTokens.borderWidthThin,
         ),
       ),

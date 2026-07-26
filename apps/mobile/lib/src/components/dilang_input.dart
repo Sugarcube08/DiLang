@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/design_tokens.dart';
 import '../theme/app_radius.dart';
-import '../theme/app_colors.dart';
+import '../theme/theme_extensions.dart';
 
 class DiLangInput extends StatelessWidget {
   final String? hintText;
@@ -23,40 +23,40 @@ class DiLangInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
 
     return TextField(
       controller: controller,
       onChanged: onChanged,
       style: TextStyle(
-        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+        color: colors.textPrimary,
         fontSize: 15,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
         hintStyle: TextStyle(
-          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          color: colors.textSecondary,
           fontSize: 14,
         ),
         filled: true,
-        fillColor: isDark ? AppColors.darkGlassFill : AppColors.lightGlassFill,
+        fillColor: colors.glassFill,
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary, size: 20)
+            ? Icon(prefixIcon, color: colors.textSecondary, size: 20)
             : null,
         suffixIcon: suffixIcon,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: AppRadius.borderSmall,
           borderSide: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            color: colors.glassBorder,
             width: DesignTokens.borderWidthThin,
           ),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.borderSmall,
           borderSide: BorderSide(
-            color: AppColors.primary,
+            color: colors.primary,
             width: DesignTokens.borderWidthMedium,
           ),
         ),

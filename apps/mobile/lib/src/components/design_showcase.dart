@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../theme/theme_extensions.dart';
 import '../theme/app_gradients.dart';
 import '../theme/design_tokens.dart';
+import '../theme/di_icons.dart';
 import 'dilang_button.dart';
 import 'dilang_card.dart';
 import 'dilang_input.dart';
@@ -24,6 +25,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -31,7 +33,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
         title: const Text('DiLang Design System'),
         actions: [
           IconButton(
-            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
+            icon: Icon(isDark ? DiIcons.lightMode : DiIcons.darkMode),
             onPressed: widget.onToggleTheme,
             tooltip: 'Toggle Theme',
           ),
@@ -42,24 +44,24 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Section 1: Brand & Palette ---
-            _buildSectionHeader('1. Brand & Palette Colors'),
+            _buildSectionHeader('1. Semantic Palette Colors'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 12,
               runSpacing: 12,
               children: [
-                _buildColorChip('Primary', AppColors.primary),
-                _buildColorChip('Secondary', AppColors.secondary),
-                _buildColorChip('Accent', AppColors.accent),
-                _buildColorChip('Warning', AppColors.warning),
-                _buildColorChip('Error', AppColors.error),
-                _buildColorChip('Info', AppColors.info),
+                _buildColorChip('Primary', colors.primary),
+                _buildColorChip('Secondary', colors.secondary),
+                _buildColorChip('Accent', colors.accent),
+                _buildColorChip('Warning', colors.warning),
+                _buildColorChip('Error', colors.error),
+                _buildColorChip('Info', colors.info),
+                _buildColorChip('User Bubble', colors.conversationUser),
+                _buildColorChip('AI Bubble', colors.conversationAI),
               ],
             ),
             const SizedBox(height: 32),
 
-            // --- Section 2: Glassmorphic Cards ---
             _buildSectionHeader('2. Glassmorphism & Depth'),
             const SizedBox(height: 12),
             DiLangCard(
@@ -75,7 +77,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
                           gradient: AppGradients.primary,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 24),
+                        child: const Icon(DiIcons.brain, color: Colors.white, size: 24),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -90,7 +92,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
                             Text(
                               'Gemma 3 1B On-Device Model',
                               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    color: colors.textSecondary,
                                   ),
                             ),
                           ],
@@ -100,7 +102,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Conversational practice with 24px backdrop blur, 55% opacity fill, and 1px border stroke.',
+                    'Conversational practice with semantic themes, 24px backdrop blur, and 1px border stroke.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
@@ -108,7 +110,6 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
             ),
             const SizedBox(height: 32),
 
-            // --- Section 3: Buttons ---
             _buildSectionHeader('3. Button System'),
             const SizedBox(height: 12),
             Wrap(
@@ -117,19 +118,19 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
               children: [
                 DiLangButton(
                   label: 'Filled Primary',
-                  icon: Icons.play_arrow_rounded,
+                  icon: DiIcons.play,
                   variant: DiLangButtonVariant.filled,
                   onPressed: () {},
                 ),
                 DiLangButton(
                   label: 'Glass Panel',
-                  icon: Icons.auto_awesome_rounded,
+                  icon: DiIcons.spark,
                   variant: DiLangButtonVariant.glass,
                   onPressed: () {},
                 ),
                 DiLangButton(
                   label: 'Outlined',
-                  icon: Icons.tune_rounded,
+                  icon: DiIcons.tune,
                   variant: DiLangButtonVariant.outlined,
                   onPressed: () {},
                 ),
@@ -142,12 +143,11 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
             ),
             const SizedBox(height: 32),
 
-            // --- Section 4: Input & Progress ---
             _buildSectionHeader('4. Input Fields & Progress'),
             const SizedBox(height: 12),
             const DiLangInput(
               hintText: 'Type your response in target language...',
-              prefixIcon: Icons.mic_rounded,
+              prefixIcon: DiIcons.mic,
             ),
             const SizedBox(height: 20),
             Row(
