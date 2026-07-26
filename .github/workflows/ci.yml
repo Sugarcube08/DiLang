@@ -63,13 +63,13 @@ jobs:
         run: flutter doctor -v
 
       - name: Install Flutter Dependencies
+        working-directory: apps/mobile
         run: flutter pub get
-        continue-on-error: true
 
       - name: Run Flutter Static Analysis
+        working-directory: apps/mobile
         run: flutter analyze
-        continue-on-error: true
 
       - name: Run Flutter Unit Tests
+        working-directory: apps/mobile
         run: flutter test
-        continue-on-error: true

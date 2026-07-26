@@ -160,10 +160,7 @@ pub struct FfiDownloadProgress {
     pub status: String,
 }
 
-pub fn download_model_stream(
-    model_id: String,
-    sink: StreamSink<FfiDownloadProgress>,
-) -> String {
+pub fn download_model_stream(model_id: String, sink: StreamSink<FfiDownloadProgress>) -> String {
     let engine = DiLangEngineFacade::new();
     match engine.download_registry_model(&model_id, |prog| {
         let _ = sink.add(FfiDownloadProgress {

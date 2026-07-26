@@ -43,10 +43,14 @@ impl FileVerifier {
 
     pub fn verify_sha256(file_path: &Path, expected_sha256: &str) -> Result<bool> {
         let hash_result = Self::calculate_sha256(file_path)?;
-        let matches = hash_result.trim().eq_ignore_ascii_case(expected_sha256.trim());
+        let matches = hash_result
+            .trim()
+            .eq_ignore_ascii_case(expected_sha256.trim());
         info!(
             "SHA-256 verification: calculated='{}', expected='{}', match={}",
-            hash_result.trim(), expected_sha256.trim(), matches
+            hash_result.trim(),
+            expected_sha256.trim(),
+            matches
         );
         Ok(matches)
     }
@@ -139,7 +143,10 @@ impl ModelDownloader {
             .unwrap_or_default();
 
         if !remote_etag.is_empty() {
-            info!("Extracted dynamic network SHA-256 header for '{}': '{}'", entry.id, remote_etag);
+            info!(
+                "Extracted dynamic network SHA-256 header for '{}': '{}'",
+                entry.id, remote_etag
+            );
         }
 
         let is_partial = response.status() == reqwest::StatusCode::PARTIAL_CONTENT;
@@ -150,7 +157,9 @@ impl ModelDownloader {
                 .create(true)
                 .append(true)
                 .open(&part_path)
-                .map_err(|e| AppError::internal(&format!("Failed to open .part file for append: {}", e)))?
+                .map_err(|e| {
+                    AppError::internal(&format!("Failed to open .part file for append: {}", e))
+                })?
         } else {
             info!("Server returned 200 OK for '{}'. Truncating .part file and downloading fresh from byte 0.", entry.id);
             existing_bytes = 0;
@@ -159,7 +168,9 @@ impl ModelDownloader {
                 .write(true)
                 .truncate(true)
                 .open(&part_path)
-                .map_err(|e| AppError::internal(&format!("Failed to open .part file for write: {}", e)))?
+                .map_err(|e| {
+                    AppError::internal(&format!("Failed to open .part file for write: {}", e))
+                })?
         };
 
         let total_bytes = entry.size_bytes.max(existing_bytes);
@@ -173,7 +184,10 @@ impl ModelDownloader {
                 Ok(0) => break,
                 Ok(bytes_read) => bytes_read,
                 Err(e) => {
-                    return Err(AppError::internal(&format!("Error reading HTTP stream: {}", e)));
+                    return Err(AppError::internal(&format!(
+                        "Error reading HTTP stream: {}",
+                        e
+                    )));
                 }
             };
 
@@ -231,7 +245,9 @@ impl ModelDownloader {
         // Verification passes if calculated hash matches config hash OR remote HTTP header hash OR full size matches
         let is_valid = calc_clean == config_clean
             || (!remote_etag.is_empty() && calc_clean == remote_etag)
-            || (downloaded_bytes >= entry.size_bytes && entry.size_bytes > 0 && calc_clean.len() == 64);
+            || (downloaded_bytes >= entry.size_bytes
+                && entry.size_bytes > 0
+                && calc_clean.len() == 64);
 
         if !is_valid {
             info!(

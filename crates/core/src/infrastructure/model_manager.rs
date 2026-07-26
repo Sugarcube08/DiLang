@@ -192,9 +192,7 @@ impl ModelManager {
     ) -> CoreResult<InstalledModelRecord> {
         let actual_sha = FileVerifier::calculate_sha256(target_path)
             .unwrap_or_else(|_| expected_sha256.to_string());
-        let size = std::fs::metadata(target_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let size = std::fs::metadata(target_path).map(|m| m.len()).unwrap_or(0);
 
         let record = InstalledModelRecord {
             id: model_name.to_string(),

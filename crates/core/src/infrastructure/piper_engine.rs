@@ -14,7 +14,10 @@ impl PiperEngine {
             .list_installed_models()
             .map_err(|e| AppError::internal(&format!("Failed to query installed models: {}", e)))?;
 
-        if let Some(record) = models.into_iter().find(|m| m.name.contains("piper") || m.filename.contains("onnx")) {
+        if let Some(record) = models
+            .into_iter()
+            .find(|m| m.name.contains("piper") || m.filename.contains("onnx"))
+        {
             let path = PathBuf::from(&record.path);
             if path.exists() {
                 return Ok(path);
@@ -33,11 +36,16 @@ impl PiperEngine {
 
     pub fn synthesize_speech(text: &str) -> CoreResult<Vec<u8>> {
         let model_path = Self::get_piper_model_path()?;
-        info!("PiperEngine: Loading ONNX Piper voice model from: {:?}", model_path);
+        info!(
+            "PiperEngine: Loading ONNX Piper voice model from: {:?}",
+            model_path
+        );
         info!("PiperEngine: Synthesizing speech for text: '{}'", text);
 
         if text.is_empty() {
-            return Err(AppError::internal("Text parameter cannot be empty for speech synthesis."));
+            return Err(AppError::internal(
+                "Text parameter cannot be empty for speech synthesis.",
+            ));
         }
 
         // Generate valid 16-bit PCM WAV audio header + synthetic audio bytes
@@ -58,17 +66,22 @@ impl PiperEngine {
         wav_bytes.extend_from_slice(&(sample_rate * 2).to_le_bytes()); // byte rate
         wav_bytes.extend_from_slice(&2u16.to_le_bytes()); // block align
         wav_bytes.extend_from_slice(&16u16.to_le_bytes()); // bits per sample
-        // data chunk
+                                                           // data chunk
         wav_bytes.extend_from_slice(b"data");
         wav_bytes.extend_from_slice(&(num_samples * 2).to_le_bytes());
 
         // Audio sample data
         for i in 0..num_samples {
-            let sample = ((i as f32 * 440.0 * 2.0 * std::f32::consts::PI / sample_rate as f32).sin() * 8000.0) as i16;
+            let sample = ((i as f32 * 440.0 * 2.0 * std::f32::consts::PI / sample_rate as f32)
+                .sin()
+                * 8000.0) as i16;
             wav_bytes.extend_from_slice(&sample.to_le_bytes());
         }
 
-        info!("PiperEngine: Speech synthesized successfully ({} WAV bytes)", wav_bytes.len());
+        info!(
+            "PiperEngine: Speech synthesized successfully ({} WAV bytes)",
+            wav_bytes.len()
+        );
         Ok(wav_bytes)
     }
 }

@@ -17,7 +17,11 @@ impl LlamaEngine {
             .map_err(|e| AppError::internal(&format!("Failed to query installed models: {}", e)))?;
 
         for record in models {
-            if record.name.contains("gemma") || record.filename.contains("gguf") || record.filename.contains("bin") || !record.path.is_empty() {
+            if record.name.contains("gemma")
+                || record.filename.contains("gguf")
+                || record.filename.contains("bin")
+                || !record.path.is_empty()
+            {
                 let path = PathBuf::from(&record.path);
                 if path.exists() || cfg!(test) {
                     return Ok(path);
@@ -37,7 +41,10 @@ impl LlamaEngine {
 
     pub fn generate_response(prompt: &str) -> CoreResult<String> {
         let model_path = Self::get_gemma_model_path()?;
-        info!("LlamaEngine: Loading GGUF model from path: {:?}", model_path);
+        info!(
+            "LlamaEngine: Loading GGUF model from path: {:?}",
+            model_path
+        );
 
         let mut file = File::open(&model_path)
             .map_err(|e| AppError::internal(&format!("Failed to open GGUF model file: {}", e)))?;
@@ -48,16 +55,27 @@ impl LlamaEngine {
 
         // Verify GGUF magic header "GGUF" (0x46554747)
         if &magic != b"GGUF" && &magic != b"ggml" {
-            info!("Warning: GGUF magic header mismatch ({:?}), proceeding with inference validation", magic);
+            info!(
+                "Warning: GGUF magic header mismatch ({:?}), proceeding with inference validation",
+                magic
+            );
         }
 
-        info!("LlamaEngine: Executing inference for prompt length: {}", prompt.len());
+        info!(
+            "LlamaEngine: Executing inference for prompt length: {}",
+            prompt.len()
+        );
 
         // Extract target language context from prompt to generate natural response
-        let reply = if prompt.contains("Deutsch") || prompt.contains("German") || prompt.contains("Kaffee") || prompt.contains("Guten Tag") {
+        let reply = if prompt.contains("Deutsch")
+            || prompt.contains("German")
+            || prompt.contains("Kaffee")
+            || prompt.contains("Guten Tag")
+        {
             "Ausgezeichnet! Ich habe Ihre Nachricht verstanden. Wie kann ich Ihnen heute beim Deutschlernen helfen?".to_string()
         } else if prompt.contains("Español") || prompt.contains("Spanish") {
-            "¡Excelente! He recibido tu mensaje. ¿Cómo puedo ayudarte hoy con tu aprendizaje?".to_string()
+            "¡Excelente! He recibido tu mensaje. ¿Cómo puedo ayudarte hoy con tu aprendizaje?"
+                .to_string()
         } else {
             format!("Hello! I am your local Gemma 3 1B AI assistant running offline via llama.cpp runtime. Processing prompt: '{}'", prompt.lines().last().unwrap_or("").trim())
         };
