@@ -6,7 +6,7 @@ import 'src/theme/dark_theme.dart';
 import 'src/app/app_router.dart';
 
 void main() {
-  // Configure Flutter Logging
+  debugPrint("=== DILANG MAIN APP STARTED ===");
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     debugPrint('[${record.level.name}] ${record.time}: ${record.message}');
@@ -24,6 +24,7 @@ class DiLangApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("=== BUILDING DILANG APP WITH MATERIALAPP.ROUTER ===");
     return MaterialApp.router(
       title: 'DiLang',
       debugShowCheckedModeBanner: false,

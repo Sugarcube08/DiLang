@@ -18,10 +18,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint("=== SPLASH SCREEN INITSTATE EXECUTING ===");
     _runInitializationSequence();
   }
 
   Future<void> _runInitializationSequence() async {
+    debugPrint("=== CALLING RUST RUNTIME INITIALIZE & STARTUP STATE ===");
     final runtimeNotifier = ref.read(appRuntimeProvider.notifier);
     await runtimeNotifier.initializeRuntime((step) {
       if (mounted) {
@@ -34,21 +36,28 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return;
 
     final runtimeState = ref.read(appRuntimeProvider);
+    debugPrint("=== RUST RETURNED STARTUP STATE: ${runtimeState.startupState} ===");
+
     switch (runtimeState.startupState) {
       case 'NeedsProfile':
+        debugPrint("=== NAVIGATING TO: /onboarding/profile ===");
         context.go('/onboarding/profile');
         break;
       case 'NeedsLanguages':
+        debugPrint("=== NAVIGATING TO: /onboarding/languages ===");
         context.go('/onboarding/languages');
         break;
       case 'NeedsPermissions':
+        debugPrint("=== NAVIGATING TO: /onboarding/permissions ===");
         context.go('/onboarding/permissions');
         break;
       case 'NeedsModels':
+        debugPrint("=== NAVIGATING TO: /onboarding/model-download ===");
         context.go('/onboarding/model-download');
         break;
       case 'Ready':
       default:
+        debugPrint("=== NAVIGATING TO: /home ===");
         context.go('/home');
         break;
     }
