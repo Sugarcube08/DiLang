@@ -53,9 +53,9 @@ class DiLangInput extends StatelessWidget {
             width: DesignTokens.borderWidthThin,
           ),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: AppRadius.borderSmall,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.primary,
             width: DesignTokens.borderWidthMedium,
           ),

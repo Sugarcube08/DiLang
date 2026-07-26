@@ -1,0 +1,21 @@
+<svg width="800" height="200" viewBox="0 0 800 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradFull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5E5CE6" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Logo Mark -->
+  <rect x="20" y="20" width="160" height="160" rx="40" fill="url(#logoGradFull)" />
+  <path d="M60 60C60 53.3726 65.3726 48 72 48H128C134.627 48 140 53.3726 140 60V104C140 110.627 134.627 116 128 116H100L80 132V116H72C65.3726 116 60 110.627 60 104V60Z" 
+        fill="none" 
+        stroke="#FFFFFF" 
+        stroke-width="10" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+
+  <!-- Typography -->
+  <text x="210" y="115" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#F9FAFB" letter-spacing="-2">DiLang</text>
+  <text x="210" y="150" font-family="Inter, sans-serif" font-size="20" font-weight="400" fill="#A1A1AA" letter-spacing="4">THINK IN LANGUAGES</text>
+</svg>

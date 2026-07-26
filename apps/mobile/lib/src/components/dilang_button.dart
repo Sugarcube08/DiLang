@@ -29,7 +29,7 @@ class DiLangButton extends StatelessWidget {
 
     Widget content = Row(
       mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
-      main: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (isLoading) ...[
           const SizedBox(
@@ -58,7 +58,7 @@ class DiLangButton extends StatelessWidget {
     switch (variant) {
       case DiLangButtonVariant.filled:
         buttonWidget = Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: AppGradients.primary,
             borderRadius: AppRadius.borderMedium,
           ),
@@ -70,7 +70,7 @@ class DiLangButton extends StatelessWidget {
               foregroundColor: Colors.white,
               minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
             ),
             child: content,
           ),
@@ -89,7 +89,7 @@ class DiLangButton extends StatelessWidget {
             ),
             minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
           ),
           child: content,
         );
@@ -106,7 +106,7 @@ class DiLangButton extends StatelessWidget {
             ),
             minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
           ),
           child: content,
         );

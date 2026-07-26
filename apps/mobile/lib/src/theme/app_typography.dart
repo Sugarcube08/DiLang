@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
 
 /// Single Font Family Typography System (Inter with Noto Sans Fallbacks).
 abstract class AppTypography {

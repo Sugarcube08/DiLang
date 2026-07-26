@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_gradients.dart';
 import '../theme/design_tokens.dart';
-import '../theme/glass.dart';
 import 'dilang_button.dart';
 import 'dilang_card.dart';
 import 'dilang_input.dart';
@@ -21,7 +20,7 @@ class DesignSystemShowcaseScreen extends StatefulWidget {
 }
 
 class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen> {
-  double _progressValue = 0.65;
+  final double _progressValue = 0.65;
 
   @override
   Widget build(BuildContext context) {
