@@ -1,7 +1,7 @@
 //! Conversation Repository Contract & Atomic Transaction Manager
 
-use anyhow::Result;
 use crate::models::Conversation;
+use anyhow::Result;
 
 pub trait ConversationRepositoryContract: Send + Sync {
     fn start(&self, scenario_id: &str) -> Result<Conversation>;
@@ -11,6 +11,7 @@ pub trait ConversationRepositoryContract: Send + Sync {
     fn archive(&self, conversation_id: &str) -> Result<()>;
 }
 
+#[derive(Default)]
 pub struct ConversationRepositoryImpl;
 
 impl ConversationRepositoryImpl {
@@ -25,7 +26,6 @@ impl ConversationRepositoryContract for ConversationRepositoryImpl {
     }
 
     fn reply(&self, _conversation_id: &str, text: &str) -> Result<String> {
-        // Atomic Transaction: Message Store -> Vocab Extract -> Progress Update -> Schedule Review
         Ok(format!("Response to: {}", text))
     }
 

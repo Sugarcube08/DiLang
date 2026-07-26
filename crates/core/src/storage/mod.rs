@@ -9,6 +9,7 @@ pub trait StorageEngine: Send + Sync {
     fn check_health(&self) -> Result<String>;
 }
 
+#[derive(Default)]
 pub struct SqliteStorageEngine;
 
 impl SqliteStorageEngine {

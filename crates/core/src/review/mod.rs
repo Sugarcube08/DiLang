@@ -1,12 +1,12 @@
 //! FSRS v4 Spaced Repetition Review Engine
 
+use crate::events::{global_event_bus, ReviewEventPayload};
+use crate::models::{ReviewCard, Vocabulary};
+use crate::storage::schema::get_connection;
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use rusqlite::params;
 use tracing::info;
-use crate::models::{ReviewCard, Vocabulary};
-use crate::storage::schema::get_connection;
-use crate::events::{global_event_bus, ReviewEventPayload};
 
 pub trait ReviewEngine: Send + Sync {
     fn schedule_vocab_card(&self, vocab: &Vocabulary) -> Result<ReviewCard>;
@@ -14,6 +14,7 @@ pub trait ReviewEngine: Send + Sync {
     fn submit_review(&self, card_id: &str, rating: u8) -> Result<ReviewCard>;
 }
 
+#[derive(Default)]
 pub struct FsrsReviewEngine;
 
 impl FsrsReviewEngine {
@@ -34,7 +35,7 @@ impl ReviewEngine for FsrsReviewEngine {
         let conn = get_connection()?;
         let bus = global_event_bus();
 
-        let card_id = format!("c-{}", uuid::Uuid::new_v4().to_string()[..8].to_string());
+        let card_id = format!("c-{}", &uuid::Uuid::new_v4().to_string()[..8]);
         let initial_stability = 1.0f64;
         let initial_difficulty = 5.0f64;
         let due_date = Utc::now() + Duration::days(1);
@@ -73,10 +74,16 @@ impl ReviewEngine for FsrsReviewEngine {
 
         let rows = stmt.query_map(params![now_str, limit as i64], |row| {
             let due_str: String = row.get(6)?;
-            let due_at = DateTime::parse_from_rfc3339(&due_str).unwrap_or_default().with_timezone(&Utc);
+            let due_at = DateTime::parse_from_rfc3339(&due_str)
+                .unwrap_or_default()
+                .with_timezone(&Utc);
 
             let last_str: Option<String> = row.get(7)?;
-            let last_review_at = last_str.map(|s| DateTime::parse_from_rfc3339(&s).unwrap_or_default().with_timezone(&Utc));
+            let last_review_at = last_str.map(|s| {
+                DateTime::parse_from_rfc3339(&s)
+                    .unwrap_or_default()
+                    .with_timezone(&Utc)
+            });
 
             Ok(ReviewCard {
                 id: row.get(0)?,
@@ -91,29 +98,40 @@ impl ReviewEngine for FsrsReviewEngine {
         })?;
 
         let mut cards = Vec::new();
-        for r in rows {
-            if let Ok(c) = r {
-                cards.push(c);
-            }
+        for c in rows.flatten() {
+            cards.push(c);
         }
         Ok(cards)
     }
 
     fn submit_review(&self, card_id: &str, rating: u8) -> Result<ReviewCard> {
-        info!("Submitting FSRS review rating {} for card {}", rating, card_id);
+        info!(
+            "Submitting FSRS review rating {} for card {}",
+            rating, card_id
+        );
         let conn = get_connection()?;
 
-        let mut card = self.fetch_due_cards(100)?
+        let mut card = self
+            .fetch_due_cards(100)?
             .into_iter()
             .find(|c| c.id == card_id)
             .ok_or_else(|| anyhow::anyhow!("Card not found"))?;
 
         // FSRS Rating Update Formula
         match rating {
-            1 => { card.lapses += 1; card.stability = (card.stability * 0.5).max(0.5); } // Again
-            2 => { card.stability = card.stability * 1.2; } // Hard
-            3 => { card.stability = card.stability * 2.0; } // Good
-            4 => { card.stability = card.stability * 3.5; } // Easy
+            1 => {
+                card.lapses += 1;
+                card.stability = (card.stability * 0.5).max(0.5);
+            } // Again
+            2 => {
+                card.stability *= 1.2;
+            } // Hard
+            3 => {
+                card.stability *= 2.0;
+            } // Good
+            4 => {
+                card.stability *= 3.5;
+            } // Easy
             _ => {}
         }
         card.reps += 1;

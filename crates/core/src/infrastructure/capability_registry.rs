@@ -1,9 +1,9 @@
 //! Capability Registry System
 //! Decouples application capability queries (e.g. Conversation, STT, TTS) from concrete model runtimes.
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Mutex;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Capability {
@@ -23,6 +23,12 @@ pub struct ProviderDescriptor {
 
 pub struct CapabilityRegistry {
     providers: Mutex<HashMap<Capability, ProviderDescriptor>>,
+}
+
+impl Default for CapabilityRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CapabilityRegistry {

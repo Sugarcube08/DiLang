@@ -2,9 +2,9 @@
 //!
 //! Immutable single source of truth for application domain entities.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 /// User Profile
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,7 +43,7 @@ pub struct Vocabulary {
     pub id: String,
     pub term: String,
     pub lemma: String,
-    pub pos: String, // Part of Speech
+    pub pos: String,        // Part of Speech
     pub cefr_level: String, // A1, A2, B1, B2, C1, C2
     pub definition: String,
     pub example_sentence: String,
@@ -84,8 +84,8 @@ impl Conversation {
 pub struct ReviewCard {
     pub id: String,
     pub vocab_id: String,
-    pub stability: f64,   // FSRS Memory Stability (S)
-    pub difficulty: f64,  // FSRS Difficulty (D)
+    pub stability: f64,  // FSRS Memory Stability (S)
+    pub difficulty: f64, // FSRS Difficulty (D)
     pub reps: u32,
     pub lapses: u32,
     pub due_at: DateTime<Utc>,

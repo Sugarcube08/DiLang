@@ -1,7 +1,7 @@
 //! Grammar Repository Contract
 
-use anyhow::Result;
 use crate::models::GrammarConcept;
+use anyhow::Result;
 
 pub trait GrammarRepositoryContract: Send + Sync {
     fn concepts(&self) -> Result<Vec<GrammarConcept>>;

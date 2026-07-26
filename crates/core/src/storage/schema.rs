@@ -158,7 +158,10 @@ CREATE INDEX IF NOT EXISTS idx_installed_models_name ON installed_models(name);
 "#;
 
 pub fn initialize_schema() -> Result<()> {
-    info!("Initializing SQLite database schema version {}", CURRENT_SCHEMA_VERSION);
+    info!(
+        "Initializing SQLite database schema version {}",
+        CURRENT_SCHEMA_VERSION
+    );
     let conn = get_connection()?;
     conn.execute_batch(DDL_SCHEMA_V1)?;
     info!("Database Schema Migration Applied Successfully");

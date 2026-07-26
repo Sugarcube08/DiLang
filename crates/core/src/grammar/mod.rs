@@ -1,17 +1,18 @@
 //! Grammar Engine Implementation
 
+use crate::analysis::AnalyzedSentence;
+use crate::events::{global_event_bus, GrammarEventPayload};
+use crate::models::GrammarConcept;
+use crate::storage::schema::get_connection;
 use anyhow::Result;
 use rusqlite::params;
 use tracing::info;
-use crate::models::GrammarConcept;
-use crate::analysis::AnalyzedSentence;
-use crate::storage::schema::get_connection;
-use crate::events::{global_event_bus, GrammarEventPayload};
 
 pub trait GrammarEngine: Send + Sync {
     fn extract_and_persist(&self, sentence: &AnalyzedSentence) -> Result<Vec<GrammarConcept>>;
 }
 
+#[derive(Default)]
 pub struct DefaultGrammarEngine;
 
 impl DefaultGrammarEngine {
@@ -28,7 +29,7 @@ impl GrammarEngine for DefaultGrammarEngine {
         let mut concepts = Vec::new();
 
         for rule in &sentence.grammar_rules {
-            let concept_id = format!("g-{}", uuid::Uuid::new_v4().to_string()[..8].to_string());
+            let concept_id = format!("g-{}", &uuid::Uuid::new_v4().to_string()[..8]);
             let explanation = format!("Grammar rule: {}", rule);
 
             conn.execute(

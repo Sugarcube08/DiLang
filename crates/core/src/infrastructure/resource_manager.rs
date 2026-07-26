@@ -9,6 +9,7 @@ pub struct SystemBudget {
     pub gpu_available: bool,
 }
 
+#[derive(Default)]
 pub struct ResourceManager;
 
 impl ResourceManager {

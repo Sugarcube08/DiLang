@@ -1,13 +1,13 @@
 //! On-Device AI Model Manager, Verification & Installation System
 
-use std::path::{Path, PathBuf};
+use super::downloader::{FileVerifier, ModelDownloader};
+use super::errors::AppError;
+use super::result::CoreResult;
 use chrono::Utc;
 use rusqlite::params;
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 use tracing::info;
-use super::downloader::{FileVerifier, ModelDownloader};
-use super::result::CoreResult;
-use super::errors::AppError;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InstalledModelRecord {
@@ -20,6 +20,7 @@ pub struct InstalledModelRecord {
     pub installed_at: String,
 }
 
+#[derive(Default)]
 pub struct ModelManager;
 
 impl ModelManager {
@@ -60,7 +61,8 @@ impl ModelManager {
                 record.size_bytes,
                 record.installed_at
             ],
-        ).map_err(|e| AppError::internal(&format!("Failed to register model: {}", e)))?;
+        )
+        .map_err(|e| AppError::internal(&format!("Failed to register model: {}", e)))?;
 
         Ok(())
     }
@@ -72,35 +74,41 @@ impl ModelManager {
         let mut stmt = conn.prepare("SELECT id, name, version, path, sha256, size_bytes, installed_at FROM installed_models")
             .map_err(|e| AppError::internal(&format!("Prepare Query Error: {}", e)))?;
 
-        let rows = stmt.query_map([], |row| {
-            Ok(InstalledModelRecord {
-                id: row.get(0)?,
-                name: row.get(1)?,
-                version: row.get(2)?,
-                path: row.get(3)?,
-                sha256: row.get(4)?,
-                size_bytes: row.get(5)?,
-                installed_at: row.get(6)?,
+        let rows = stmt
+            .query_map([], |row| {
+                Ok(InstalledModelRecord {
+                    id: row.get(0)?,
+                    name: row.get(1)?,
+                    version: row.get(2)?,
+                    path: row.get(3)?,
+                    sha256: row.get(4)?,
+                    size_bytes: row.get(5)?,
+                    installed_at: row.get(6)?,
+                })
             })
-        }).map_err(|e| AppError::internal(&format!("Query Map Error: {}", e)))?;
+            .map_err(|e| AppError::internal(&format!("Query Map Error: {}", e)))?;
 
         let mut results = Vec::new();
-        for r in rows {
-            if let Ok(rec) = r {
-                results.push(rec);
-            }
+        for rec in rows.flatten() {
+            results.push(rec);
         }
         Ok(results)
     }
 
-    pub fn install_model_file(&self, model_name: &str, version: &str, content: &[u8]) -> CoreResult<InstalledModelRecord> {
+    pub fn install_model_file(
+        &self,
+        model_name: &str,
+        version: &str,
+        content: &[u8],
+    ) -> CoreResult<InstalledModelRecord> {
         let mut target_path = Self::get_models_dir();
         target_path.push(format!("{}.bin", model_name));
 
         ModelDownloader::create_local_file(&target_path, content)
             .map_err(|e| AppError::internal(&format!("Failed to create model file: {}", e)))?;
 
-        let is_valid = self.verify_checksum(&target_path, "dummy_hash")
+        let is_valid = self
+            .verify_checksum(&target_path, "dummy_hash")
             .unwrap_or(true);
 
         let size = content.len() as u64;
@@ -109,7 +117,11 @@ impl ModelManager {
             name: model_name.to_string(),
             version: version.to_string(),
             path: target_path.to_string_lossy().to_string(),
-            sha256: if is_valid { "dummy_hash".to_string() } else { "invalid".to_string() },
+            sha256: if is_valid {
+                "dummy_hash".to_string()
+            } else {
+                "invalid".to_string()
+            },
             size_bytes: size,
             installed_at: Utc::now().to_rfc3339(),
         };

@@ -1,12 +1,12 @@
-use std::path::PathBuf;
+use once_cell::sync::Lazy;
 use rusqlite::Connection;
+use std::path::PathBuf;
+use std::sync::Mutex;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
-use once_cell::sync::Lazy;
-use std::sync::Mutex;
 
-pub mod analytics;
 pub mod analysis;
+pub mod analytics;
 pub mod api;
 pub mod app_runtime;
 pub mod conversation;
@@ -54,7 +54,7 @@ pub fn check_db_health() -> Result<String, String> {
     info!("Performing SQLite health check...");
 
     let db_path = get_db_path();
-    
+
     let conn = if let Some(path) = &db_path {
         info!("Connecting to SQLite database at: {:?}", path);
         if let Some(parent) = path.parent() {
@@ -67,7 +67,9 @@ pub fn check_db_health() -> Result<String, String> {
     };
 
     let result: String = conn
-        .query_row("SELECT 'SQLite 3 is Healthy' AS status;", [], |row| row.get(0))
+        .query_row("SELECT 'SQLite 3 is Healthy' AS status;", [], |row| {
+            row.get(0)
+        })
         .map_err(|e| format!("Database health check query failed: {}", e))?;
 
     info!("Database Health Check Result: {}", result);
@@ -105,8 +107,17 @@ mod tests {
     fn test_engine_facade() {
         let engine = DiLangEngineFacade::new();
         assert!(engine.initialize().is_ok());
-        
-        let user = engine.create_user_profile("Alex", "English", "German", "avatar.png", Some(30), "US", "UTC", 15);
+
+        let user = engine.create_user_profile(
+            "Alex",
+            "English",
+            "German",
+            "avatar.png",
+            Some(30),
+            "US",
+            "UTC",
+            15,
+        );
         assert!(user.is_ok());
         assert_eq!(user.unwrap().username, "Alex");
 
@@ -154,7 +165,9 @@ mod tests {
     #[test]
     fn test_event_bus() {
         let bus = global_event_bus();
-        let payload = ConversationEventPayload::ConversationStarted { scenario_id: "test".to_string() };
+        let payload = ConversationEventPayload::ConversationStarted {
+            scenario_id: "test".to_string(),
+        };
         assert!(bus.publish("conversation", &payload).is_ok());
     }
 
@@ -167,7 +180,10 @@ mod tests {
         let model_mgr = ModelManager::new();
         let temp_dir = std::env::temp_dir().join("test_sha256.bin");
         std::fs::write(&temp_dir, b"sha_test_content").unwrap();
-        let verified = model_mgr.verify_checksum(&temp_dir, "b40d6c0733d7eb3d05267b2d5eb6627be95ca8ed7b15a6b0c2cb4172a6b2ed4a");
+        let verified = model_mgr.verify_checksum(
+            &temp_dir,
+            "b40d6c0733d7eb3d05267b2d5eb6627be95ca8ed7b15a6b0c2cb4172a6b2ed4a",
+        );
         assert!(verified.is_ok());
     }
 }

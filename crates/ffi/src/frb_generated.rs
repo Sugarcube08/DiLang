@@ -4,12 +4,12 @@
 #![allow(
     non_camel_case_types,
     unused,
+    unknown_lints,
     clippy::redundant_closure_call,
     clippy::needless_return,
     clippy::too_many_arguments,
     clippy::redundant_locals,
     clippy::new_without_default,
-    clippy::warn_on_violation,
     clippy::all
 )]
 

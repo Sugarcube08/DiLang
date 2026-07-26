@@ -11,48 +11,102 @@ pub trait BackgroundWorker: Send + Sync {
 
 pub struct ReviewWorker;
 impl BackgroundWorker for ReviewWorker {
-    fn name(&self) -> &'static str { "ReviewWorker" }
-    fn start(&self) -> Result<()> { info!("ReviewWorker started"); Ok(()) }
-    fn stop(&self) -> Result<()> { info!("ReviewWorker stopped"); Ok(()) }
+    fn name(&self) -> &'static str {
+        "ReviewWorker"
+    }
+    fn start(&self) -> Result<()> {
+        info!("ReviewWorker started");
+        Ok(())
+    }
+    fn stop(&self) -> Result<()> {
+        info!("ReviewWorker stopped");
+        Ok(())
+    }
 }
 
 pub struct AnalyticsWorker;
 impl BackgroundWorker for AnalyticsWorker {
-    fn name(&self) -> &'static str { "AnalyticsWorker" }
-    fn start(&self) -> Result<()> { info!("AnalyticsWorker started"); Ok(()) }
-    fn stop(&self) -> Result<()> { info!("AnalyticsWorker stopped"); Ok(()) }
+    fn name(&self) -> &'static str {
+        "AnalyticsWorker"
+    }
+    fn start(&self) -> Result<()> {
+        info!("AnalyticsWorker started");
+        Ok(())
+    }
+    fn stop(&self) -> Result<()> {
+        info!("AnalyticsWorker stopped");
+        Ok(())
+    }
 }
 
 pub struct SyncWorker;
 impl BackgroundWorker for SyncWorker {
-    fn name(&self) -> &'static str { "SyncWorker" }
-    fn start(&self) -> Result<()> { info!("SyncWorker started"); Ok(()) }
-    fn stop(&self) -> Result<()> { info!("SyncWorker stopped"); Ok(()) }
+    fn name(&self) -> &'static str {
+        "SyncWorker"
+    }
+    fn start(&self) -> Result<()> {
+        info!("SyncWorker started");
+        Ok(())
+    }
+    fn stop(&self) -> Result<()> {
+        info!("SyncWorker stopped");
+        Ok(())
+    }
 }
 
 pub struct EmbeddingWorker;
 impl BackgroundWorker for EmbeddingWorker {
-    fn name(&self) -> &'static str { "EmbeddingWorker" }
-    fn start(&self) -> Result<()> { info!("EmbeddingWorker started"); Ok(()) }
-    fn stop(&self) -> Result<()> { info!("EmbeddingWorker stopped"); Ok(()) }
+    fn name(&self) -> &'static str {
+        "EmbeddingWorker"
+    }
+    fn start(&self) -> Result<()> {
+        info!("EmbeddingWorker started");
+        Ok(())
+    }
+    fn stop(&self) -> Result<()> {
+        info!("EmbeddingWorker stopped");
+        Ok(())
+    }
 }
 
 pub struct CacheWorker;
 impl BackgroundWorker for CacheWorker {
-    fn name(&self) -> &'static str { "CacheWorker" }
-    fn start(&self) -> Result<()> { info!("CacheWorker started"); Ok(()) }
-    fn stop(&self) -> Result<()> { info!("CacheWorker stopped"); Ok(()) }
+    fn name(&self) -> &'static str {
+        "CacheWorker"
+    }
+    fn start(&self) -> Result<()> {
+        info!("CacheWorker started");
+        Ok(())
+    }
+    fn stop(&self) -> Result<()> {
+        info!("CacheWorker stopped");
+        Ok(())
+    }
 }
 
 pub struct CleanupWorker;
 impl BackgroundWorker for CleanupWorker {
-    fn name(&self) -> &'static str { "CleanupWorker" }
-    fn start(&self) -> Result<()> { info!("CleanupWorker started"); Ok(()) }
-    fn stop(&self) -> Result<()> { info!("CleanupWorker stopped"); Ok(()) }
+    fn name(&self) -> &'static str {
+        "CleanupWorker"
+    }
+    fn start(&self) -> Result<()> {
+        info!("CleanupWorker started");
+        Ok(())
+    }
+    fn stop(&self) -> Result<()> {
+        info!("CleanupWorker stopped");
+        Ok(())
+    }
 }
 
 pub struct WorkerManager {
     workers: Vec<Box<dyn BackgroundWorker>>,
+}
+
+impl Default for WorkerManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl WorkerManager {

@@ -1,9 +1,9 @@
 //! Thread-Safe In-Memory Event Bus Implementation
 
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::broadcast;
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 /// Immutable Standard Header for all Application Events
@@ -40,7 +40,7 @@ pub struct SystemEvent<T> {
 /// Thread-safe EventBus broadcasting events across workers and repositories
 #[derive(Clone)]
 pub struct EventBus {
-    sender: broadcast::Sender::<(String, String)>, // (event_type, json_payload)
+    sender: broadcast::Sender<(String, String)>, // (event_type, json_payload)
 }
 
 impl EventBus {
@@ -57,12 +57,12 @@ impl EventBus {
         }
     }
 
-    pub fn subscribe(&self) -> broadcast::Receiver::<(String, String)> {
+    pub fn subscribe(&self) -> broadcast::Receiver<(String, String)> {
         self.sender.subscribe()
     }
 }
 
-static GLOBAL_EVENT_BUS: once_cell::sync::Lazy<Arc<EventBus>> = 
+static GLOBAL_EVENT_BUS: once_cell::sync::Lazy<Arc<EventBus>> =
     once_cell::sync::Lazy::new(|| Arc::new(EventBus::new(1024)));
 
 pub fn global_event_bus() -> Arc<EventBus> {

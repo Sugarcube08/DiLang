@@ -1,7 +1,7 @@
 //! Vocabulary Repository Contract
 
-use anyhow::Result;
 use crate::models::Vocabulary;
+use anyhow::Result;
 
 pub trait VocabularyRepositoryContract: Send + Sync {
     fn lookup(&self, term: &str) -> Result<Option<Vocabulary>>;

@@ -18,6 +18,7 @@ pub struct TaskJob {
     pub retries_left: u32,
 }
 
+#[derive(Default)]
 pub struct Scheduler;
 
 impl Scheduler {
@@ -26,7 +27,11 @@ impl Scheduler {
     }
 
     pub fn schedule_task(&self, job: TaskJob) -> anyhow::Result<()> {
-        tracing::info!("Scheduled Task: {} [Priority: {:?}]", job.name, job.priority);
+        tracing::info!(
+            "Scheduled Task: {} [Priority: {:?}]",
+            job.name,
+            job.priority
+        );
         Ok(())
     }
 }

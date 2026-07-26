@@ -1,7 +1,7 @@
 //! Analytics Repository Contract
 
-use anyhow::Result;
 use crate::models::ProgressSnapshot;
+use anyhow::Result;
 
 pub trait AnalyticsRepositoryContract: Send + Sync {
     fn snapshot(&self) -> Result<ProgressSnapshot>;

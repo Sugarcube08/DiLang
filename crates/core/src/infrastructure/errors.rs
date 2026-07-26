@@ -73,14 +73,30 @@ pub enum AppError {
 impl std::fmt::Display for AppError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AppError::StorageError { code, user_message, .. } => write!(f, "Storage Error [{}]: {}", code, user_message),
-            AppError::ConversationError { code, user_message, .. } => write!(f, "Conversation Error [{}]: {}", code, user_message),
-            AppError::ReviewError { code, user_message, .. } => write!(f, "Review Error [{}]: {}", code, user_message),
-            AppError::SyncError { code, user_message, .. } => write!(f, "Sync Error [{}]: {}", code, user_message),
-            AppError::AIError { code, user_message, .. } => write!(f, "AI Error [{}]: {}", code, user_message),
-            AppError::ProviderError { code, user_message, .. } => write!(f, "Provider Error [{}]: {}", code, user_message),
-            AppError::ConfigError { code, user_message, .. } => write!(f, "Config Error [{}]: {}", code, user_message),
-            AppError::InternalError { code, user_message, .. } => write!(f, "Internal Error [{}]: {}", code, user_message),
+            AppError::StorageError {
+                code, user_message, ..
+            } => write!(f, "Storage Error [{}]: {}", code, user_message),
+            AppError::ConversationError {
+                code, user_message, ..
+            } => write!(f, "Conversation Error [{}]: {}", code, user_message),
+            AppError::ReviewError {
+                code, user_message, ..
+            } => write!(f, "Review Error [{}]: {}", code, user_message),
+            AppError::SyncError {
+                code, user_message, ..
+            } => write!(f, "Sync Error [{}]: {}", code, user_message),
+            AppError::AIError {
+                code, user_message, ..
+            } => write!(f, "AI Error [{}]: {}", code, user_message),
+            AppError::ProviderError {
+                code, user_message, ..
+            } => write!(f, "Provider Error [{}]: {}", code, user_message),
+            AppError::ConfigError {
+                code, user_message, ..
+            } => write!(f, "Config Error [{}]: {}", code, user_message),
+            AppError::InternalError {
+                code, user_message, ..
+            } => write!(f, "Internal Error [{}]: {}", code, user_message),
         }
     }
 }

@@ -1,18 +1,27 @@
 //! Real User Repository SQLite Implementation
 
+use crate::models::User;
+use crate::storage::schema::get_connection;
 use anyhow::Result;
 use rusqlite::params;
 use tracing::info;
-use crate::models::User;
-use crate::storage::schema::get_connection;
 
 pub trait UserRepositoryContract: Send + Sync {
     fn create_user(&self, username: &str, native_lang: &str, target_lang: &str) -> Result<User>;
-    fn save_user_profile(&self, user_id: &str, avatar: &str, age: Option<u32>, country: &str, timezone: &str) -> Result<()>;
-    fn save_learning_goal(&self, user_id: &str, daily_minutes: u32, daily_cards: u32) -> Result<()>;
+    fn save_user_profile(
+        &self,
+        user_id: &str,
+        avatar: &str,
+        age: Option<u32>,
+        country: &str,
+        timezone: &str,
+    ) -> Result<()>;
+    fn save_learning_goal(&self, user_id: &str, daily_minutes: u32, daily_cards: u32)
+        -> Result<()>;
     fn get_active_user(&self) -> Result<Option<User>>;
 }
 
+#[derive(Default)]
 pub struct UserRepositoryImpl;
 
 impl UserRepositoryImpl {
@@ -35,7 +44,14 @@ impl UserRepositoryContract for UserRepositoryImpl {
         Ok(user)
     }
 
-    fn save_user_profile(&self, user_id: &str, avatar: &str, age: Option<u32>, country: &str, timezone: &str) -> Result<()> {
+    fn save_user_profile(
+        &self,
+        user_id: &str,
+        avatar: &str,
+        age: Option<u32>,
+        country: &str,
+        timezone: &str,
+    ) -> Result<()> {
         info!("Updating user profile in SQLite for user: {}", user_id);
         let conn = get_connection()?;
 
@@ -47,7 +63,12 @@ impl UserRepositoryContract for UserRepositoryImpl {
         Ok(())
     }
 
-    fn save_learning_goal(&self, user_id: &str, daily_minutes: u32, daily_cards: u32) -> Result<()> {
+    fn save_learning_goal(
+        &self,
+        user_id: &str,
+        daily_minutes: u32,
+        daily_cards: u32,
+    ) -> Result<()> {
         info!("Saving learning goal in SQLite for user: {}", user_id);
         let conn = get_connection()?;
 
@@ -61,7 +82,9 @@ impl UserRepositoryContract for UserRepositoryImpl {
 
     fn get_active_user(&self) -> Result<Option<User>> {
         let conn = get_connection()?;
-        let mut stmt = conn.prepare("SELECT id, username, native_language, target_language, created_at FROM users LIMIT 1")?;
+        let mut stmt = conn.prepare(
+            "SELECT id, username, native_language, target_language, created_at FROM users LIMIT 1",
+        )?;
         let user_opt = stmt.query_row([], |row| {
             let created_str: String = row.get(4)?;
             let created_at = chrono::DateTime::parse_from_rfc3339(&created_str)

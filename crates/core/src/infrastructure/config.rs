@@ -76,6 +76,7 @@ pub struct AppConfig {
     pub audio: AudioConfig,
 }
 
+#[derive(Default)]
 pub struct ConfigManager {
     config: AppConfig,
 }

@@ -1,7 +1,7 @@
 //! Review Repository Contract
 
-use anyhow::Result;
 use crate::models::ReviewCard;
+use anyhow::Result;
 
 pub trait ReviewRepositoryContract: Send + Sync {
     fn next(&self) -> Result<Option<ReviewCard>>;

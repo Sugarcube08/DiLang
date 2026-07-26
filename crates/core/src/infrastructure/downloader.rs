@@ -1,10 +1,10 @@
 //! Real HTTP Downloader & File Verifier Infrastructure
 
+use anyhow::Result;
+use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
-use sha2::{Digest, Sha256};
-use anyhow::Result;
 use tracing::info;
 
 pub struct FileVerifier;
@@ -24,7 +24,10 @@ impl FileVerifier {
         }
         let hash_result = format!("{:x}", hasher.finalize());
         let matches = hash_result.eq_ignore_ascii_case(expected_sha256);
-        info!("SHA-256 calculated: {}, expected: {}, match: {}", hash_result, expected_sha256, matches);
+        info!(
+            "SHA-256 calculated: {}, expected: {}, match: {}",
+            hash_result, expected_sha256, matches
+        );
         Ok(matches)
     }
 }

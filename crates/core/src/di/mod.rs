@@ -1,12 +1,18 @@
 //! Native Core Composition Root & Dependency Container
 
-use std::sync::Arc;
 use crate::events::EventBus;
 use crate::workers::WorkerManager;
+use std::sync::Arc;
 
 pub struct CoreContainer {
     pub event_bus: Arc<EventBus>,
     pub worker_manager: Arc<WorkerManager>,
+}
+
+impl Default for CoreContainer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CoreContainer {

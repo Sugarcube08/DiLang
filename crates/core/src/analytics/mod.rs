@@ -1,16 +1,23 @@
 //! Privacy-Preserving Event-Driven Analytics Engine
 
+use crate::models::ProgressSnapshot;
+use crate::storage::schema::get_connection;
 use anyhow::Result;
 use rusqlite::params;
 use tracing::info;
-use crate::models::ProgressSnapshot;
-use crate::storage::schema::get_connection;
 
 pub trait AnalyticsEngine: Send + Sync {
     fn compute_snapshot(&self) -> Result<ProgressSnapshot>;
-    fn record_session(&self, user_id: &str, duration_seconds: u32, cards_reviewed: u32, dialogue_turns: u32) -> Result<()>;
+    fn record_session(
+        &self,
+        user_id: &str,
+        duration_seconds: u32,
+        cards_reviewed: u32,
+        dialogue_turns: u32,
+    ) -> Result<()>;
 }
 
+#[derive(Default)]
 pub struct EventDrivenAnalyticsEngine;
 
 impl EventDrivenAnalyticsEngine {
@@ -24,9 +31,19 @@ impl AnalyticsEngine for EventDrivenAnalyticsEngine {
         info!("Computing event-driven analytics snapshot from SQLite...");
         let conn = get_connection()?;
 
-        let total_words: u32 = conn.query_row("SELECT COUNT(*) FROM vocabulary", [], |r| r.get(0)).unwrap_or(0);
-        let total_grammar: u32 = conn.query_row("SELECT COUNT(*) FROM grammar_concepts", [], |r| r.get(0)).unwrap_or(0);
-        let total_turns: u32 = conn.query_row("SELECT COALESCE(SUM(turns_count), 0) FROM conversations", [], |r| r.get(0)).unwrap_or(0);
+        let total_words: u32 = conn
+            .query_row("SELECT COUNT(*) FROM vocabulary", [], |r| r.get(0))
+            .unwrap_or(0);
+        let total_grammar: u32 = conn
+            .query_row("SELECT COUNT(*) FROM grammar_concepts", [], |r| r.get(0))
+            .unwrap_or(0);
+        let total_turns: u32 = conn
+            .query_row(
+                "SELECT COALESCE(SUM(turns_count), 0) FROM conversations",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap_or(0);
 
         let hours = (total_turns as f32 * 0.05).max(0.1);
 
@@ -38,9 +55,15 @@ impl AnalyticsEngine for EventDrivenAnalyticsEngine {
         })
     }
 
-    fn record_session(&self, user_id: &str, duration_seconds: u32, cards_reviewed: u32, dialogue_turns: u32) -> Result<()> {
+    fn record_session(
+        &self,
+        user_id: &str,
+        duration_seconds: u32,
+        cards_reviewed: u32,
+        dialogue_turns: u32,
+    ) -> Result<()> {
         let conn = get_connection()?;
-        let session_id = format!("s-{}", uuid::Uuid::new_v4().to_string()[..8].to_string());
+        let session_id = format!("s-{}", &uuid::Uuid::new_v4().to_string()[..8]);
         let now_str = chrono::Utc::now().to_rfc3339();
 
         conn.execute(

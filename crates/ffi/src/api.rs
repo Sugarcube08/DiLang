@@ -12,6 +12,7 @@ pub fn check_db_health() -> String {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn create_user_profile(
     username: String,
     native_lang: String,

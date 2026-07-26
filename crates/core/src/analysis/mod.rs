@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct TokenAnalysis {
     pub token: String,
     pub lemma: String,
-    pub pos: String, // Noun, Verb, Adjective, Preposition, etc.
+    pub pos: String,        // Noun, Verb, Adjective, Preposition, etc.
     pub cefr_level: String, // A1, A2, B1, B2, C1, C2
 }
 
@@ -17,6 +17,7 @@ pub struct AnalyzedSentence {
     pub grammar_rules: Vec<String>,
 }
 
+#[derive(Default)]
 pub struct LanguageAnalysisEngine;
 
 impl LanguageAnalysisEngine {

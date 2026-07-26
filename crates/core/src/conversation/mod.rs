@@ -1,17 +1,17 @@
 //! Conversation Engine Interface
 //! On-Device LLM (Gemma 3 1B) & Dialogue Manager Implementation
 
-pub mod scenarios;
 pub mod prompt_formatter;
+pub mod scenarios;
 
-use anyhow::Result;
-use chrono::Utc;
-use rusqlite::params;
-use tracing::info;
 use crate::models::Conversation;
 use crate::storage::schema::get_connection;
-use scenarios::{ScenarioRegistry, ScenarioDefinition};
+use anyhow::Result;
+use chrono::Utc;
 use prompt_formatter::GemmaPromptFormatter;
+use rusqlite::params;
+use scenarios::{ScenarioDefinition, ScenarioRegistry};
+use tracing::info;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct MessageRecord {
@@ -29,6 +29,7 @@ pub trait ConversationEngine: Send + Sync {
     fn get_history(&self, conversation_id: &str) -> Result<Vec<MessageRecord>>;
 }
 
+#[derive(Default)]
 pub struct DefaultConversationEngine;
 
 impl DefaultConversationEngine {
@@ -43,7 +44,10 @@ impl ConversationEngine for DefaultConversationEngine {
     }
 
     fn start_session(&self, scenario_id: &str) -> Result<Conversation> {
-        info!("Starting new conversation session for scenario: {}", scenario_id);
+        info!(
+            "Starting new conversation session for scenario: {}",
+            scenario_id
+        );
         let conv = Conversation::new(scenario_id);
         let conn = get_connection()?;
 
@@ -70,7 +74,10 @@ impl ConversationEngine for DefaultConversationEngine {
     }
 
     fn send_reply(&self, conversation_id: &str, user_text: &str) -> Result<String> {
-        info!("Processing user dialogue turn for conversation: {}", conversation_id);
+        info!(
+            "Processing user dialogue turn for conversation: {}",
+            conversation_id
+        );
         let conn = get_connection()?;
 
         // Persist user message
@@ -90,8 +97,12 @@ impl ConversationEngine for DefaultConversationEngine {
 
         // Format prompt using GemmaPromptFormatter
         let system_prompt = "You are a helpful language learning dialogue assistant. Keep replies concise and encouraging.";
-        let formatted_prompt = GemmaPromptFormatter::format(system_prompt, &history_tuples, user_text);
-        info!("Gemma 3 Prompt Formatted: Length {}", formatted_prompt.len());
+        let formatted_prompt =
+            GemmaPromptFormatter::format(system_prompt, &history_tuples, user_text);
+        info!(
+            "Gemma 3 Prompt Formatted: Length {}",
+            formatted_prompt.len()
+        );
 
         // Process response (In production, llama.cpp context executes here)
         let ai_response = format!("Wunderbar! You said '{}'. Ich verstehe!", user_text);
@@ -126,10 +137,8 @@ impl ConversationEngine for DefaultConversationEngine {
         })?;
 
         let mut messages = Vec::new();
-        for r in rows {
-            if let Ok(msg) = r {
-                messages.push(msg);
-            }
+        for r in rows.flatten() {
+            messages.push(r);
         }
         Ok(messages)
     }

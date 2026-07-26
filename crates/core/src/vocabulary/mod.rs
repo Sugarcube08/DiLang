@@ -1,18 +1,19 @@
 //! Vocabulary Subsystem & Extraction Engine
 
+use crate::analysis::AnalyzedSentence;
+use crate::events::{global_event_bus, VocabularyEventPayload};
+use crate::models::Vocabulary;
+use crate::storage::schema::get_connection;
 use anyhow::Result;
 use rusqlite::params;
 use tracing::info;
-use crate::models::Vocabulary;
-use crate::analysis::AnalyzedSentence;
-use crate::storage::schema::get_connection;
-use crate::events::{global_event_bus, VocabularyEventPayload};
 
 pub trait VocabularyEngine: Send + Sync {
     fn lookup(&self, word: &str, target_lang: &str) -> Result<Option<Vocabulary>>;
     fn extract_and_persist(&self, sentence: &AnalyzedSentence) -> Result<Vec<Vocabulary>>;
 }
 
+#[derive(Default)]
 pub struct DefaultVocabularyEngine;
 
 impl DefaultVocabularyEngine {
@@ -51,7 +52,7 @@ impl VocabularyEngine for DefaultVocabularyEngine {
         let mut extracted = Vec::new();
 
         for token in &sentence.tokens {
-            let vocab_id = format!("v-{}", uuid::Uuid::new_v4().to_string()[..8].to_string());
+            let vocab_id = format!("v-{}", &uuid::Uuid::new_v4().to_string()[..8]);
             let def = format!("Definition for {}", token.lemma);
 
             conn.execute(

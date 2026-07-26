@@ -17,7 +17,7 @@ pub use config::{AppConfig, ConfigManager};
 pub use downloader::{FileVerifier, ModelDownloader};
 pub use errors::{AppError, ErrorSeverity};
 pub use feature_flags::FeatureFlags;
-pub use logging::{StructuredLogEntry, emit_structured_log};
+pub use logging::{emit_structured_log, StructuredLogEntry};
 pub use metrics::{InternalMetrics, MetricsCollector};
 pub use model_manager::{InstalledModelRecord, ModelManager};
 pub use resource_manager::{ResourceManager, SystemBudget};
