@@ -1,0 +1,95 @@
+# ==============================================================================
+# DiLang Monorepo GitIgnore Policy
+# ==============================================================================
+
+# --- Operating System & Editor Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# --- Rust Build & Cargo Artifacts ---
+/target/
+**/target/
+Cargo.lock.3rdparty
+*.rs.bk
+
+# --- Flutter / Dart Build & Package Artifacts ---
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+/apps/dilang_flutter/build/
+/apps/dilang_flutter/.dart_tool/
+/apps/dilang_flutter/.packages
+/apps/dilang_flutter/.pub-cache/
+/apps/dilang_flutter/.pub/
+/apps/dilang_flutter/ios/Flutter/App.framework
+/apps/dilang_flutter/ios/Flutter/Flutter.framework
+/apps/dilang_flutter/ios/Flutter/Flutter.podspec
+/apps/dilang_flutter/ios/Flutter/Generated.xcconfig
+/apps/dilang_flutter/ios/Flutter/app.flx
+/apps/dilang_flutter/ios/Flutter/app.zip
+/apps/dilang_flutter/ios/Flutter/flutter_assets/
+/apps/dilang_flutter/android/app/debug
+/apps/dilang_flutter/android/app/profile
+/apps/dilang_flutter/android/app/release
+
+# --- Large Binary Models (GGUF, GGML, ONNX, PyTorch, SafeTensors) ---
+# Note: Preserve directory structure via .gitkeep
+assets/models/*.gguf
+assets/models/*.bin
+assets/models/*.onnx
+assets/models/*.safetensors
+assets/models/*.pt
+assets/voices/*.onnx
+assets/voices/*.json
+assets/voices/*.bin
+!assets/models/.gitkeep
+!assets/voices/.gitkeep
+
+# --- Local SQLite Databases & Encrypted Storage ---
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.sqlcipher
+
+# --- Logs, Temporary Files & Test Coverage Output ---
+*.log
+*.tmp
+tmp/
+coverage/
+*.lcov
+
+# --- C/C++ FFI Compiled Binary Artifacts & Libraries ---
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.o
+*.obj
+
+# --- Sensitive Environment Keys & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+*.txt
+*.log

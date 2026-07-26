@@ -1,0 +1,36 @@
+# Flutter & Dart gitignore
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+ephemeral/
+
+# Symbol files
+*.aot
+*.darttool
+
+# Android
+android/app/debug
+android/app/profile
+android/app/release
+android/.gradle
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+
+# iOS
+ios/Runner.xcworkspace
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+
+# macOS / Linux / Windows builds
+macOS/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
