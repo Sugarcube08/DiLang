@@ -180,6 +180,7 @@ mod tests {
         let conv = engine.conversation_start("cafe_order");
         assert!(conv.is_ok());
         let conv_id = conv.unwrap().id;
+        let _ = engine.install_model("gemma-3-1b-it", "v1.0", b"test_model_bytes");
 
         // 2. Process user reply through vertical learning pipeline
         let reply = engine.conversation_reply(&conv_id, "Ich möchte einen Kaffee trinken bitte.");

@@ -278,16 +278,49 @@ class DiLangNativeBridge {
     });
   }
 
-  static Future<String> queryCapability(String capName) async {
-    _logger.info('Querying capability: $capName');
+  static Future<String> getModelRegistry() async {
+    _logger.info('Fetching Model Registry Manifest...');
     try {
-      final res = await ffi.queryCapability(capName: capName);
+      final res = await ffi.getModelRegistry();
       if (res.isNotEmpty && !res.startsWith('Error')) {
         return res;
       }
     } catch (e) {
-      _logger.warning('FFI queryCapability failed: $e');
+      _logger.warning('FFI getModelRegistry failed: $e');
     }
-    return 'Gemma 3 1B';
+    return '[]';
+  }
+
+  static Future<String> transcribeAudio(List<int> bytes) async {
+    _logger.info('Transcribing audio via Whisper STT Engine...');
+    try {
+      return await ffi.transcribeAudio(audioBytes: bytes);
+    } catch (e) {
+      _logger.warning('FFI transcribeAudio failed: $e');
+      return 'Error transcribing audio';
+    }
+  }
+
+  static Future<List<int>> synthesizeSpeech(String text) async {
+    _logger.info('Synthesizing speech via Piper TTS Engine...');
+    try {
+      return await ffi.synthesizeSpeech(text: text);
+    } catch (e) {
+      _logger.warning('FFI synthesizeSpeech failed: $e');
+      return [];
+    }
+  }
+
+  static Future<String> getRuntimeDiagnostics() async {
+    _logger.info('Fetching Runtime Diagnostics...');
+    try {
+      final res = await ffi.getRuntimeDiagnostics();
+      if (res.isNotEmpty && !res.startsWith('Error')) {
+        return res;
+      }
+    } catch (e) {
+      _logger.warning('FFI getRuntimeDiagnostics failed: $e');
+    }
+    return '{}';
   }
 }

@@ -3,6 +3,7 @@ import '../screens/splash_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/conversation_screen.dart';
 import '../screens/developer_showcase_screen.dart';
+import '../screens/diagnostics_screen.dart';
 import '../onboarding/profile_setup_screen.dart';
 import '../onboarding/native_language_screen.dart';
 import '../onboarding/target_language_screen.dart';
@@ -51,6 +52,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/developer-showcase',
       builder: (context, state) => const DeveloperShowcaseScreen(),
+    ),
+    GoRoute(
+      path: '/diagnostics',
+      builder: (context, state) => const DiagnosticsScreen(),
     ),
   ],
 );

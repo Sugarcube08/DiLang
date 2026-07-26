@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-07-27T00:00:00Z",
+  "models": [
+    {
+      "id": "gemma-3-1b-it-q4_k_m",
+      "provider": "Google DeepMind",
+      "version": "v1.0",
+      "filename": "gemma-3-1b-it-q4_k_m.gguf",
+      "storage_directory": "models/gemma",
+      "download_url": "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-q4_k_m.gguf",
+      "sha256": "2c804b41a8d1135432a7414eca1f5d89d91fae89c5352bf470eaa136bd6dabf1",
+      "size_bytes": 2254857830,
+      "min_runtime_version": "0.1.0",
+      "supported_os": ["linux", "windows", "macos", "android", "ios"],
+      "supported_arch": ["x86_64", "aarch64", "arm64"],
+      "dependencies": []
+    },
+    {
+      "id": "whisper-base",
+      "provider": "OpenAI / ggerganov",
+      "version": "v1.0",
+      "filename": "ggml-base.bin",
+      "storage_directory": "models/whisper",
+      "download_url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+      "sha256": "60ed5bc3dd14eea85649d3e67f040b08278687b037c87041ac07804825a3f0e5",
+      "size_bytes": 147964211,
+      "min_runtime_version": "0.1.0",
+      "supported_os": ["linux", "windows", "macos", "android", "ios"],
+      "supported_arch": ["x86_64", "aarch64", "arm64"],
+      "dependencies": []
+    },
+    {
+      "id": "piper-en_US-lessac-medium",
+      "provider": "Rhasspy / Piper",
+      "version": "v1.0",
+      "filename": "en_US-lessac-medium.onnx",
+      "storage_directory": "models/piper",
+      "download_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx",
+      "sha256": "b40d6c0733d7eb3d05267b2d5eb6627be95ca8ed7b15a6b0c2cb4172a6b2ed4a",
+      "size_bytes": 65421098,
+      "min_runtime_version": "0.1.0",
+      "supported_os": ["linux", "windows", "macos", "android", "ios"],
+      "supported_arch": ["x86_64", "aarch64", "arm64"],
+      "dependencies": []
+    }
+  ]
+}

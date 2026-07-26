@@ -273,4 +273,45 @@ impl DiLangEngineFacade {
     pub fn sync_start(&self) -> Result<String> {
         Ok("Sync Engine Initialized".to_string())
     }
+
+    /// Retrieve Model Registry Entries
+    pub fn get_model_registry(&self) -> Result<Vec<crate::infrastructure::RegistryEntry>> {
+        crate::infrastructure::ModelRegistry::list_entries()
+    }
+
+    /// Perform HTTP streamed download for registry model, verify SHA-256, and register in SQLite
+    pub fn download_registry_model<F>(&self, model_id: &str, progress_cb: F) -> Result<InstalledModelRecord>
+    where
+        F: Fn(crate::infrastructure::DownloadProgress),
+    {
+        let entry = crate::infrastructure::ModelRegistry::get_entry(model_id)?
+            .ok_or_else(|| anyhow::anyhow!("Model ID '{}' not found in registry.json", model_id))?;
+
+        let target_dir = crate::infrastructure::ModelManager::get_models_dir(&entry.storage_directory);
+        let final_path = crate::infrastructure::ModelDownloader::download_model_entry(&entry, &target_dir, progress_cb)
+            .map_err(|e| anyhow::anyhow!(e))?;
+
+        let record = self.model_manager.verify_and_register_model(
+            &final_path,
+            &entry.id,
+            &entry.provider,
+            &entry.filename,
+            &entry.version,
+            &entry.sha256,
+        ).map_err(|e| anyhow::anyhow!(e))?;
+
+        Ok(record)
+    }
+
+    /// Transcribe speech audio via Whisper STT Engine
+    pub fn transcribe_audio(&self, audio_bytes: &[u8]) -> Result<String> {
+        crate::infrastructure::WhisperEngine::transcribe_audio(audio_bytes)
+            .map_err(|e| anyhow::anyhow!(e))
+    }
+
+    /// Synthesize speech audio via Piper TTS Engine
+    pub fn synthesize_speech(&self, text: &str) -> Result<Vec<u8>> {
+        crate::infrastructure::PiperEngine::synthesize_speech(text)
+            .map_err(|e| anyhow::anyhow!(e))
+    }
 }

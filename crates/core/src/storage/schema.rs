@@ -37,11 +37,17 @@ CREATE TABLE IF NOT EXISTS languages (
 -- Installed Models Operational Table
 CREATE TABLE IF NOT EXISTS installed_models (
     id TEXT PRIMARY KEY,
+    provider TEXT NOT NULL DEFAULT '',
     name TEXT NOT NULL,
+    filename TEXT NOT NULL DEFAULT '',
     version TEXT NOT NULL,
     path TEXT NOT NULL,
     sha256 TEXT NOT NULL,
     size_bytes INTEGER NOT NULL,
+    runtime_compatibility TEXT NOT NULL DEFAULT 'v0.1.0',
+    status TEXT NOT NULL DEFAULT 'Installed',
+    last_verification TEXT NOT NULL DEFAULT '',
+    active INTEGER NOT NULL DEFAULT 1,
     installed_at TEXT NOT NULL
 );
 

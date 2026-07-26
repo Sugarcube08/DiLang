@@ -74,5 +74,17 @@ Future<String> getAnalyticsSnapshot() =>
 Future<String> queryCapability({required String capName}) =>
     RustLib.instance.api.crateApiQueryCapability(capName: capName);
 
+Future<String> getModelRegistry() =>
+    RustLib.instance.api.crateApiGetModelRegistry();
+
+Future<String> transcribeAudio({required List<int> audioBytes}) =>
+    RustLib.instance.api.crateApiTranscribeAudio(audioBytes: audioBytes);
+
+Future<Uint8List> synthesizeSpeech({required String text}) =>
+    RustLib.instance.api.crateApiSynthesizeSpeech(text: text);
+
+Future<String> getRuntimeDiagnostics() =>
+    RustLib.instance.api.crateApiGetRuntimeDiagnostics();
+
 Future<String> shutdownEngine() =>
     RustLib.instance.api.crateApiShutdownEngine();

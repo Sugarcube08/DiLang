@@ -140,6 +140,52 @@ pub fn query_capability(cap_name: String) -> String {
     }
 }
 
+pub fn get_model_registry() -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.get_model_registry() {
+        Ok(registry) => serde_json::to_string(&registry).unwrap_or_default(),
+        Err(err) => format!("Error: {}", err),
+    }
+}
+
+pub fn transcribe_audio(audio_bytes: Vec<u8>) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.transcribe_audio(&audio_bytes) {
+        Ok(text) => text,
+        Err(err) => format!("Error: {}", err),
+    }
+}
+
+pub fn synthesize_speech(text: String) -> Vec<u8> {
+    let engine = DiLangEngineFacade::new();
+    engine.synthesize_speech(&text).unwrap_or_default()
+}
+
+pub fn get_runtime_diagnostics() -> String {
+    let engine = DiLangEngineFacade::new();
+    let installed_models = engine.list_installed_models().unwrap_or_default();
+    let budget = engine.get_system_resource_budget();
+    let db_path = core::get_db_path()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    let diag = serde_json::json!({
+        "runtime_version": "0.1.0",
+        "sqlite_database_path": db_path,
+        "sqlite_status": "Healthy",
+        "installed_models_count": installed_models.len(),
+        "installed_models": installed_models,
+        "max_cpu_threads": budget.max_cpu_threads,
+        "max_ram_mb": budget.max_ram_mb,
+        "gpu_available": budget.gpu_available,
+        "gemma_loader": "llama.cpp GGUF",
+        "whisper_loader": "whisper.cpp GGML",
+        "piper_loader": "Piper ONNX",
+    });
+
+    serde_json::to_string_pretty(&diag).unwrap_or_default()
+}
+
 pub fn shutdown_engine() -> String {
     let engine = DiLangEngineFacade::new();
     match engine.shutdown() {

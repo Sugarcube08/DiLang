@@ -19,4 +19,5 @@ abstract class DiIcons {
   static const IconData warning = Icons.warning_amber_rounded;
   static const IconData refresh = Icons.refresh_rounded;
   static const IconData time = Icons.access_time_rounded;
+  static const IconData speaker = Icons.volume_up_rounded;
 }

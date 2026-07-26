@@ -104,8 +104,8 @@ impl ConversationEngine for DefaultConversationEngine {
             formatted_prompt.len()
         );
 
-        // Process response (In production, llama.cpp context executes here)
-        let ai_response = format!("Wunderbar! You said '{}'. Ich verstehe!", user_text);
+        // Execute GGUF model inference via LlamaEngine
+        let ai_response = crate::infrastructure::LlamaEngine::generate_response(&formatted_prompt)?;
 
         // Persist model response
         let model_msg_id = uuid::Uuid::new_v4().to_string();
