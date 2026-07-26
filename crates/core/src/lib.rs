@@ -12,6 +12,7 @@ pub mod conversation;
 pub mod di;
 pub mod events;
 pub mod grammar;
+pub mod infrastructure;
 pub mod lifecycle;
 pub mod models;
 pub mod plugin_api;
@@ -85,6 +86,7 @@ mod tests {
     use super::*;
     use api::DiLangEngineFacade;
     use events::{global_event_bus, ConversationEventPayload};
+    use infrastructure::{ConfigManager, FeatureFlags, ModelManager};
 
     #[test]
     fn test_ping_core() {
@@ -105,6 +107,8 @@ mod tests {
         let conv = engine.conversation_start("cafe_order");
         assert!(conv.is_ok());
         assert_eq!(conv.unwrap().scenario_id, "cafe_order");
+        let cap = engine.query_capability("conversation");
+        assert_eq!(cap, Some("Gemma 3 1B (llama.cpp)".to_string()));
         assert!(engine.shutdown().is_ok());
     }
 
@@ -113,5 +117,15 @@ mod tests {
         let bus = global_event_bus();
         let payload = ConversationEventPayload::ConversationStarted { scenario_id: "test".to_string() };
         assert!(bus.publish("conversation", &payload).is_ok());
+    }
+
+    #[test]
+    fn test_infrastructure() {
+        let config = ConfigManager::new();
+        assert_eq!(config.get().ai.quantization_profile, "Q4_K_M");
+        let flags = FeatureFlags::default();
+        assert!(flags.is_enabled("conversation"));
+        let model_mgr = ModelManager::new();
+        assert!(model_mgr.verify_checksum("path", "sha").is_ok());
     }
 }

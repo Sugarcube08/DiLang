@@ -29,6 +29,10 @@ pub fn get_analytics_snapshot_impl() -> String {
     crate::api::get_analytics_snapshot()
 }
 
+pub fn query_capability_impl(cap_name: String) -> String {
+    crate::api::query_capability(cap_name)
+}
+
 pub fn shutdown_engine_impl() -> String {
     crate::api::shutdown_engine()
 }

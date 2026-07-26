@@ -1,7 +1,6 @@
 //! On-Device AI Model Manager & Budget Allocator
 
 use super::result::CoreResult;
-use super::errors::AppError;
 use tracing::info;
 
 pub struct ModelDescriptor {

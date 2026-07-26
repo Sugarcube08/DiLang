@@ -2,7 +2,7 @@
 //! Decouples application capability queries (e.g. Conversation, STT, TTS) from concrete model runtimes.
 
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]

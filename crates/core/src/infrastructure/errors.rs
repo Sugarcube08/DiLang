@@ -1,6 +1,5 @@
 //! Centralized AppError Hierarchy & Classification
 
-use thiserror::Error;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -11,9 +10,8 @@ pub enum ErrorSeverity {
     Fatal,
 }
 
-#[derive(Error, Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum AppError {
-    #[error("Storage Error [{code}]: {user_message}")]
     StorageError {
         code: u32,
         severity: ErrorSeverity,
@@ -21,8 +19,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("Conversation Error [{code}]: {user_message}")]
     ConversationError {
         code: u32,
         severity: ErrorSeverity,
@@ -30,8 +26,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("Review Error [{code}]: {user_message}")]
     ReviewError {
         code: u32,
         severity: ErrorSeverity,
@@ -39,8 +33,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("Sync Error [{code}]: {user_message}")]
     SyncError {
         code: u32,
         severity: ErrorSeverity,
@@ -48,8 +40,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("AI Error [{code}]: {user_message}")]
     AIError {
         code: u32,
         severity: ErrorSeverity,
@@ -57,8 +47,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("Provider Error [{code}]: {user_message}")]
     ProviderError {
         code: u32,
         severity: ErrorSeverity,
@@ -66,8 +54,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("Config Error [{code}]: {user_message}")]
     ConfigError {
         code: u32,
         severity: ErrorSeverity,
@@ -75,8 +61,6 @@ pub enum AppError {
         user_message: String,
         dev_context: String,
     },
-
-    #[error("Internal Error [{code}]: {user_message}")]
     InternalError {
         code: u32,
         severity: ErrorSeverity,
@@ -85,6 +69,23 @@ pub enum AppError {
         dev_context: String,
     },
 }
+
+impl std::fmt::Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AppError::StorageError { code, user_message, .. } => write!(f, "Storage Error [{}]: {}", code, user_message),
+            AppError::ConversationError { code, user_message, .. } => write!(f, "Conversation Error [{}]: {}", code, user_message),
+            AppError::ReviewError { code, user_message, .. } => write!(f, "Review Error [{}]: {}", code, user_message),
+            AppError::SyncError { code, user_message, .. } => write!(f, "Sync Error [{}]: {}", code, user_message),
+            AppError::AIError { code, user_message, .. } => write!(f, "AI Error [{}]: {}", code, user_message),
+            AppError::ProviderError { code, user_message, .. } => write!(f, "Provider Error [{}]: {}", code, user_message),
+            AppError::ConfigError { code, user_message, .. } => write!(f, "Config Error [{}]: {}", code, user_message),
+            AppError::InternalError { code, user_message, .. } => write!(f, "Internal Error [{}]: {}", code, user_message),
+        }
+    }
+}
+
+impl std::error::Error for AppError {}
 
 impl AppError {
     pub fn internal(msg: &str) -> Self {

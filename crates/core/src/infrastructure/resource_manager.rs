@@ -17,8 +17,12 @@ impl ResourceManager {
     }
 
     pub fn inspect_budget(&self) -> SystemBudget {
+        let threads = std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(4);
+
         SystemBudget {
-            max_cpu_threads: num_cpus::get(),
+            max_cpu_threads: threads,
             max_ram_mb: 4096,
             gpu_available: false,
         }

@@ -4,15 +4,18 @@ use anyhow::Result;
 use crate::models::{Conversation, ProgressSnapshot, ReviewCard, Vocabulary};
 use crate::repositories::{ConversationRepositoryContract, ConversationRepositoryImpl};
 use crate::lifecycle::AppLifecycleManager;
+use crate::infrastructure::{CapabilityRegistry, Capability, MetricsCollector, InternalMetrics};
 
 pub struct DiLangEngineFacade {
     conversation_repo: Box<dyn ConversationRepositoryContract>,
+    capability_registry: CapabilityRegistry,
 }
 
 impl DiLangEngineFacade {
     pub fn new() -> Self {
         Self {
             conversation_repo: Box::new(ConversationRepositoryImpl::new()),
+            capability_registry: CapabilityRegistry::new(),
         }
     }
 
@@ -62,6 +65,22 @@ impl DiLangEngineFacade {
             total_practice_hours: 4.5,
             average_retention_rate: 0.92,
         })
+    }
+
+    /// Query registered subsystem provider capability
+    pub fn query_capability(&self, cap_name: &str) -> Option<String> {
+        let cap = match cap_name {
+            "conversation" => Capability::Conversation,
+            "stt" => Capability::SpeechToText,
+            "tts" => Capability::TextToSpeech,
+            _ => return None,
+        };
+        self.capability_registry.get_provider(cap).map(|p| p.name)
+    }
+
+    /// Collect internal health metrics
+    pub fn get_internal_metrics(&self) -> InternalMetrics {
+        MetricsCollector::collect()
     }
 
     /// Start P2P CRDT sync

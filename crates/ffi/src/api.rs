@@ -31,6 +31,14 @@ pub fn get_analytics_snapshot() -> String {
     }
 }
 
+pub fn query_capability(cap_name: String) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.query_capability(&cap_name) {
+        Some(provider) => provider,
+        None => "Capability Not Registered".to_string(),
+    }
+}
+
 pub fn shutdown_engine() -> String {
     let engine = DiLangEngineFacade::new();
     match engine.shutdown() {
