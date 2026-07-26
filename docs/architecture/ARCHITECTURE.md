@@ -1,10 +1,10 @@
-# DiLang Architecture Specification (v2.0 Frozen)
+# DiLang Architecture Specification (v3.0 Frozen)
 
-> **GOVERNANCE DECLARATION**: Architecture Freeze v2.0 is officially **FROZEN**. All application runtime, repository contracts, transactional caching policies, dependency injection containers, and event bus taxonomies are strictly locked prior to AI model runtime integration.
+> **GOVERNANCE DECLARATION**: Architecture Freeze v3.0 (Phase 5 Infrastructure Layer) is officially **FROZEN**. All error models (`AppError`), result aliases (`CoreResult<T>`), configuration managers (`ConfigManager`), model managers (`ModelManager`), resource managers (`ResourceManager`), task schedulers (`Scheduler`), capability registries (`CapabilityRegistry`), and feature flag systems are locked prior to feature engine implementations.
 
 ---
 
-## 1. Layered Architecture (4-Tier Separation of Concerns)
+## 1. Complete System Architecture Stack
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -31,35 +31,29 @@
                              │
                        Rust Core Engines
             (Storage • EventBus • Workers • Models)
+                             │
+─────────────────────────────┴────────────────────────────
+                Infrastructure Layer (Shared Base)
+  ConfigManager • AppError • CoreResult<T> • Scheduler
+  ModelManager • ResourceManager • CapabilityRegistry
+  Internal Metrics • Structured Logger • FeatureFlags
+──────────────────────────────────────────────────────────
 ```
-
-### Architectural Enforcement Rules
-1. **UI Layer Isolation**: Flutter UI widgets never consume FFI bridge functions directly. All interactions flow through Riverpod Notifiers and Repository abstractions.
-2. **Repository Ownership**: Repositories own memory caching, SQLite queries, local transaction boundaries, and FFI orchestration.
-3. **Rust Engine Independence**: Rust engines (`dilang_core`) operate completely decoupled from Dart/Flutter.
-4. **Event-Driven Communication**: Subsystem cross-talk operates strictly via published events over the thread-safe `EventBus`.
 
 ---
 
-## 2. Event Bus & Event Architecture (Phase 4)
+## 2. Phase 5 Infrastructure Specifications
 
-Every system event is immutable and conforms to the standard payload header:
+### 2.1 Error Hierarchy (`AppError`)
+Centralized typed error handling across all sub-crates:
+- `StorageError`, `ConversationError`, `ReviewError`, `SyncError`, `AIError`, `ProviderError`, `ConfigError`, `InternalError`.
+- Includes error code, severity level (Info, Warning, Error, Fatal), recoverability flag, user-facing message, and developer context.
 
-```rust
-pub struct EventHeader {
-    pub id: String,
-    pub timestamp: DateTime<Utc>,
-    pub session_id: String,
-    pub user_id: String,
-    pub source: String,
-    pub version: u32,
-}
-```
+### 2.2 Global Result Alias (`CoreResult<T>`)
+- `pub type CoreResult<T> = Result<T, AppError>;`
 
-### Event Taxonomy
-- **Conversation**: `ConversationStarted`, `ConversationEnded`, `MessageReceived`, `MessageGenerated`, `CorrectionGenerated`
-- **Vocabulary**: `VocabularyDetected`, `VocabularyMastered`, `VocabularyForgotten`, `VocabularyReviewed`
-- **Grammar**: `GrammarDetected`, `GrammarWeaknessFound`, `GrammarMastered`
-- **Review**: `ReviewScheduled`, `ReviewStarted`, `ReviewCompleted`, `ReviewSkipped`
-- **Analytics**: `ProgressUpdated`, `DashboardChanged`, `CEFRUpdated`, `LearningSessionEnded`
-- **System**: `AppStarted`, `AppStopped`, `SettingsChanged`, `LanguageChanged`, `ProviderLoaded`, `ProviderFailed`
+### 2.3 Model Manager (`ModelManager`)
+- Handles model location, SHA-256 integrity verification, memory loading/unloading, VRAM budget allocation, and version compatibility.
+
+### 2.4 Capability Registry (`CapabilityRegistry`)
+- Decouples feature queries from concrete providers. Modules query capabilities (`Capability::Conversation`, `Capability::SpeechToText`, `Capability::TextToSpeech`) rather than hardcoding vendor runtimes.
