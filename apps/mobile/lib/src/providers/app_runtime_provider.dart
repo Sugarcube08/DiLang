@@ -51,12 +51,10 @@ class AppRuntimeNotifier extends StateNotifier<AppRuntimeState> {
   Future<void> initializeRuntime(void Function(String) onProgress) async {
     try {
       onProgress('Initializing SQLite Engine...');
-      await Future.delayed(const Duration(milliseconds: 150));
-      final dbHealth = DiLangNativeBridge.checkDbHealth();
+      final dbHealth = await DiLangNativeBridge.checkDbHealth();
 
       onProgress('Checking Hardware Resource Budget...');
-      await Future.delayed(const Duration(milliseconds: 150));
-      final budgetJson = DiLangNativeBridge.getSystemResourceBudget();
+      final budgetJson = await DiLangNativeBridge.getSystemResourceBudget();
       Map<String, dynamic> budgetMap = {};
       if (budgetJson.isNotEmpty && !budgetJson.startsWith('Error')) {
         try {
@@ -65,8 +63,7 @@ class AppRuntimeNotifier extends StateNotifier<AppRuntimeState> {
       }
 
       onProgress('Querying Backend Startup State Machine...');
-      await Future.delayed(const Duration(milliseconds: 150));
-      final stateStr = DiLangNativeBridge.getStartupState();
+      final stateStr = await DiLangNativeBridge.getStartupState();
 
       state = state.copyWith(
         isInitializing: false,

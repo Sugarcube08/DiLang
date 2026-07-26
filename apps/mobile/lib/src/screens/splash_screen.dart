@@ -44,8 +44,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         context.go('/onboarding/profile');
         break;
       case 'NeedsLanguages':
-        debugPrint("=== NAVIGATING TO: /onboarding/languages ===");
-        context.go('/onboarding/languages');
+        debugPrint("=== NAVIGATING TO: /onboarding/native-language ===");
+        context.go('/onboarding/native-language');
         break;
       case 'NeedsPermissions':
         debugPrint("=== NAVIGATING TO: /onboarding/permissions ===");

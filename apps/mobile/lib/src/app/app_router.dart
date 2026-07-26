@@ -4,9 +4,9 @@ import '../screens/home_screen.dart';
 import '../screens/conversation_screen.dart';
 import '../screens/developer_showcase_screen.dart';
 import '../onboarding/profile_setup_screen.dart';
-import '../onboarding/language_selection_screen.dart';
+import '../onboarding/native_language_screen.dart';
+import '../onboarding/target_language_screen.dart';
 import '../onboarding/permission_manager_screen.dart';
-import '../onboarding/runtime_check_screen.dart';
 import '../onboarding/model_download_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -21,20 +21,16 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ProfileSetupScreen(),
     ),
     GoRoute(
-      path: '/onboarding/languages',
-      builder: (context, state) => LanguageSelectionScreen(
-        onNext: (native, target) => context.go('/onboarding/permissions'),
-      ),
+      path: '/onboarding/native-language',
+      builder: (context, state) => const NativeLanguageScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/target-language',
+      builder: (context, state) => const TargetLanguageScreen(),
     ),
     GoRoute(
       path: '/onboarding/permissions',
       builder: (context, state) => PermissionManagerScreen(
-        onNext: () => context.go('/onboarding/runtime-check'),
-      ),
-    ),
-    GoRoute(
-      path: '/onboarding/runtime-check',
-      builder: (context, state) => RuntimeCheckScreen(
         onNext: () => context.go('/onboarding/model-download'),
       ),
     ),
@@ -50,10 +46,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/conversation',
-      builder: (context, state) => const ConversationScreen(
-        scenarioId: 'cafe_order',
-        scenarioTitle: 'Ordering Coffee in Berlin',
-      ),
+      builder: (context, state) => const ConversationScreen(),
     ),
     GoRoute(
       path: '/developer-showcase',

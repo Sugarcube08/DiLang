@@ -125,6 +125,8 @@ pub struct LearningGoal {
 pub struct ProgressSnapshot {
     pub total_known_words: u32,
     pub total_mastered_grammar: u32,
+    pub total_conversations: u32,
+    pub total_reviews_due: u32,
     pub total_practice_hours: f32,
     pub average_retention_rate: f32,
 }

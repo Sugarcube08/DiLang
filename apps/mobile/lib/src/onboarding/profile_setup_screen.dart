@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/user_profile_provider.dart';
+import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
@@ -18,11 +19,10 @@ class ProfileSetupScreen extends ConsumerStatefulWidget {
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController();
-  int _selectedMinutes = 15;
+  bool _isSubmitting = false;
   String? _errorMessage;
 
-  void _handleContinue() {
+  Future<void> _handleContinue() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       setState(() {
@@ -31,23 +31,29 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       return;
     }
 
-    final success = ref.read(userProfileProvider.notifier).createUserProfile(
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    final success = await ref.read(userProfileProvider.notifier).createUserProfile(
           username: name,
-          nativeLang: 'English',
-          targetLang: 'German',
-          avatar: 'avatar_default.png',
-          age: 25,
-          country: _countryController.text.trim().isEmpty ? 'United States' : _countryController.text.trim(),
-          timezone: 'UTC',
-          dailyMinutes: _selectedMinutes,
+          nativeLang: '',
+          targetLang: '',
         );
 
-    if (success) {
-      context.go('/onboarding/languages');
-    } else {
+    if (mounted) {
       setState(() {
-        _errorMessage = 'Failed to create profile in SQLite database.';
+        _isSubmitting = false;
       });
+      if (success) {
+        await DiLangNativeBridge.setOnboardingStep('NativeLanguage');
+        if (mounted) context.go('/onboarding/native-language');
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to create user profile in SQLite.';
+        });
+      }
     }
   }
 
@@ -57,27 +63,26 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Setup'),
+        title: const Text('Profile Creation'),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(DesignTokens.space24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Welcome to DiLang',
+              'Your Profile',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Set up your local profile stored securely on your device.',
+              'Enter your name to create your local account in SQLite.',
               style: TextStyle(color: colors.textSecondary),
             ),
             const SizedBox(height: 32),
 
-            // Profile Input Card
             DiLangCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,48 +91,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   const SizedBox(height: 8),
                   DiLangInput(
                     controller: _nameController,
-                    hintText: 'Enter your name or nickname',
+                    hintText: 'e.g. Harsh',
                     prefixIcon: DiIcons.check,
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Country / Region', style: Theme.of(context).textTheme.titleSmall),
-                  const SizedBox(height: 8),
-                  DiLangInput(
-                    controller: _countryController,
-                    hintText: 'e.g. Germany, Japan, USA',
-                    prefixIcon: DiIcons.settings,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Daily Target Minutes
-            Text('Daily Target Learning Time', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            Row(
-              children: [10, 15, 30].map((mins) {
-                final isSelected = _selectedMinutes == mins;
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: DiLangCard(
-                      onTap: () => setState(() => _selectedMinutes = mins),
-                      child: Center(
-                        child: Text(
-                          '$mins Mins',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isSelected ? colors.primary : colors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 32),
+            const Spacer(),
 
             if (_errorMessage != null) ...[
               Text(_errorMessage!, style: TextStyle(color: colors.error)),
@@ -137,9 +107,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             SizedBox(
               width: double.infinity,
               child: DiLangButton(
-                label: 'Save & Continue',
+                label: _isSubmitting ? 'Saving...' : 'Continue',
                 icon: DiIcons.play,
-                onPressed: _handleContinue,
+                onPressed: _isSubmitting ? null : _handleContinue,
               ),
             ),
           ],

@@ -12,6 +12,19 @@ pub fn check_db_health() -> String {
     }
 }
 
+pub fn get_onboarding_step() -> String {
+    let engine = DiLangEngineFacade::new();
+    engine.get_onboarding_step()
+}
+
+pub fn set_onboarding_step(step: String) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.set_onboarding_step(&step) {
+        Ok(_) => "OK".to_string(),
+        Err(e) => format!("Error: {}", e),
+    }
+}
+
 pub fn get_startup_state() -> String {
     let engine = DiLangEngineFacade::new();
     match engine.get_startup_state() {
@@ -114,10 +127,7 @@ pub fn get_system_resource_budget() -> String {
 pub fn get_analytics_snapshot() -> String {
     let engine = DiLangEngineFacade::new();
     match engine.analytics_snapshot() {
-        Ok(snap) => format!(
-            "Known Words: {}, Mastered Grammar: {}, Practice Hours: {:.1}h",
-            snap.total_known_words, snap.total_mastered_grammar, snap.total_practice_hours
-        ),
+        Ok(snap) => serde_json::to_string(&snap).unwrap_or_default(),
         Err(err) => format!("Error: {}", err),
     }
 }

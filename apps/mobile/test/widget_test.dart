@@ -6,7 +6,7 @@ void main() {
   testWidgets('DiLang Production App Boot test', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
-        child: DiLangApp(),
+        child: DiLangApp(rustInitSuccess: true),
       ),
     );
 

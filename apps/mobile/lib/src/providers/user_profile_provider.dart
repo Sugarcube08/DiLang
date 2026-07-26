@@ -31,9 +31,9 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     loadActiveUser();
   }
 
-  void loadActiveUser() {
+  Future<void> loadActiveUser() async {
     try {
-      final userJson = DiLangNativeBridge.getActiveUser();
+      final userJson = await DiLangNativeBridge.getActiveUser();
       if (userJson.isNotEmpty && !userJson.startsWith('Error')) {
         final map = jsonDecode(userJson) as Map<String, dynamic>;
         state = state.copyWith(activeUser: map, isLoading: false);
@@ -45,26 +45,26 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     }
   }
 
-  bool createUserProfile({
+  Future<bool> createUserProfile({
     required String username,
     required String nativeLang,
     required String targetLang,
-    required String avatar,
-    required int age,
-    required String country,
-    required String timezone,
-    required int dailyMinutes,
-  }) {
+    String avatar = 'avatar_default.png',
+    int age = 0,
+    String country = '',
+    String timezone = 'UTC',
+    int dailyMinutes = 15,
+  }) async {
     try {
-      final resultJson = DiLangNativeBridge.createUserProfile(
-        username,
-        nativeLang,
-        targetLang,
-        avatar,
-        age,
-        country,
-        timezone,
-        dailyMinutes,
+      final resultJson = await DiLangNativeBridge.createUserProfile(
+        username: username,
+        nativeLang: nativeLang,
+        targetLang: targetLang,
+        avatar: avatar,
+        age: age,
+        country: country,
+        timezone: timezone,
+        dailyMinutes: dailyMinutes,
       );
       if (resultJson.isNotEmpty && !resultJson.startsWith('Error')) {
         final map = jsonDecode(resultJson) as Map<String, dynamic>;

@@ -10,6 +10,15 @@ Future<String> ping() => RustLib.instance.api.crateApiPing();
 
 Future<String> checkDbHealth() => RustLib.instance.api.crateApiCheckDbHealth();
 
+Future<String> getOnboardingStep() =>
+    RustLib.instance.api.crateApiGetOnboardingStep();
+
+Future<String> setOnboardingStep({required String step}) =>
+    RustLib.instance.api.crateApiSetOnboardingStep(step: step);
+
+Future<String> getStartupState() =>
+    RustLib.instance.api.crateApiGetStartupState();
+
 Future<String> createUserProfile(
         {required String username,
         required String nativeLang,

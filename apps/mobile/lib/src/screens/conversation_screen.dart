@@ -4,7 +4,6 @@ import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
-import '../components/dilang_card.dart';
 import '../components/dilang_input.dart';
 import '../components/dilang_button.dart';
 
@@ -14,8 +13,8 @@ class ConversationScreen extends StatefulWidget {
 
   const ConversationScreen({
     super.key,
-    required this.scenarioId,
-    required this.scenarioTitle,
+    this.scenarioId = 'default_dialogue',
+    this.scenarioTitle = 'Roleplay Dialogue',
   });
 
   @override
@@ -28,6 +27,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   String? _conversationId;
   List<Map<String, String>> _messages = [];
   bool _isLoading = true;
+  bool _isSending = false;
 
   @override
   void initState() {
@@ -35,9 +35,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _initializeDialogueSession();
   }
 
-  void _initializeDialogueSession() {
-    final convId = DiLangNativeBridge.startConversation(widget.scenarioId);
-    final historyJson = DiLangNativeBridge.getConversationHistory(convId);
+  Future<void> _initializeDialogueSession() async {
+    final convId = await DiLangNativeBridge.startConversation(widget.scenarioId);
+    final historyJson = await DiLangNativeBridge.getConversationHistory(convId);
 
     List<Map<String, String>> loadedMsgs = [];
     if (historyJson.isNotEmpty && !historyJson.startsWith('Error')) {
@@ -52,28 +52,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
       } catch (_) {}
     }
 
-    setState(() {
-      _conversationId = convId;
-      _messages = loadedMsgs;
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _conversationId = convId;
+        _messages = loadedMsgs;
+        _isLoading = false;
+      });
+    }
   }
 
-  void _handleSendMessage() {
+  Future<void> _handleSendMessage() async {
     final text = _inputController.text.trim();
-    if (text.isEmpty || _conversationId == null) return;
+    if (text.isEmpty || _conversationId == null || _isSending) return;
 
     _inputController.clear();
     setState(() {
       _messages.add({'sender': 'user', 'text': text});
+      _isSending = true;
     });
     _scrollToBottom();
 
-    final reply = DiLangNativeBridge.sendDialogueTurn(_conversationId!, text);
-    setState(() {
-      _messages.add({'sender': 'model', 'text': reply});
-    });
-    _scrollToBottom();
+    final reply = await DiLangNativeBridge.sendDialogueTurn(_conversationId!, text);
+
+    if (mounted) {
+      setState(() {
+        _messages.add({'sender': 'model', 'text': reply});
+        _isSending = false;
+      });
+      _scrollToBottom();
+    }
   }
 
   void _scrollToBottom() {
@@ -94,87 +101,65 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.scenarioTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(DiIcons.brain),
-            onPressed: () {},
-          ),
-        ],
+        title: const Text('Dialogue Practice'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Active Scenario Header Banner
-                Padding(
-                  padding: const EdgeInsets.all(DesignTokens.space16),
-                  child: DiLangCard(
-                    isGlass: true,
-                    child: Row(
-                      children: [
-                        const Icon(DiIcons.spark, size: 24),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Roleplay Engine: Gemma 3 1B',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.primary,
-                                  fontSize: 13,
+                // Dialogue Chat List
+                Expanded(
+                  child: _messages.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No conversation yet.\nType a message to start dialogue.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: colors.textSecondary),
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(DesignTokens.space16),
+                          itemCount: _messages.length,
+                          itemBuilder: (context, index) {
+                            final msg = _messages[index];
+                            final isUser = msg['sender'] == 'user';
+                            return Align(
+                              alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                              child: Container(
+                                constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width * 0.75,
+                                ),
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: isUser ? colors.conversationUser : colors.conversationAI,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  msg['text'] ?? '',
+                                  style: TextStyle(
+                                    color: isUser ? Colors.white : colors.textPrimary,
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Target: ${widget.scenarioTitle}',
-                                style: TextStyle(color: colors.textSecondary, fontSize: 12),
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
-                      ],
+                ),
+
+                if (_isSending)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary),
                     ),
                   ),
-                ),
 
-                // Turn-by-Turn Dialogue Chat List
-                Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: DesignTokens.space16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final msg = _messages[index];
-                      final isUser = msg['sender'] == 'user';
-                      return Align(
-                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 6),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isUser ? colors.conversationUser : colors.conversationAI,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            msg['text'] ?? '',
-                            style: TextStyle(
-                              color: isUser ? Colors.white : colors.textPrimary,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // User Dialogue Input Bar
+                // User Input Bar
                 Padding(
                   padding: const EdgeInsets.all(DesignTokens.space16),
                   child: Row(
@@ -182,7 +167,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       Expanded(
                         child: DiLangInput(
                           controller: _inputController,
-                          hintText: 'Type your response in target language...',
+                          hintText: 'Type your message...',
                           prefixIcon: DiIcons.mic,
                         ),
                       ),
@@ -190,7 +175,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       DiLangButton(
                         label: 'Send',
                         icon: DiIcons.play,
-                        onPressed: _handleSendMessage,
+                        onPressed: _isSending ? null : _handleSendMessage,
                       ),
                     ],
                   ),

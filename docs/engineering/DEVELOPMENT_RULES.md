@@ -52,3 +52,13 @@ class ConversationController extends AsyncNotifier<ConversationState> {
   - `feat(fsrs): add v4 weight optimizer Rust module`
   - `fix(grammar): handle empty user speech token payload`
   - `docs(adr): update ADR-0002 FRB binding specs`
+
+---
+
+## 4. Zero Demo Content & Backend-Driven UI Rule
+
+> **Any UI text, metric, progress indicator, conversation, or status visible to the user must originate from a real backend source. If the backend cannot yet produce that value, the UI must display an explicit empty or unavailable state rather than placeholder content.**
+
+- The production application must contain **zero demo content, zero canned conversations, zero hardcoded learner information, and zero simulated runtime behavior**.
+- All user attributes, model statuses, vocabulary counts, grammar stats, and dialogue histories must be read directly from SQLite through Rust FFI queries.
+

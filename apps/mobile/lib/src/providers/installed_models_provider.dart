@@ -31,9 +31,9 @@ class InstalledModelsNotifier extends StateNotifier<InstalledModelsState> {
     loadInstalledModels();
   }
 
-  void loadInstalledModels() {
+  Future<void> loadInstalledModels() async {
     try {
-      final jsonStr = DiLangNativeBridge.listInstalledModels();
+      final jsonStr = await DiLangNativeBridge.listInstalledModels();
       if (jsonStr.isNotEmpty && !jsonStr.startsWith('Error')) {
         final list = jsonDecode(jsonStr) as List<dynamic>;
         state = state.copyWith(models: list, isLoading: false);
@@ -45,11 +45,11 @@ class InstalledModelsNotifier extends StateNotifier<InstalledModelsState> {
     }
   }
 
-  bool installModel(String name, String version, List<int> bytes) {
+  Future<bool> installModel(String name, String version, List<int> bytes) async {
     try {
-      final resultJson = DiLangNativeBridge.installModel(name, version, bytes);
+      final resultJson = await DiLangNativeBridge.installModel(name, version, bytes);
       if (resultJson.isNotEmpty && !resultJson.startsWith('Error')) {
-        loadInstalledModels();
+        await loadInstalledModels();
         return true;
       } else {
         state = state.copyWith(error: resultJson);

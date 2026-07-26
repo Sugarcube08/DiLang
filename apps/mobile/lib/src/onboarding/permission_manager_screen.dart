@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
@@ -17,12 +19,37 @@ class PermissionManagerScreen extends StatefulWidget {
 
 class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
   bool _micGranted = false;
+  bool _isDesktop = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isDesktop = Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+    if (_isDesktop) {
+      _micGranted = true;
+    }
+  }
 
   Future<void> _requestMicPermission() async {
-    final status = await Permission.microphone.request();
-    setState(() {
-      _micGranted = status.isGranted;
-    });
+    if (_isDesktop) {
+      setState(() => _micGranted = true);
+      return;
+    }
+    try {
+      final status = await Permission.microphone.request();
+      setState(() {
+        _micGranted = status.isGranted;
+      });
+    } catch (_) {
+      setState(() {
+        _micGranted = true;
+      });
+    }
+  }
+
+  Future<void> _handleContinue() async {
+    await DiLangNativeBridge.setOnboardingStep('Models');
+    widget.onNext();
   }
 
   @override
@@ -45,7 +72,9 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Grant microphone access for voice practice and STT audio processing.',
+              _isDesktop
+                  ? 'Desktop operating systems use system audio inputs. Microphone access is assumed.'
+                  : 'Grant microphone access for voice practice and STT audio processing.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -63,7 +92,11 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
                   child: Icon(DiIcons.mic, color: colors.primary),
                 ),
                 title: const Text('Microphone Access'),
-                subtitle: const Text('Required for speech recognition & oral dialogue practice'),
+                subtitle: Text(
+                  _isDesktop
+                      ? 'System default microphone ready'
+                      : 'Required for speech recognition & oral dialogue practice',
+                ),
                 trailing: _micGranted
                     ? Icon(DiIcons.check, color: colors.success)
                     : OutlinedButton(
@@ -77,9 +110,9 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
             SizedBox(
               width: double.infinity,
               child: DiLangButton(
-                label: 'Continue to Hardware Check',
+                label: 'Continue to Model Download',
                 icon: DiIcons.play,
-                onPressed: widget.onNext,
+                onPressed: _handleContinue,
               ),
             ),
           ],

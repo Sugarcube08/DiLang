@@ -27,7 +27,7 @@ class _RuntimeCheckScreenState extends State<RuntimeCheckScreen> {
   }
 
   Future<void> _fetchHardwareBudget() async {
-    final rawJson = DiLangNativeBridge.getSystemResourceBudget();
+    final rawJson = await DiLangNativeBridge.getSystemResourceBudget();
     if (rawJson.isNotEmpty && !rawJson.startsWith('Error')) {
       try {
         final decoded = jsonDecode(rawJson);

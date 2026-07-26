@@ -1,29 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
 import '../components/dilang_button.dart';
 import '../components/dilang_card.dart';
+import '../providers/user_profile_provider.dart';
 
-class LanguageSelectionScreen extends StatefulWidget {
-  final Function(String nativeLang, String targetLang) onNext;
+class LanguageSelectionScreen extends ConsumerStatefulWidget {
+  final VoidCallback onNext;
 
   const LanguageSelectionScreen({super.key, required this.onNext});
 
   @override
-  State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
+  ConsumerState<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
 }
 
-class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
+class _LanguageSelectionScreenState extends ConsumerState<LanguageSelectionScreen> {
   String _nativeLang = 'English';
   String _targetLang = 'German';
 
-  final List<String> _supportedLanguages = [
+  static const List<String> _supportedLanguages = [
     'English',
     'German',
-    'Spanish',
     'French',
+    'Spanish',
+    'Italian',
+    'Portuguese',
+    'Dutch',
+    'Swedish',
+    'Norwegian',
+    'Danish',
+    'Finnish',
+    'Polish',
+    'Czech',
+    'Slovak',
+    'Hungarian',
+    'Romanian',
+    'Turkish',
     'Japanese',
+    'Korean',
     'Chinese',
   ];
 
@@ -102,10 +118,17 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             SizedBox(
               width: double.infinity,
               child: DiLangButton(
-                label: 'Continue to Permissions',
+                label: 'Save & Continue',
                 icon: DiIcons.play,
-                onPressed: () {
-                  widget.onNext(_nativeLang, _targetLang);
+                onPressed: () async {
+                  final activeUser = ref.read(userProfileProvider).activeUser;
+                  final username = activeUser?['username']?.toString() ?? 'Learner';
+                  await ref.read(userProfileProvider.notifier).createUserProfile(
+                    username: username,
+                    nativeLang: _nativeLang,
+                    targetLang: _targetLang,
+                  );
+                  widget.onNext();
                 },
               ),
             ),

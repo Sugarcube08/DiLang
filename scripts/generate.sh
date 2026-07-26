@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# DiLang Code Generation Automation
-# Executes Flutter Rust Bridge codegen & Dart code generators
+# DiLang Code Generation & FFI Compilation Automation
+# Compiles Rust FFI crate & generates Flutter Rust Bridge bindings
 # ==============================================================================
 
 set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/utils.sh"
 
-log_header "DiLang Code Generation"
+log_header "DiLang Code Generation & FFI Compilation"
+
+log_info "Compiling Rust FFI cdylib package..."
+(cd "${REPO_ROOT}" && cargo build --package ffi)
 
 log_info "Generating Flutter Rust Bridge (FRB v2.8.0) bindings..."
 if check_cmd "flutter_rust_bridge_codegen"; then

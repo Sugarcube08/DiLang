@@ -80,20 +80,49 @@ impl DiLangEngineFacade {
         AppLifecycleManager::shutdown()
     }
 
+    pub fn get_onboarding_step(&self) -> String {
+        let conn = match crate::storage::schema::get_connection() {
+            Ok(c) => c,
+            Err(_) => return "Profile".to_string(),
+        };
+        conn.query_row(
+            "SELECT value FROM settings WHERE key = 'onboarding_step'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or_else(|_| "Profile".to_string())
+    }
+
+    pub fn set_onboarding_step(&self, step: &str) -> Result<()> {
+        let conn = crate::storage::schema::get_connection()?;
+        conn.execute(
+            "INSERT OR REPLACE INTO settings (key, value) VALUES ('onboarding_step', ?1)",
+            rusqlite::params![step],
+        )?;
+        Ok(())
+    }
+
     /// Rust Backend Startup State Machine
     /// Queries SQLite database to determine application launch state
     pub fn get_startup_state(&self) -> StartupState {
         info!("RUST: get_startup_state() query invoked");
-        let active_user = self.user_repo.get_active_user().unwrap_or_default();
+        let step = self.get_onboarding_step();
+        info!("RUST: SQLite onboarding_step = '{}'", step);
 
+        if step == "Completed" {
+            info!("RUST: get_startup_state() -> Ready (onboarding_step = Completed)");
+            return StartupState::Ready;
+        }
+
+        let active_user = self.user_repo.get_active_user().unwrap_or_default();
         if active_user.is_none() {
-            info!("RUST: get_startup_state() -> NeedsProfile (SQLite user_profiles is empty)");
+            info!("RUST: get_startup_state() -> NeedsProfile (SQLite users table is empty)");
             return StartupState::NeedsProfile;
         }
 
         let user = active_user.unwrap();
-        if user.target_language.is_empty() {
-            info!("RUST: get_startup_state() -> NeedsLanguages (User exists, target language unselected)");
+        if user.target_language.is_empty() || user.native_language.is_empty() {
+            info!("RUST: get_startup_state() -> NeedsLanguages (Target or native language unselected)");
             return StartupState::NeedsLanguages;
         }
 
@@ -107,7 +136,7 @@ impl DiLangEngineFacade {
             return StartupState::NeedsModels;
         }
 
-        info!("RUST: get_startup_state() -> Ready (All SQLite tables populated)");
+        info!("RUST: get_startup_state() -> Ready (All onboarding steps completed)");
         StartupState::Ready
     }
 

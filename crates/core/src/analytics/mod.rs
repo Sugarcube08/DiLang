@@ -37,6 +37,12 @@ impl AnalyticsEngine for EventDrivenAnalyticsEngine {
         let total_grammar: u32 = conn
             .query_row("SELECT COUNT(*) FROM grammar_concepts", [], |r| r.get(0))
             .unwrap_or(0);
+        let total_conversations: u32 = conn
+            .query_row("SELECT COUNT(*) FROM conversations", [], |r| r.get(0))
+            .unwrap_or(0);
+        let total_reviews_due: u32 = conn
+            .query_row("SELECT COUNT(*) FROM review_cards", [], |r| r.get(0))
+            .unwrap_or(0);
         let total_turns: u32 = conn
             .query_row(
                 "SELECT COALESCE(SUM(turns_count), 0) FROM conversations",
@@ -45,13 +51,15 @@ impl AnalyticsEngine for EventDrivenAnalyticsEngine {
             )
             .unwrap_or(0);
 
-        let hours = (total_turns as f32 * 0.05).max(0.1);
+        let hours = total_turns as f32 * 0.05;
 
         Ok(ProgressSnapshot {
             total_known_words: total_words,
             total_mastered_grammar: total_grammar,
+            total_conversations,
+            total_reviews_due,
             total_practice_hours: hours,
-            average_retention_rate: 0.94,
+            average_retention_rate: 0.0,
         })
     }
 

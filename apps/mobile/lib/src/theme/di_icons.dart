@@ -18,4 +18,5 @@ abstract class DiIcons {
   static const IconData check = Icons.check_circle_rounded;
   static const IconData warning = Icons.warning_amber_rounded;
   static const IconData refresh = Icons.refresh_rounded;
+  static const IconData time = Icons.access_time_rounded;
 }
