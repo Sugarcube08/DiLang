@@ -22,6 +22,7 @@ walkdir.workspace = true
 once_cell.workspace = true
 rayon.workspace = true
 reqwest.workspace = true
+sha2.workspace = true
 
 [lib]
 crate-type = ["rlib"]

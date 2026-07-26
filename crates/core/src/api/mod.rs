@@ -1,21 +1,36 @@
 //! Public Engine API Facade Specification
 
 use anyhow::Result;
-use crate::models::{Conversation, ProgressSnapshot, ReviewCard, Vocabulary};
-use crate::repositories::{ConversationRepositoryContract, ConversationRepositoryImpl};
+use crate::models::{Conversation, ProgressSnapshot, ReviewCard, User, Vocabulary};
+use crate::repositories::{
+    ConversationRepositoryContract, ConversationRepositoryImpl,
+    UserRepositoryContract, UserRepositoryImpl,
+    SettingsRepositoryContract, SettingsRepositoryImpl,
+};
 use crate::lifecycle::AppLifecycleManager;
-use crate::infrastructure::{CapabilityRegistry, Capability, MetricsCollector, InternalMetrics};
+use crate::infrastructure::{
+    CapabilityRegistry, Capability, MetricsCollector, InternalMetrics,
+    ModelManager, InstalledModelRecord, ResourceManager, SystemBudget,
+};
 
 pub struct DiLangEngineFacade {
     conversation_repo: Box<dyn ConversationRepositoryContract>,
+    user_repo: Box<dyn UserRepositoryContract>,
+    _settings_repo: Box<dyn SettingsRepositoryContract>,
     capability_registry: CapabilityRegistry,
+    model_manager: ModelManager,
+    resource_manager: ResourceManager,
 }
 
 impl DiLangEngineFacade {
     pub fn new() -> Self {
         Self {
             conversation_repo: Box::new(ConversationRepositoryImpl::new()),
+            user_repo: Box::new(UserRepositoryImpl::new()),
+            _settings_repo: Box::new(SettingsRepositoryImpl::new()),
             capability_registry: CapabilityRegistry::new(),
+            model_manager: ModelManager::new(),
+            resource_manager: ResourceManager::new(),
         }
     }
 
@@ -27,6 +42,46 @@ impl DiLangEngineFacade {
     /// Graceful engine shutdown
     pub fn shutdown(&self) -> Result<()> {
         AppLifecycleManager::shutdown()
+    }
+
+    /// Create User Profile & Learning Goal in SQLite
+    pub fn create_user_profile(
+        &self,
+        username: &str,
+        native_lang: &str,
+        target_lang: &str,
+        avatar: &str,
+        age: Option<u32>,
+        country: &str,
+        timezone: &str,
+        daily_minutes: u32,
+    ) -> Result<User> {
+        let user = self.user_repo.create_user(username, native_lang, target_lang)?;
+        self.user_repo.save_user_profile(&user.id, avatar, age, country, timezone)?;
+        self.user_repo.save_learning_goal(&user.id, daily_minutes, 20)?;
+        Ok(user)
+    }
+
+    /// Retrieve current active user profile from SQLite
+    pub fn get_active_user(&self) -> Result<Option<User>> {
+        self.user_repo.get_active_user()
+    }
+
+    /// Install & register model file with real SHA-256 calculation
+    pub fn install_model(&self, name: &str, version: &str, content: &[u8]) -> Result<InstalledModelRecord> {
+        self.model_manager.install_model_file(name, version, content)
+            .map_err(|e| anyhow::anyhow!(e))
+    }
+
+    /// List installed models from SQLite
+    pub fn list_installed_models(&self) -> Result<Vec<InstalledModelRecord>> {
+        self.model_manager.list_installed_models()
+            .map_err(|e| anyhow::anyhow!(e))
+    }
+
+    /// Inspect device system hardware resource budget
+    pub fn get_system_resource_budget(&self) -> SystemBudget {
+        self.resource_manager.inspect_budget()
     }
 
     /// Start a new dialogue roleplay conversation

@@ -21,6 +21,44 @@ pub fn check_db_health_impl() -> String {
     crate::api::check_db_health()
 }
 
+pub fn create_user_profile_impl(
+    username: String,
+    native_lang: String,
+    target_lang: String,
+    avatar: String,
+    age: u32,
+    country: String,
+    timezone: String,
+    daily_minutes: u32,
+) -> String {
+    crate::api::create_user_profile(
+        username,
+        native_lang,
+        target_lang,
+        avatar,
+        age,
+        country,
+        timezone,
+        daily_minutes,
+    )
+}
+
+pub fn get_active_user_impl() -> String {
+    crate::api::get_active_user()
+}
+
+pub fn install_model_impl(name: String, version: String, content: Vec<u8>) -> String {
+    crate::api::install_model(name, version, content)
+}
+
+pub fn list_installed_models_impl() -> String {
+    crate::api::list_installed_models()
+}
+
+pub fn get_system_resource_budget_impl() -> String {
+    crate::api::get_system_resource_budget()
+}
+
 pub fn start_conversation_impl(scenario_id: String) -> String {
     crate::api::start_conversation(scenario_id)
 }

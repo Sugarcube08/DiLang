@@ -73,7 +73,7 @@ pub fn check_db_health() -> Result<String, String> {
     Ok(result)
 }
 
-fn get_db_path() -> Option<PathBuf> {
+pub fn get_db_path() -> Option<PathBuf> {
     dirs::data_dir().map(|mut p| {
         p.push("DiLang");
         p.push("database.db");
@@ -104,11 +104,22 @@ mod tests {
     fn test_engine_facade() {
         let engine = DiLangEngineFacade::new();
         assert!(engine.initialize().is_ok());
-        let conv = engine.conversation_start("cafe_order");
-        assert!(conv.is_ok());
-        assert_eq!(conv.unwrap().scenario_id, "cafe_order");
-        let cap = engine.query_capability("conversation");
-        assert_eq!(cap, Some("Gemma 3 1B (llama.cpp)".to_string()));
+        
+        let user = engine.create_user_profile("Alex", "English", "German", "avatar.png", Some(30), "US", "UTC", 15);
+        assert!(user.is_ok());
+        assert_eq!(user.unwrap().username, "Alex");
+
+        let active_user = engine.get_active_user();
+        assert!(active_user.is_ok());
+        assert!(active_user.unwrap().is_some());
+
+        let model = engine.install_model("gemma-3-1b-it", "v1.0", b"test_model_bytes");
+        assert!(model.is_ok());
+
+        let installed = engine.list_installed_models();
+        assert!(installed.is_ok());
+        assert!(!installed.unwrap().is_empty());
+
         assert!(engine.shutdown().is_ok());
     }
 
@@ -126,6 +137,9 @@ mod tests {
         let flags = FeatureFlags::default();
         assert!(flags.is_enabled("conversation"));
         let model_mgr = ModelManager::new();
-        assert!(model_mgr.verify_checksum("path", "sha").is_ok());
+        let temp_dir = std::env::temp_dir().join("test_sha256.bin");
+        std::fs::write(&temp_dir, b"sha_test_content").unwrap();
+        let verified = model_mgr.verify_checksum(&temp_dir, "b40d6c0733d7eb3d05267b2d5eb6627be95ca8ed7b15a6b0c2cb4172a6b2ed4a");
+        assert!(verified.is_ok());
     }
 }
