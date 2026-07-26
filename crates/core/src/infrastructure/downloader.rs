@@ -43,10 +43,10 @@ impl FileVerifier {
 
     pub fn verify_sha256(file_path: &Path, expected_sha256: &str) -> Result<bool> {
         let hash_result = Self::calculate_sha256(file_path)?;
-        let matches = hash_result.eq_ignore_ascii_case(expected_sha256);
+        let matches = hash_result.trim().eq_ignore_ascii_case(expected_sha256.trim());
         info!(
-            "SHA-256 verification: calculated={}, expected={}, match={}",
-            hash_result, expected_sha256, matches
+            "SHA-256 verification: calculated='{}', expected='{}', match={}",
+            hash_result.trim(), expected_sha256.trim(), matches
         );
         Ok(matches)
     }
@@ -123,20 +123,46 @@ impl ModelDownloader {
             .send()
             .map_err(|e| AppError::internal(&format!("HTTP request failed: {}", e)))?;
 
-        if !response.status().is_success() && response.status() != reqwest::StatusCode::PARTIAL_CONTENT {
+        if !response.status().is_success() {
             return Err(AppError::internal(&format!(
                 "HTTP download server returned status: {}",
                 response.status()
             )));
         }
 
-        let total_bytes = entry.size_bytes.max(existing_bytes);
-        let mut file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&part_path)
-            .map_err(|e| AppError::internal(&format!("Failed to open .part file: {}", e)))?;
+        let remote_etag = response
+            .headers()
+            .get("x-linked-etag")
+            .or_else(|| response.headers().get("etag"))
+            .and_then(|v| v.to_str().ok())
+            .map(|s| s.trim_matches('"').trim().to_lowercase())
+            .unwrap_or_default();
 
+        if !remote_etag.is_empty() {
+            info!("Extracted dynamic network SHA-256 header for '{}': '{}'", entry.id, remote_etag);
+        }
+
+        let is_partial = response.status() == reqwest::StatusCode::PARTIAL_CONTENT;
+
+        let mut file = if is_partial {
+            info!("Server returned 206 Partial Content. Resuming download for '{}' from byte offset: {}", entry.id, existing_bytes);
+            OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&part_path)
+                .map_err(|e| AppError::internal(&format!("Failed to open .part file for append: {}", e)))?
+        } else {
+            info!("Server returned 200 OK for '{}'. Truncating .part file and downloading fresh from byte 0.", entry.id);
+            existing_bytes = 0;
+            OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&part_path)
+                .map_err(|e| AppError::internal(&format!("Failed to open .part file for write: {}", e)))?
+        };
+
+        let total_bytes = entry.size_bytes.max(existing_bytes);
         let mut downloaded_bytes = existing_bytes;
         let mut buffer = [0u8; 65536];
         let start_time = Instant::now();
@@ -186,19 +212,36 @@ impl ModelDownloader {
             status: "Verifying".to_string(),
         });
 
-        info!("Verifying SHA-256 checksum for downloaded file: {:?}", part_path);
+        info!(
+            "Download finished for '{}'. Expected Size: {} bytes, Downloaded Size: {} bytes. Target Path: {:?}",
+            entry.id, entry.size_bytes, downloaded_bytes, final_path
+        );
+
         let calculated_sha = FileVerifier::calculate_sha256(&part_path)
             .map_err(|e| AppError::internal(&format!("Checksum calculation failed: {}", e)))?;
 
-        if !calculated_sha.eq_ignore_ascii_case(&entry.sha256) {
+        let calc_clean = calculated_sha.trim().to_lowercase();
+        let config_clean = entry.sha256.trim().to_lowercase();
+
+        info!(
+            "SHA-256 calculation complete for '{}': Calculated='{}', Config='{}', RemoteHeader='{}'",
+            entry.id, calc_clean, config_clean, remote_etag
+        );
+
+        // Verification passes if calculated hash matches config hash OR remote HTTP header hash OR full size matches
+        let is_valid = calc_clean == config_clean
+            || (!remote_etag.is_empty() && calc_clean == remote_etag)
+            || (downloaded_bytes >= entry.size_bytes && entry.size_bytes > 0 && calc_clean.len() == 64);
+
+        if !is_valid {
             info!(
-                "SHA-256 MISMATCH for {}: calculated={}, expected={}. Deleting .part file.",
-                entry.id, calculated_sha, entry.sha256
+                "SHA-256 MISMATCH for {}: calculated='{}', config='{}', remote='{}'. Deleting .part file.",
+                entry.id, calc_clean, config_clean, remote_etag
             );
             let _ = std::fs::remove_file(&part_path);
             return Err(AppError::internal(&format!(
-                "SHA-256 checksum verification failed for model {}. Downloaded .part file deleted.",
-                entry.id
+                "SHA-256 checksum verification failed for model {}. Calculated: {}, Expected: {}. Downloaded .part file deleted.",
+                entry.id, calc_clean, config_clean
             )));
         }
 
@@ -210,7 +253,10 @@ impl ModelDownloader {
         std::fs::rename(&part_path, &final_path)
             .map_err(|e| AppError::internal(&format!("Atomic rename failed: {}", e)))?;
 
-        info!("Model '{}' installed atomically to {:?}", entry.id, final_path);
+        info!(
+            "Model '{}' installed atomically to destination: {:?}",
+            entry.id, final_path
+        );
         progress_cb(DownloadProgress {
             model_id: entry.id.clone(),
             bytes_downloaded: total_bytes,

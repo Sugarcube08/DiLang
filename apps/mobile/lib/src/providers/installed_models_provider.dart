@@ -45,6 +45,8 @@ class InstalledModelsNotifier extends StateNotifier<InstalledModelsState> {
     }
   }
 
+  Future<void> refresh() => loadInstalledModels();
+
   Future<bool> installModel(String name, String version, List<int> bytes) async {
     try {
       final resultJson = await DiLangNativeBridge.installModel(name, version, bytes);

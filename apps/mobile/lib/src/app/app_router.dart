@@ -4,6 +4,7 @@ import '../screens/home_screen.dart';
 import '../screens/conversation_screen.dart';
 import '../screens/developer_showcase_screen.dart';
 import '../screens/diagnostics_screen.dart';
+import '../screens/settings_screen.dart';
 import '../onboarding/profile_setup_screen.dart';
 import '../onboarding/native_language_screen.dart';
 import '../onboarding/target_language_screen.dart';
@@ -56,6 +57,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/diagnostics',
       builder: (context, state) => const DiagnosticsScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );

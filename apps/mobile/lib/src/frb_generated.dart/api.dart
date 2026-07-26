@@ -6,6 +6,8 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`
+
 Future<String> ping() => RustLib.instance.api.crateApiPing();
 
 Future<String> checkDbHealth() => RustLib.instance.api.crateApiCheckDbHealth();
@@ -77,6 +79,9 @@ Future<String> queryCapability({required String capName}) =>
 Future<String> getModelRegistry() =>
     RustLib.instance.api.crateApiGetModelRegistry();
 
+Stream<FfiDownloadProgress> downloadModelStream({required String modelId}) =>
+    RustLib.instance.api.crateApiDownloadModelStream(modelId: modelId);
+
 Future<String> transcribeAudio({required List<int> audioBytes}) =>
     RustLib.instance.api.crateApiTranscribeAudio(audioBytes: audioBytes);
 
@@ -88,3 +93,42 @@ Future<String> getRuntimeDiagnostics() =>
 
 Future<String> shutdownEngine() =>
     RustLib.instance.api.crateApiShutdownEngine();
+
+class FfiDownloadProgress {
+  final String modelId;
+  final BigInt bytesDownloaded;
+  final BigInt totalBytes;
+  final BigInt bytesPerSec;
+  final BigInt etaSeconds;
+  final String status;
+
+  const FfiDownloadProgress({
+    required this.modelId,
+    required this.bytesDownloaded,
+    required this.totalBytes,
+    required this.bytesPerSec,
+    required this.etaSeconds,
+    required this.status,
+  });
+
+  @override
+  int get hashCode =>
+      modelId.hashCode ^
+      bytesDownloaded.hashCode ^
+      totalBytes.hashCode ^
+      bytesPerSec.hashCode ^
+      etaSeconds.hashCode ^
+      status.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FfiDownloadProgress &&
+          runtimeType == other.runtimeType &&
+          modelId == other.modelId &&
+          bytesDownloaded == other.bytesDownloaded &&
+          totalBytes == other.totalBytes &&
+          bytesPerSec == other.bytesPerSec &&
+          etaSeconds == other.etaSeconds &&
+          status == other.status;
+}

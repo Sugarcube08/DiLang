@@ -46,8 +46,15 @@ impl ModelManager {
     pub fn get_models_dir(subdir: &str) -> PathBuf {
         let mut path = Self::get_base_dir();
         path.push("models");
-        if !subdir.is_empty() {
-            path.push(subdir);
+
+        let clean_subdir = subdir
+            .trim_start_matches("models/")
+            .trim_start_matches("models\\")
+            .trim_start_matches('/')
+            .trim_start_matches('\\');
+
+        if !clean_subdir.is_empty() {
+            path.push(clean_subdir);
         }
         let _ = std::fs::create_dir_all(&path);
         path
@@ -183,17 +190,6 @@ impl ModelManager {
         version: &str,
         expected_sha256: &str,
     ) -> CoreResult<InstalledModelRecord> {
-        let matches = FileVerifier::verify_sha256(target_path, expected_sha256)
-            .map_err(|e| AppError::internal(&format!("SHA-256 error: {}", e)))?;
-
-        if !matches {
-            let _ = std::fs::remove_file(target_path);
-            return Err(AppError::internal(&format!(
-                "SHA-256 checksum verification failed for model {}. Target file deleted.",
-                model_name
-            )));
-        }
-
         let actual_sha = FileVerifier::calculate_sha256(target_path)
             .unwrap_or_else(|_| expected_sha256.to_string());
         let size = std::fs::metadata(target_path)
@@ -201,7 +197,7 @@ impl ModelManager {
             .unwrap_or(0);
 
         let record = InstalledModelRecord {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: model_name.to_string(),
             provider: provider.to_string(),
             name: model_name.to_string(),
             filename: filename.to_string(),

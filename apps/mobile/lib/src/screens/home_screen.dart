@@ -70,20 +70,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isWhisperInstalled = installedModels.any((m) => m['name'].toString().toLowerCase().contains('whisper'));
     final isPiperInstalled = installedModels.any((m) => m['name'].toString().toLowerCase().contains('piper'));
 
+    final hasUninstalledModels = !isGemmaInstalled || !isWhisperInstalled || !isPiperInstalled;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('DiLang'),
         centerTitle: false,
         actions: [
-          PopupMenuButton<String>(
+          IconButton(
             icon: const Icon(DiIcons.settings),
-            tooltip: 'Options',
+            tooltip: 'Settings',
+            onPressed: () => context.push('/settings'),
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'More Options',
             onSelected: (val) {
-              if (val == 'dev') {
+              if (val == 'settings') {
+                context.push('/settings');
+              } else if (val == 'diagnostics') {
+                context.push('/diagnostics');
+              } else if (val == 'dev') {
                 context.push('/developer-showcase');
               }
             },
             itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'settings',
+                child: Text('Settings & Download Center'),
+              ),
+              const PopupMenuItem(
+                value: 'diagnostics',
+                child: Text('Runtime Diagnostics'),
+              ),
               const PopupMenuItem(
                 value: 'dev',
                 child: Text('Developer Options'),
@@ -120,8 +139,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 24),
 
             // On-Device AI Models Status
-            Text('Model Installation Status', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Model Installation Status', style: Theme.of(context).textTheme.titleMedium),
+                TextButton.icon(
+                  icon: const Icon(DiIcons.settings, size: 16),
+                  label: const Text('Model Manager'),
+                  onPressed: () => context.push('/settings'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             DiLangCard(
               child: Column(
                 children: [
@@ -130,6 +159,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   _buildModelStatusRow('Whisper', isWhisperInstalled, colors),
                   const Divider(height: 16),
                   _buildModelStatusRow('Piper', isPiperInstalled, colors),
+                  if (hasUninstalledModels) ...[
+                    const Divider(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: DiLangButton(
+                        label: 'Download Missing Models in Settings',
+                        icon: DiIcons.spark,
+                        variant: DiLangButtonVariant.secondary,
+                        onPressed: () => context.push('/settings'),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

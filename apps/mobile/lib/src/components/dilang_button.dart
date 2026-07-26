@@ -3,7 +3,7 @@ import '../theme/design_tokens.dart';
 import '../theme/app_gradients.dart';
 import '../theme/app_radius.dart';
 
-enum DiLangButtonVariant { filled, glass, outlined, text }
+enum DiLangButtonVariant { filled, secondary, glass, outlined, text }
 
 class DiLangButton extends StatelessWidget {
   final String label;
@@ -77,6 +77,7 @@ class DiLangButton extends StatelessWidget {
         );
         break;
 
+      case DiLangButtonVariant.secondary:
       case DiLangButtonVariant.glass:
         buttonWidget = OutlinedButton(
           onPressed: isLoading ? null : onPressed,

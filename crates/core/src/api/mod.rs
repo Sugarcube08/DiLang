@@ -109,11 +109,6 @@ impl DiLangEngineFacade {
         let step = self.get_onboarding_step();
         info!("RUST: SQLite onboarding_step = '{}'", step);
 
-        if step == "Completed" {
-            info!("RUST: get_startup_state() -> Ready (onboarding_step = Completed)");
-            return StartupState::Ready;
-        }
-
         let active_user = self.user_repo.get_active_user().unwrap_or_default();
         if active_user.is_none() {
             info!("RUST: get_startup_state() -> NeedsProfile (SQLite users table is empty)");
@@ -131,13 +126,22 @@ impl DiLangEngineFacade {
             .list_installed_models()
             .unwrap_or_default();
 
-        if models.is_empty() {
-            info!("RUST: get_startup_state() -> NeedsModels (installed_models table is empty)");
+        let has_gemma = models.iter().any(|m| (m.name.contains("gemma") || m.filename.contains("gguf")) && std::path::Path::new(&m.path).exists());
+        let has_whisper = models.iter().any(|m| (m.name.contains("whisper") || m.filename.contains("bin")) && std::path::Path::new(&m.path).exists());
+        let has_piper = models.iter().any(|m| (m.name.contains("piper") || m.filename.contains("onnx")) && std::path::Path::new(&m.path).exists());
+
+        if !has_gemma || !has_whisper || !has_piper {
+            info!("RUST: get_startup_state() -> NeedsModels (Installed models incomplete or missing on disk)");
             return StartupState::NeedsModels;
         }
 
-        info!("RUST: get_startup_state() -> Ready (All onboarding steps completed)");
-        StartupState::Ready
+        if step == "Completed" {
+            info!("RUST: get_startup_state() -> Ready (onboarding_step = Completed and all models verified)");
+            return StartupState::Ready;
+        }
+
+        info!("RUST: get_startup_state() -> NeedsModels (Onboarding step pending model download)");
+        StartupState::NeedsModels
     }
 
     /// Create User Profile & Learning Goal in SQLite

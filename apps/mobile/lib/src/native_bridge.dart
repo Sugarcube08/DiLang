@@ -311,6 +311,11 @@ class DiLangNativeBridge {
     }
   }
 
+  static Stream<ffi.FfiDownloadProgress> downloadModelStream(String modelId) {
+    _logger.info('Subscribing to real HTTP download stream for model: $modelId');
+    return ffi.downloadModelStream(modelId: modelId);
+  }
+
   static Future<String> getRuntimeDiagnostics() async {
     _logger.info('Fetching Runtime Diagnostics...');
     try {

@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegistryEntry {
     pub id: String,
+    #[serde(default)]
+    pub name: String,
     pub provider: String,
     pub version: String,
     pub filename: String,
@@ -15,9 +17,10 @@ pub struct RegistryEntry {
     pub sha256: String,
     pub size_bytes: u64,
     pub min_runtime_version: String,
-    pub supported_os: Vec<String>,
-    pub supported_arch: Vec<String>,
-    pub dependencies: Vec<String>,
+    #[serde(default)]
+    pub capabilities: Vec<String>,
+    #[serde(default)]
+    pub supported_platforms: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

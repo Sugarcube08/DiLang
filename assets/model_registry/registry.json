@@ -1,48 +1,48 @@
 {
   "version": "1.0.0",
-  "updated_at": "2026-07-27T00:00:00Z",
+  "updated_at": "2026-07-27T04:06:00Z",
   "models": [
     {
       "id": "gemma-3-1b-it-q4_k_m",
-      "provider": "Google DeepMind",
-      "version": "v1.0",
-      "filename": "gemma-3-1b-it-q4_k_m.gguf",
-      "storage_directory": "models/gemma",
-      "download_url": "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-q4_k_m.gguf",
-      "sha256": "2c804b41a8d1135432a7414eca1f5d89d91fae89c5352bf470eaa136bd6dabf1",
-      "size_bytes": 2254857830,
+      "name": "Gemma 3 1B IT (GGUF Q4_K_M)",
+      "provider": "Google / ggml-org",
+      "version": "3.0",
+      "filename": "gemma-3-1b-it-Q4_K_M.gguf",
+      "storage_directory": "gemma",
+      "download_url": "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-Q4_K_M.gguf",
+      "sha256": "8ccc5cd1f1b3602548715ae25a66ed73fd5dc68a210412eea643eb20eb75a135",
+      "size_bytes": 806058240,
       "min_runtime_version": "0.1.0",
-      "supported_os": ["linux", "windows", "macos", "android", "ios"],
-      "supported_arch": ["x86_64", "aarch64", "arm64"],
-      "dependencies": []
+      "capabilities": ["llm", "conversation", "grammar"],
+      "supported_platforms": ["linux", "android", "macos", "windows"]
     },
     {
       "id": "whisper-base",
+      "name": "Whisper Base (GGML)",
       "provider": "OpenAI / ggerganov",
-      "version": "v1.0",
+      "version": "1.0",
       "filename": "ggml-base.bin",
-      "storage_directory": "models/whisper",
+      "storage_directory": "whisper",
       "download_url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
-      "sha256": "60ed5bc3dd14eea85649d3e67f040b08278687b037c87041ac07804825a3f0e5",
-      "size_bytes": 147964211,
+      "sha256": "60ed5bc3dd14eea85649d334349b405782ddcaf0028d4b5df4088345fba2efe",
+      "size_bytes": 147951465,
       "min_runtime_version": "0.1.0",
-      "supported_os": ["linux", "windows", "macos", "android", "ios"],
-      "supported_arch": ["x86_64", "aarch64", "arm64"],
-      "dependencies": []
+      "capabilities": ["stt", "transcription"],
+      "supported_platforms": ["linux", "android", "macos", "windows"]
     },
     {
       "id": "piper-en_US-lessac-medium",
+      "name": "Piper Voice (ONNX)",
       "provider": "Rhasspy / Piper",
-      "version": "v1.0",
+      "version": "1.0",
       "filename": "en_US-lessac-medium.onnx",
-      "storage_directory": "models/piper",
+      "storage_directory": "piper",
       "download_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx",
-      "sha256": "b40d6c0733d7eb3d05267b2d5eb6627be95ca8ed7b15a6b0c2cb4172a6b2ed4a",
-      "size_bytes": 65421098,
+      "sha256": "5efe09e69902187827af646e1a6e9d269dee769f9877d17b16b1b46eeaaf019f",
+      "size_bytes": 63201294,
       "min_runtime_version": "0.1.0",
-      "supported_os": ["linux", "windows", "macos", "android", "ios"],
-      "supported_arch": ["x86_64", "aarch64", "arm64"],
-      "dependencies": []
+      "capabilities": ["tts", "speech_synthesis"],
+      "supported_platforms": ["linux", "android", "macos", "windows"]
     }
   ]
 }

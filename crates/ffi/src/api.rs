@@ -140,10 +140,42 @@ pub fn query_capability(cap_name: String) -> String {
     }
 }
 
+use crate::frb_generated::StreamSink;
+
 pub fn get_model_registry() -> String {
     let engine = DiLangEngineFacade::new();
     match engine.get_model_registry() {
         Ok(registry) => serde_json::to_string(&registry).unwrap_or_default(),
+        Err(err) => format!("Error: {}", err),
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct FfiDownloadProgress {
+    pub model_id: String,
+    pub bytes_downloaded: u64,
+    pub total_bytes: u64,
+    pub bytes_per_sec: u64,
+    pub eta_seconds: u64,
+    pub status: String,
+}
+
+pub fn download_model_stream(
+    model_id: String,
+    sink: StreamSink<FfiDownloadProgress>,
+) -> String {
+    let engine = DiLangEngineFacade::new();
+    match engine.download_registry_model(&model_id, |prog| {
+        let _ = sink.add(FfiDownloadProgress {
+            model_id: prog.model_id,
+            bytes_downloaded: prog.bytes_downloaded,
+            total_bytes: prog.total_bytes,
+            bytes_per_sec: prog.bytes_per_sec,
+            eta_seconds: prog.eta_seconds,
+            status: prog.status,
+        });
+    }) {
+        Ok(rec) => serde_json::to_string(&rec).unwrap_or_default(),
         Err(err) => format!("Error: {}", err),
     }
 }

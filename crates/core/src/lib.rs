@@ -140,11 +140,13 @@ mod tests {
         let user = engine.create_user_profile("TestLearner", "English", "German", "avatar.png", Some(25), "US", "UTC", 15);
         assert!(user.is_ok());
 
-        // 3. Install Model
-        let model = engine.install_model("gemma-3-1b-it", "v1.0", b"test_bytes");
-        assert!(model.is_ok());
+        // 3. Install All Required Models
+        assert!(engine.install_model("gemma-3-1b-it", "v1.0", b"test_bytes").is_ok());
+        assert!(engine.install_model("whisper-base", "v1.0", b"test_bytes").is_ok());
+        assert!(engine.install_model("piper-en_US-lessac-medium", "v1.0", b"test_bytes").is_ok());
+        assert!(engine.set_onboarding_step("Completed").is_ok());
 
-        // 4. Final State after Profile + Model installation MUST be Ready
+        // 4. Final State after Profile + All Models installation MUST be Ready
         assert_eq!(engine.get_startup_state(), StartupState::Ready);
     }
 
