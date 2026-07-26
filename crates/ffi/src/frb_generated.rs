@@ -20,3 +20,11 @@ pub fn ping_impl() -> String {
 pub fn check_db_health_impl() -> String {
     crate::api::check_db_health()
 }
+
+pub fn start_conversation_impl(scenario_id: String) -> String {
+    crate::api::start_conversation(scenario_id)
+}
+
+pub fn get_analytics_snapshot_impl() -> String {
+    crate::api::get_analytics_snapshot()
+}

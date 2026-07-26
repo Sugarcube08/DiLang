@@ -5,6 +5,18 @@ use tracing_subscriber::FmtSubscriber;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
+pub mod api;
+pub mod analytics;
+pub mod conversation;
+pub mod grammar;
+pub mod models;
+pub mod plugin_api;
+pub mod providers;
+pub mod review;
+pub mod storage;
+pub mod sync;
+pub mod vocabulary;
+
 static LOG_INITIALIZED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 
 /// Initialize logging system using tracing and tracing-subscriber
@@ -33,7 +45,6 @@ pub fn check_db_health() -> Result<String, String> {
     init_logging();
     info!("Performing SQLite health check...");
 
-    // Determine local data directory or in-memory fallback
     let db_path = get_db_path();
     
     let conn = if let Some(path) = &db_path {
@@ -66,6 +77,7 @@ fn get_db_path() -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use api::DiLangEngineFacade;
 
     #[test]
     fn test_ping_core() {
@@ -77,5 +89,15 @@ mod tests {
         let status = check_db_health();
         assert!(status.is_ok());
         assert_eq!(status.unwrap(), "SQLite 3 is Healthy");
+    }
+
+    #[test]
+    fn test_engine_facade() {
+        let engine = DiLangEngineFacade::new();
+        assert!(engine.initialize().is_ok());
+        let conv = engine.conversation_start("cafe_order");
+        assert!(conv.is_ok());
+        assert_eq!(conv.unwrap().scenario_id, "cafe_order");
+        assert!(engine.shutdown().is_ok());
     }
 }
