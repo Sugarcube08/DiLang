@@ -1,12 +1,12 @@
-use once_cell::sync::Lazy;
-use rusqlite::Connection;
 use std::path::PathBuf;
-use std::sync::Mutex;
+use rusqlite::Connection;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
-pub mod analysis;
 pub mod analytics;
+pub mod analysis;
 pub mod api;
 pub mod app_runtime;
 pub mod conversation;
@@ -54,7 +54,7 @@ pub fn check_db_health() -> Result<String, String> {
     info!("Performing SQLite health check...");
 
     let db_path = get_db_path();
-
+    
     let conn = if let Some(path) = &db_path {
         info!("Connecting to SQLite database at: {:?}", path);
         if let Some(parent) = path.parent() {
@@ -67,33 +67,51 @@ pub fn check_db_health() -> Result<String, String> {
     };
 
     let result: String = conn
-        .query_row("SELECT 'SQLite 3 is Healthy' AS status;", [], |row| {
-            row.get(0)
-        })
+        .query_row("SELECT 'SQLite 3 is Healthy' AS status;", [], |row| row.get(0))
         .map_err(|e| format!("Database health check query failed: {}", e))?;
 
     info!("Database Health Check Result: {}", result);
     Ok(result)
 }
 
+/// Explicit Environment-Based Path Resolver (DILANG_ENV=production|development|test)
 pub fn get_db_path() -> Option<PathBuf> {
-    if cfg!(test) {
-        let mut p = std::env::temp_dir();
-        p.push("dilang_test_db.db");
-        Some(p)
-    } else {
-        dirs::data_dir().map(|mut p| {
-            p.push("DiLang");
+    let env_mode = std::env::var("DILANG_ENV").unwrap_or_else(|_| {
+        if cfg!(test) {
+            "test".to_string()
+        } else {
+            "production".to_string()
+        }
+    });
+
+    match env_mode.as_str() {
+        "test" => {
+            let mut p = std::env::temp_dir();
+            p.push("dilang-test");
             p.push("database.db");
-            p
-        })
+            Some(p)
+        }
+        "development" => {
+            dirs::data_dir().map(|mut p| {
+                p.push("DiLang-dev");
+                p.push("database.db");
+                p
+            })
+        }
+        _ => {
+            dirs::data_dir().map(|mut p| {
+                p.push("DiLang");
+                p.push("database.db");
+                p
+            })
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use api::DiLangEngineFacade;
+    use api::{DiLangEngineFacade, StartupState};
     use events::{global_event_bus, ConversationEventPayload};
     use infrastructure::{ConfigManager, FeatureFlags, ModelManager};
 
@@ -110,20 +128,32 @@ mod tests {
     }
 
     #[test]
-    fn test_engine_facade() {
+    fn test_first_launch_onboarding_state_machine_flow() {
         let engine = DiLangEngineFacade::new();
         assert!(engine.initialize().is_ok());
 
-        let user = engine.create_user_profile(
-            "Alex",
-            "English",
-            "German",
-            "avatar.png",
-            Some(30),
-            "US",
-            "UTC",
-            15,
-        );
+        // 1. Check startup state
+        let initial_state = engine.get_startup_state();
+        assert!(initial_state == StartupState::NeedsProfile || initial_state == StartupState::NeedsModels || initial_state == StartupState::Ready);
+
+        // 2. Create Profile
+        let user = engine.create_user_profile("TestLearner", "English", "German", "avatar.png", Some(25), "US", "UTC", 15);
+        assert!(user.is_ok());
+
+        // 3. Install Model
+        let model = engine.install_model("gemma-3-1b-it", "v1.0", b"test_bytes");
+        assert!(model.is_ok());
+
+        // 4. Final State after Profile + Model installation MUST be Ready
+        assert_eq!(engine.get_startup_state(), StartupState::Ready);
+    }
+
+    #[test]
+    fn test_engine_facade() {
+        let engine = DiLangEngineFacade::new();
+        assert!(engine.initialize().is_ok());
+        
+        let user = engine.create_user_profile("Alex", "English", "German", "avatar.png", Some(30), "US", "UTC", 15);
         assert!(user.is_ok());
         assert_eq!(user.unwrap().username, "Alex");
 
