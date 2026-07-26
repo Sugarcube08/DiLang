@@ -1,25 +1,26 @@
 //! Public Engine API Facade Specification
 
+use crate::analysis::LanguageAnalysisEngine;
+use crate::analytics::{AnalyticsEngine, EventDrivenAnalyticsEngine};
+use crate::conversation::{
+    scenarios::ScenarioDefinition, ConversationEngine, DefaultConversationEngine, MessageRecord,
+};
+use crate::grammar::{DefaultGrammarEngine, GrammarEngine};
+use crate::infrastructure::{
+    Capability, CapabilityRegistry, InstalledModelRecord, InternalMetrics, MetricsCollector,
+    ModelManager, ResourceManager, SystemBudget,
+};
+use crate::lifecycle::AppLifecycleManager;
+use crate::models::{Conversation, ProgressSnapshot, ReviewCard, User, Vocabulary};
+use crate::repositories::{
+    ConversationRepositoryContract, ConversationRepositoryImpl, SettingsRepositoryContract,
+    SettingsRepositoryImpl, UserRepositoryContract, UserRepositoryImpl,
+};
+use crate::review::{FsrsReviewEngine, ReviewEngine};
+use crate::vocabulary::{DefaultVocabularyEngine, VocabularyEngine};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tracing::info;
-use crate::models::{Conversation, ProgressSnapshot, ReviewCard, User, Vocabulary};
-use crate::repositories::{
-    ConversationRepositoryContract, ConversationRepositoryImpl,
-    UserRepositoryContract, UserRepositoryImpl,
-    SettingsRepositoryContract, SettingsRepositoryImpl,
-};
-use crate::conversation::{ConversationEngine, DefaultConversationEngine, MessageRecord, scenarios::ScenarioDefinition};
-use crate::analysis::LanguageAnalysisEngine;
-use crate::vocabulary::{VocabularyEngine, DefaultVocabularyEngine};
-use crate::grammar::{GrammarEngine, DefaultGrammarEngine};
-use crate::review::{ReviewEngine, FsrsReviewEngine};
-use crate::analytics::{AnalyticsEngine, EventDrivenAnalyticsEngine};
-use crate::lifecycle::AppLifecycleManager;
-use crate::infrastructure::{
-    CapabilityRegistry, Capability, MetricsCollector, InternalMetrics,
-    ModelManager, InstalledModelRecord, ResourceManager, SystemBudget,
-};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StartupState {
@@ -96,7 +97,10 @@ impl DiLangEngineFacade {
             return StartupState::NeedsLanguages;
         }
 
-        let models = self.model_manager.list_installed_models().unwrap_or_default();
+        let models = self
+            .model_manager
+            .list_installed_models()
+            .unwrap_or_default();
 
         if models.is_empty() {
             info!("RUST: get_startup_state() -> NeedsModels (installed_models table is empty)");
@@ -120,9 +124,13 @@ impl DiLangEngineFacade {
         timezone: &str,
         daily_minutes: u32,
     ) -> Result<User> {
-        let user = self.user_repo.create_user(username, native_lang, target_lang)?;
-        self.user_repo.save_user_profile(&user.id, avatar, age, country, timezone)?;
-        self.user_repo.save_learning_goal(&user.id, daily_minutes, 20)?;
+        let user = self
+            .user_repo
+            .create_user(username, native_lang, target_lang)?;
+        self.user_repo
+            .save_user_profile(&user.id, avatar, age, country, timezone)?;
+        self.user_repo
+            .save_learning_goal(&user.id, daily_minutes, 20)?;
         Ok(user)
     }
 
@@ -144,10 +152,13 @@ impl DiLangEngineFacade {
     /// Atomic Learning Pipeline: Turn -> LLM -> Analysis -> Vocab -> Grammar -> FSRS -> Analytics
     pub fn conversation_reply(&self, conversation_id: &str, user_text: &str) -> Result<String> {
         // 1. Dialogue turn via ConversationEngine
-        let reply_text = self.conversation_engine.send_reply(conversation_id, user_text)?;
+        let reply_text = self
+            .conversation_engine
+            .send_reply(conversation_id, user_text)?;
 
         // 2. Language Analysis Engine
-        let target_lang = self.get_active_user()
+        let target_lang = self
+            .get_active_user()
             .ok()
             .flatten()
             .map(|u| u.target_language)
@@ -174,14 +185,21 @@ impl DiLangEngineFacade {
     }
 
     /// Install & register model file with real SHA-256 calculation
-    pub fn install_model(&self, name: &str, version: &str, content: &[u8]) -> Result<InstalledModelRecord> {
-        self.model_manager.install_model_file(name, version, content)
+    pub fn install_model(
+        &self,
+        name: &str,
+        version: &str,
+        content: &[u8],
+    ) -> Result<InstalledModelRecord> {
+        self.model_manager
+            .install_model_file(name, version, content)
             .map_err(|e| anyhow::anyhow!(e))
     }
 
     /// List installed models from SQLite
     pub fn list_installed_models(&self) -> Result<Vec<InstalledModelRecord>> {
-        self.model_manager.list_installed_models()
+        self.model_manager
+            .list_installed_models()
             .map_err(|e| anyhow::anyhow!(e))
     }
 

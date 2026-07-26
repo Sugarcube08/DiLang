@@ -77,11 +77,17 @@ pub fn check_db_health() -> Result<String, String> {
 }
 
 pub fn get_db_path() -> Option<PathBuf> {
-    dirs::data_dir().map(|mut p| {
-        p.push("DiLang");
-        p.push("database.db");
-        p
-    })
+    if cfg!(test) {
+        let mut p = std::env::temp_dir();
+        p.push("dilang_test_db.db");
+        Some(p)
+    } else {
+        dirs::data_dir().map(|mut p| {
+            p.push("DiLang");
+            p.push("database.db");
+            p
+        })
+    }
 }
 
 #[cfg(test)]
