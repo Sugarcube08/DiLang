@@ -12,4 +12,5 @@ abstract class AppRadius {
   static const BorderRadius borderMedium = BorderRadius.all(rMedium);
   static const BorderRadius borderLarge = BorderRadius.all(rLarge);
   static const BorderRadius borderFloating = BorderRadius.all(rFloating);
+  static final BorderRadius borderPill = BorderRadius.circular(999);
 }

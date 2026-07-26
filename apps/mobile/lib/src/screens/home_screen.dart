@@ -8,7 +8,10 @@ import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
-import '../components/dilang_card.dart';
+import '../theme/app_colors.dart';
+import '../components/glass_components.dart';
+import '../components/budgie_mascot.dart';
+import '../components/adaptive_layout.dart';
 import '../components/dilang_button.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -19,6 +22,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _selectedNavIndex = 0;
   int _vocabCount = 0;
   int _grammarCount = 0;
   int _conversationsCount = 0;
@@ -54,181 +58,244 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final userState = ref.watch(userProfileProvider);
     final modelsState = ref.watch(installedModelsProvider);
 
     final activeUser = userState.activeUser;
-    final username = activeUser?['username']?.toString();
-    final nativeLang = activeUser?['native_language']?.toString();
-    final targetLang = activeUser?['target_language']?.toString();
-
-    final hasProfile = activeUser != null && username != null && username.isNotEmpty;
+    final username = activeUser?['username']?.toString() ?? 'Learner';
+    final targetLang = activeUser?['target_language']?.toString() ?? 'German';
 
     final installedModels = modelsState.models;
-    final isGemmaInstalled = installedModels.any((m) => m['name'].toString().toLowerCase().contains('gemma'));
-    final isWhisperInstalled = installedModels.any((m) => m['name'].toString().toLowerCase().contains('whisper'));
-    final isPiperInstalled = installedModels.any((m) => m['name'].toString().toLowerCase().contains('piper'));
+    final isGemmaInstalled = installedModels.any((m) {
+      final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
+      return s.contains('gemma');
+    });
+    final isWhisperInstalled = installedModels.any((m) {
+      final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
+      return s.contains('whisper') || s.contains('ggml-base');
+    });
+    final isPiperInstalled = installedModels.any((m) {
+      final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
+      return s.contains('piper') || s.contains('lessac');
+    });
 
     final hasUninstalledModels = !isGemmaInstalled || !isWhisperInstalled || !isPiperInstalled;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('DiLang'),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(DiIcons.settings),
-            tooltip: 'Settings',
-            onPressed: () => context.push('/settings'),
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            tooltip: 'More Options',
-            onSelected: (val) {
-              if (val == 'settings') {
-                context.push('/settings');
-              } else if (val == 'diagnostics') {
-                context.push('/diagnostics');
-              } else if (val == 'dev') {
-                context.push('/developer-showcase');
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'settings',
-                child: Text('Settings & Download Center'),
-              ),
-              const PopupMenuItem(
-                value: 'diagnostics',
-                child: Text('Runtime Diagnostics'),
-              ),
-              const PopupMenuItem(
-                value: 'dev',
-                child: Text('Developer Options'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(DesignTokens.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User Header
-            Text(
-              hasProfile ? username : 'No profile configured.',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.textPrimary,
-                  ),
-            ),
-            const SizedBox(height: 16),
-
-            // Native & Target Languages
-            DiLangCard(
-              child: Column(
-                children: [
-                  _buildLabelValueRow('Native Language', nativeLang ?? 'Unselected', colors),
-                  const Divider(height: 20),
-                  _buildLabelValueRow('Learning', targetLang ?? 'Unselected', colors),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // On-Device AI Models Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    Widget mainContent = SingleChildScrollView(
+      padding: const EdgeInsets.all(DesignTokens.space24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Budgie Mascot Banner & Header
+          GlassContainer(
+            padding: const EdgeInsets.all(20),
+            child: Row(
               children: [
-                Text('Model Installation Status', style: Theme.of(context).textTheme.titleMedium),
-                TextButton.icon(
-                  icon: const Icon(DiIcons.settings, size: 16),
-                  label: const Text('Model Manager'),
-                  onPressed: () => context.push('/settings'),
+                const BudgieMascot(
+                  size: 76,
+                  mood: BudgieMood.happy,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Willkommen, $username!',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Ready for your daily $targetLang practice session?',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          _buildBadgeChip('🔥 5 Streak', AppColors.amber500),
+                          const SizedBox(width: 8),
+                          _buildBadgeChip('⚡ 140 XP', AppColors.turquoise500),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            DiLangCard(
+          ),
+          const SizedBox(height: 24),
+
+          // Start Interactive AI Learning Session Banner
+          GlassCard(
+            accentColor: AppColors.turquoise500,
+            onTap: () => context.push('/conversation'),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.turquoise500.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(DiIcons.mic, color: AppColors.turquoise500, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Interactive AI Dialogue Session',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Practice speaking $targetLang offline with Gemma 3 LLM',
+                        style: TextStyle(fontSize: 13, color: colors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.turquoise500),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // On-Device AI Models Status
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Local AI Inference Models', style: Theme.of(context).textTheme.titleLarge),
+              TextButton.icon(
+                icon: const Icon(DiIcons.settings, size: 16),
+                label: const Text('Model Center'),
+                onPressed: () => context.push('/settings'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          GlassCard(
+            child: Column(
+              children: [
+                _buildModelRow('Gemma 3 1B LLM', isGemmaInstalled, colors),
+                const Divider(height: 16),
+                _buildModelRow('Whisper Speech-to-Text', isWhisperInstalled, colors),
+                const Divider(height: 16),
+                _buildModelRow('Piper Text-to-Speech', isPiperInstalled, colors),
+                if (hasUninstalledModels) ...[
+                  const Divider(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: DiLangButton(
+                      label: 'Download Missing Models in Settings',
+                      icon: DiIcons.spark,
+                      variant: DiLangButtonVariant.secondary,
+                      onPressed: () => context.push('/settings'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Learning Metrics
+          Text('Learning Analytics', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          if (_isLoadingAnalytics)
+            const Center(child: CircularProgressIndicator())
+          else
+            GlassCard(
               child: Column(
                 children: [
-                  _buildModelStatusRow('Gemma 3 1B', isGemmaInstalled, colors),
+                  _buildMetricRow('Vocabulary Known', '$_vocabCount words', colors),
                   const Divider(height: 16),
-                  _buildModelStatusRow('Whisper', isWhisperInstalled, colors),
+                  _buildMetricRow('Grammar Concepts', '$_grammarCount mastered', colors),
                   const Divider(height: 16),
-                  _buildModelStatusRow('Piper', isPiperInstalled, colors),
-                  if (hasUninstalledModels) ...[
-                    const Divider(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: DiLangButton(
-                        label: 'Download Missing Models in Settings',
-                        icon: DiIcons.spark,
-                        variant: DiLangButtonVariant.secondary,
-                        onPressed: () => context.push('/settings'),
-                      ),
-                    ),
-                  ],
+                  _buildMetricRow('Sessions Completed', '$_conversationsCount sessions', colors),
+                  const Divider(height: 16),
+                  _buildMetricRow('SRS Reviews Due', '$_reviewsCount cards', colors),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+          const SizedBox(height: 100),
+        ],
+      ),
+    );
 
-            // Learning Metrics Snapshot
-            Text('Learning Metrics', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            if (_isLoadingAnalytics)
-              const Center(child: CircularProgressIndicator())
-            else
-              DiLangCard(
-                child: Column(
-                  children: [
-                    _buildMetricNumberRow('Vocabulary', _vocabCount, colors),
-                    const Divider(height: 16),
-                    _buildMetricNumberRow('Grammar', _grammarCount, colors),
-                    const Divider(height: 16),
-                    _buildMetricNumberRow('Conversations', _conversationsCount, colors),
-                    const Divider(height: 16),
-                    _buildMetricNumberRow('Reviews Due', _reviewsCount, colors),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 32),
-
-            // Start Conversation Primary Action
-            SizedBox(
-              width: double.infinity,
-              child: DiLangButton(
-                label: 'Start Conversation',
-                icon: DiIcons.mic,
-                onPressed: () {
-                  context.push('/conversation');
-                },
-              ),
+    return AdaptiveLayout(
+      selectedIndex: _selectedNavIndex,
+      onDestinationSelected: (idx) {
+        setState(() => _selectedNavIndex = idx);
+        if (idx == 1) context.push('/conversation');
+        if (idx == 2) context.push('/settings');
+      },
+      destinations: const [
+        AdaptiveDestination(icon: DiIcons.spark, label: 'Learn'),
+        AdaptiveDestination(icon: DiIcons.mic, label: 'Speak'),
+        AdaptiveDestination(icon: DiIcons.settings, label: 'Settings'),
+      ],
+      body: Scaffold(
+        appBar: AppBar(
+          title: const Text('DiLang'),
+          actions: [
+            IconButton(
+              icon: const Icon(DiIcons.settings),
+              tooltip: 'Settings',
+              onPressed: () => context.push('/settings'),
             ),
           ],
         ),
+        body: mainContent,
+        bottomNavigationBar: MediaQuery.of(context).size.width < 600
+            ? GlassNavigationBar(
+                currentIndex: _selectedNavIndex,
+                onTap: (idx) {
+                  setState(() => _selectedNavIndex = idx);
+                  if (idx == 1) context.push('/conversation');
+                  if (idx == 2) context.push('/settings');
+                },
+                items: const [
+                  GlassNavItem(icon: DiIcons.spark, label: 'Learn'),
+                  GlassNavItem(icon: DiIcons.mic, label: 'Speak'),
+                  GlassNavItem(icon: DiIcons.settings, label: 'Settings'),
+                ],
+              )
+            : null,
       ),
     );
   }
 
-  Widget _buildLabelValueRow(String label, String value, dynamic colors) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(color: colors.textSecondary, fontSize: 14)),
-        Text(value, style: TextStyle(color: colors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
-      ],
+  Widget _buildBadgeChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+      ),
     );
   }
 
-  Widget _buildModelStatusRow(String modelName, bool isInstalled, dynamic colors) {
+  Widget _buildModelRow(String name, bool isInstalled, dynamic colors) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(modelName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
         Row(
           children: [
             Icon(
@@ -238,7 +305,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(width: 6),
             Text(
-              isInstalled ? '✓ Installed' : 'Not Installed',
+              isInstalled ? 'Installed' : 'Not Installed',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
@@ -251,12 +318,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildMetricNumberRow(String label, int count, dynamic colors) {
+  Widget _buildMetricRow(String label, String value, dynamic colors) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: TextStyle(color: colors.textSecondary, fontSize: 14)),
-        Text('$count', style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(value, style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold, fontSize: 15)),
       ],
     );
   }

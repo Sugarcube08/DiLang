@@ -46,7 +46,6 @@ class _DeveloperShowcaseScreenState extends State<DeveloperShowcaseScreen> {
             Text('Glass & Surface Cards', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
             const DiLangCard(
-              isGlass: true,
               child: ListTile(
                 leading: Icon(DiIcons.spark, size: 28),
                 title: Text('Glassmorphic Surface Card'),

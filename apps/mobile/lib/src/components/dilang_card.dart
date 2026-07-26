@@ -1,54 +1,30 @@
 import 'package:flutter/material.dart';
-import '../theme/glass.dart';
-import '../theme/design_tokens.dart';
-import '../theme/theme_extensions.dart';
+import 'glass_components.dart';
 
 class DiLangCard extends StatelessWidget {
   final Widget child;
-  final bool isGlass;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
   final VoidCallback? onTap;
+  final Color? accentColor;
 
   const DiLangCard({
     super.key,
     required this.child,
-    this.isGlass = true,
-    this.padding = const EdgeInsets.all(DesignTokens.space20),
+    this.padding,
+    this.margin,
     this.onTap,
+    this.accentColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isGlass) {
-      return GlassContainer(
-        padding: padding,
-        onTap: onTap,
-        child: child,
-      );
-    }
-
-    final colors = context.colors;
-    Widget cardContent = Container(
+    return GlassCard(
       padding: padding,
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
-        border: Border.all(
-          color: colors.outline,
-          width: DesignTokens.borderWidthThin,
-        ),
-      ),
+      margin: margin,
+      onTap: onTap,
+      accentColor: accentColor,
       child: child,
     );
-
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(DesignTokens.radiusMedium),
-        child: cardContent,
-      );
-    }
-
-    return cardContent;
   }
 }

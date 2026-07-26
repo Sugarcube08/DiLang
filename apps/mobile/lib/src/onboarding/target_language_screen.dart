@@ -1,109 +1,107 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/user_profile_provider.dart';
 import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
-import '../theme/di_icons.dart';
+import '../theme/app_colors.dart';
+import '../components/glass_components.dart';
+import '../components/budgie_mascot.dart';
 import '../components/dilang_button.dart';
-import '../components/dilang_card.dart';
-import 'native_language_screen.dart';
 
-class TargetLanguageScreen extends ConsumerStatefulWidget {
+class TargetLanguageScreen extends StatefulWidget {
   const TargetLanguageScreen({super.key});
 
   @override
-  ConsumerState<TargetLanguageScreen> createState() => _TargetLanguageScreenState();
+  State<TargetLanguageScreen> createState() => _TargetLanguageScreenState();
 }
 
-class _TargetLanguageScreenState extends ConsumerState<TargetLanguageScreen> {
+class _TargetLanguageScreenState extends State<TargetLanguageScreen> {
   String _selectedTarget = 'German';
-  bool _isSaving = false;
 
-  Future<void> _handleContinue() async {
-    final activeUser = ref.read(userProfileProvider).activeUser;
-    final username = activeUser?['username']?.toString() ?? 'Learner';
-    final nativeLang = activeUser?['native_language']?.toString() ?? 'English';
-
-    setState(() => _isSaving = true);
-    final success = await ref.read(userProfileProvider.notifier).createUserProfile(
-          username: username,
-          nativeLang: nativeLang,
-          targetLang: _selectedTarget,
-        );
-
-    if (mounted) {
-      setState(() => _isSaving = false);
-      if (success) {
-        await DiLangNativeBridge.setOnboardingStep('Permissions');
-        if (mounted) context.go('/onboarding/permissions');
-      }
-    }
-  }
+  final List<Map<String, String>> _targets = [
+    {'code': 'de', 'name': 'German', 'flag': '🇩🇪', 'desc': 'A2 Conversational & Grammar'},
+    {'code': 'es', 'name': 'Spanish', 'flag': '🇪🇸', 'desc': 'B1 Daily Dialogue'},
+    {'code': 'fr', 'name': 'French', 'flag': '🇫🇷', 'desc': 'A1 Essentials'},
+  ];
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Target Language')),
-      body: Padding(
-        padding: const EdgeInsets.all(DesignTokens.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Target Language',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Select the language you want to learn.',
-              style: TextStyle(color: colors.textSecondary),
-            ),
-            const SizedBox(height: 24),
+      appBar: AppBar(
+        title: const Text('Step 2 of 3'),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(DesignTokens.space24),
+          child: Column(
+            children: [
+              const BudgieMascot(
+                size: 90,
+                mood: BudgieMood.studying,
+                speechBubbleText: 'Which language do you want to master?',
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _targets.length,
+                  itemBuilder: (context, index) {
+                    final target = _targets[index];
+                    final isSelected = target['name'] == _selectedTarget;
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: kSupportedLanguages.length,
-                itemBuilder: (context, index) {
-                  final lang = kSupportedLanguages[index];
-                  final isSelected = lang == _selectedTarget;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: DiLangCard(
-                      onTap: () => setState(() => _selectedTarget = lang),
-                      child: ListTile(
-                        title: Text(
-                          lang,
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? colors.primary : colors.textPrimary,
-                          ),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GlassCard(
+                        accentColor: isSelected ? AppColors.turquoise500 : null,
+                        onTap: () {
+                          setState(() => _selectedTarget = target['name']!);
+                        },
+                        child: Row(
+                          children: [
+                            Text(target['flag']!, style: const TextStyle(fontSize: 28)),
+                            const SizedBox(width: 14),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  target['name']!,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  target['desc']!,
+                                  style: TextStyle(fontSize: 12, color: colors.textSecondary),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            if (isSelected)
+                              const Icon(Icons.check_circle, color: AppColors.turquoise500),
+                          ],
                         ),
-                        trailing: isSelected
-                            ? Icon(DiIcons.check, color: colors.primary)
-                            : null,
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            SizedBox(
-              width: double.infinity,
-              child: DiLangButton(
-                label: _isSaving ? 'Persisting...' : 'Continue',
-                icon: DiIcons.play,
-                onPressed: _isSaving ? null : _handleContinue,
+              SizedBox(
+                width: double.infinity,
+                child: DiLangButton(
+                  label: 'Continue to Setup',
+                  icon: Icons.arrow_forward,
+                  onPressed: () async {
+                    await DiLangNativeBridge.updateTargetLanguage(_selectedTarget);
+                    if (context.mounted) {
+                      context.go('/onboarding/permissions');
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

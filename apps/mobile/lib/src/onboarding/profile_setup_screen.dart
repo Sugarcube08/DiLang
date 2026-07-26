@@ -1,61 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/user_profile_provider.dart';
 import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
-import '../theme/di_icons.dart';
+import '../theme/app_colors.dart';
+import '../components/glass_components.dart';
+import '../components/budgie_mascot.dart';
 import '../components/dilang_button.dart';
-import '../components/dilang_input.dart';
-import '../components/dilang_card.dart';
 
-class ProfileSetupScreen extends ConsumerStatefulWidget {
+class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
 
   @override
-  ConsumerState<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
+  State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
 }
 
-class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  bool _isSubmitting = false;
-  String? _errorMessage;
-
-  Future<void> _handleContinue() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please enter your name.';
-      });
-      return;
-    }
-
-    setState(() {
-      _isSubmitting = true;
-      _errorMessage = null;
-    });
-
-    final success = await ref.read(userProfileProvider.notifier).createUserProfile(
-          username: name,
-          nativeLang: '',
-          targetLang: '',
-        );
-
-    if (mounted) {
-      setState(() {
-        _isSubmitting = false;
-      });
-      if (success) {
-        await DiLangNativeBridge.setOnboardingStep('NativeLanguage');
-        if (mounted) context.go('/onboarding/native-language');
-      } else {
-        setState(() {
-          _errorMessage = 'Failed to create user profile in SQLite.';
-        });
-      }
-    }
-  }
+class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
+  final TextEditingController _nameController = TextEditingController(text: 'Harsh');
 
   @override
   Widget build(BuildContext context) {
@@ -63,56 +24,69 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Creation'),
+        title: const Text('Welcome to DiLang'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(DesignTokens.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your Profile',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Enter your name to create your local account in SQLite.',
-              style: TextStyle(color: colors.textSecondary),
-            ),
-            const SizedBox(height: 32),
-
-            DiLangCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Your Name', style: Theme.of(context).textTheme.titleSmall),
-                  const SizedBox(height: 8),
-                  DiLangInput(
-                    controller: _nameController,
-                    hintText: 'e.g. Harsh',
-                    prefixIcon: DiIcons.check,
-                  ),
-                ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(DesignTokens.space24),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              const BudgieMascot(
+                size: 110,
+                mood: BudgieMood.happy,
+                speechBubbleText: 'Hallo! What is your name?',
               ),
-            ),
-            const Spacer(),
-
-            if (_errorMessage != null) ...[
-              Text(_errorMessage!, style: TextStyle(color: colors.error)),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
+              GlassCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Learner Profile',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Your profile is stored 100% locally on this device.',
+                      style: TextStyle(color: colors.textSecondary, fontSize: 13),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Your Name',
+                        prefixIcon: const Icon(Icons.person, color: AppColors.turquoise500),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: DiLangButton(
+                  label: 'Continue',
+                  icon: Icons.arrow_forward,
+                  onPressed: () async {
+                    final name = _nameController.text.trim();
+                    if (name.isNotEmpty) {
+                      await DiLangNativeBridge.createUserProfile(
+                        username: name,
+                        nativeLang: 'English',
+                        targetLang: 'German',
+                      );
+                      await DiLangNativeBridge.setOnboardingStep('Languages');
+                    }
+                    if (context.mounted) {
+                      context.go('/onboarding/native-language');
+                    }
+                  },
+                ),
+              ),
             ],
-
-            SizedBox(
-              width: double.infinity,
-              child: DiLangButton(
-                label: _isSubmitting ? 'Saving...' : 'Continue',
-                icon: DiIcons.play,
-                onPressed: _isSubmitting ? null : _handleContinue,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

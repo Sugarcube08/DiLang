@@ -328,4 +328,36 @@ class DiLangNativeBridge {
     }
     return '{}';
   }
+
+  static Future<String> updateNativeLanguage(String language) async {
+    final userJson = await getActiveUser();
+    String username = 'Learner';
+    String targetLang = 'German';
+    if (userJson.isNotEmpty) {
+      try {
+        final map = jsonDecode(userJson) as Map<String, dynamic>;
+        username = map['username'] ?? 'Learner';
+        targetLang = map['target_language'] ?? 'German';
+      } catch (_) {}
+    }
+    return createUserProfile(username: username, nativeLang: language, targetLang: targetLang);
+  }
+
+  static Future<String> updateTargetLanguage(String language) async {
+    final userJson = await getActiveUser();
+    String username = 'Learner';
+    String nativeLang = 'English';
+    if (userJson.isNotEmpty) {
+      try {
+        final map = jsonDecode(userJson) as Map<String, dynamic>;
+        username = map['username'] ?? 'Learner';
+        nativeLang = map['native_language'] ?? 'English';
+      } catch (_) {}
+    }
+    return createUserProfile(username: username, nativeLang: nativeLang, targetLang: language);
+  }
+
+  static Future<String> sendConversationReply(String conversationId, String text) async {
+    return sendDialogueTurn(conversationId, text);
+  }
 }

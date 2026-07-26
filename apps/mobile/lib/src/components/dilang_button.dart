@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../theme/design_tokens.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_gradients.dart';
 import '../theme/app_radius.dart';
+import '../theme/app_shadows.dart';
 
 enum DiLangButtonVariant { filled, secondary, glass, outlined, text }
 
@@ -39,14 +40,14 @@ class DiLangButton extends StatelessWidget {
           ),
           const SizedBox(width: 10),
         ] else if (icon != null) ...[
-          Icon(icon, size: DesignTokens.icon20),
+          Icon(icon, size: 20),
           const SizedBox(width: 8),
         ],
         Text(
           label,
           style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
             letterSpacing: -0.2,
           ),
         ),
@@ -61,6 +62,7 @@ class DiLangButton extends StatelessWidget {
           decoration: const BoxDecoration(
             gradient: AppGradients.primary,
             borderRadius: AppRadius.borderMedium,
+            boxShadow: AppShadows.glowPrimary,
           ),
           child: ElevatedButton(
             onPressed: isLoading ? null : onPressed,
@@ -68,8 +70,8 @@ class DiLangButton extends StatelessWidget {
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
               foregroundColor: Colors.white,
-              minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              minimumSize: const Size(48, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
             ),
             child: content,
@@ -82,14 +84,14 @@ class DiLangButton extends StatelessWidget {
         buttonWidget = OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
-            backgroundColor: isDark ? const Color.fromRGBO(255, 255, 255, 0.05) : const Color.fromRGBO(0, 0, 0, 0.03),
-            foregroundColor: isDark ? Colors.white : Colors.black87,
+            backgroundColor: isDark ? AppColors.darkGlassSurface : AppColors.lightGlassSurface,
+            foregroundColor: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             side: BorderSide(
-              color: isDark ? const Color.fromRGBO(255, 255, 255, 0.12) : const Color.fromRGBO(0, 0, 0, 0.12),
-              width: DesignTokens.borderWidthThin,
+              color: isDark ? AppColors.darkGlassBorder : AppColors.lightGlassBorder,
+              width: 1.2,
             ),
-            minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
           ),
           child: content,
@@ -100,13 +102,13 @@ class DiLangButton extends StatelessWidget {
         buttonWidget = OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.primary,
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: DesignTokens.borderWidthMedium,
+            foregroundColor: AppColors.turquoise500,
+            side: const BorderSide(
+              color: AppColors.turquoise500,
+              width: 1.5,
             ),
-            minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderMedium),
           ),
           child: content,
@@ -117,8 +119,8 @@ class DiLangButton extends StatelessWidget {
         buttonWidget = TextButton(
           onPressed: isLoading ? null : onPressed,
           style: TextButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.primary,
-            minimumSize: const Size(DesignTokens.minTouchTarget, DesignTokens.minTouchTarget),
+            foregroundColor: AppColors.turquoise500,
+            minimumSize: const Size(48, 48),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           child: content,

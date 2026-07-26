@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
+import '../theme/app_colors.dart';
 import '../components/dilang_button.dart';
-import '../components/dilang_card.dart';
 import '../components/dilang_progress.dart';
+import '../components/glass_components.dart';
+import '../components/budgie_mascot.dart';
 import '../native_bridge.dart';
 import '../frb_generated.dart/api.dart' as ffi;
 
@@ -188,121 +190,114 @@ class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
     final colors = context.colors;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Model Manager')),
-      body: Padding(
-        padding: const EdgeInsets.all(DesignTokens.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Model Manager',
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.textPrimary,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Downloading local inference models and verifying SHA-256 checksums in SQLite.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colors.textSecondary,
-                  ),
-            ),
-            const SizedBox(height: 32),
-
-            DiLangCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _currentStep,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _byteProgressText,
-                        style: TextStyle(color: colors.primary, fontWeight: FontWeight.w600, fontSize: 14),
-                      ),
-                      if (_speedEtaText.isNotEmpty)
-                        Text(
-                          _speedEtaText,
-                          style: TextStyle(color: colors.textSecondary, fontSize: 12),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  DiLangGradientProgress(progress: _overallProgress),
-                  const SizedBox(height: 24),
-                  _buildModelRow('Gemma 3 1B IT (GGUF)', _gemmaDone, _gemmaSha),
-                  const SizedBox(height: 12),
-                  _buildModelRow('Whisper Base (GGML)', _whisperDone, _whisperSha),
-                  const SizedBox(height: 12),
-                  _buildModelRow('Piper Voice (ONNX)', _piperDone, _piperSha),
-                ],
+      appBar: AppBar(title: const Text('Model Download & Setup')),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(DesignTokens.space24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              BudgieMascot(
+                size: 85,
+                mood: _isAllComplete ? BudgieMood.celebrating : BudgieMood.studying,
+                speechBubbleText: _isAllComplete ? 'All AI Models Ready!' : 'Downloading Local AI Models...',
               ),
-            ),
-            const Spacer(),
+              const SizedBox(height: 20),
 
-            if (_isAllComplete)
-              SizedBox(
-                width: double.infinity,
-                child: DiLangButton(
-                  label: 'Complete Onboarding',
-                  icon: DiIcons.check,
-                  onPressed: () async {
-                    await DiLangNativeBridge.setOnboardingStep('Completed');
-                    widget.onComplete();
-                  },
+              GlassCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _currentStep,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _byteProgressText,
+                          style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        if (_speedEtaText.isNotEmpty)
+                          Text(
+                            _speedEtaText,
+                            style: TextStyle(color: colors.textSecondary, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    DiLangGradientProgress(progress: _overallProgress),
+                    const SizedBox(height: 24),
+                    _buildModelRow('Gemma 3 1B IT (GGUF)', _gemmaDone, _gemmaSha),
+                    const SizedBox(height: 12),
+                    _buildModelRow('Whisper Base (GGML)', _whisperDone, _whisperSha),
+                    const SizedBox(height: 12),
+                    _buildModelRow('Piper Voice (ONNX)', _piperDone, _piperSha),
+                  ],
                 ),
-              )
-            else ...[
-              if (_gemmaSha == 'Failed' || _whisperSha == 'Failed' || _piperSha == 'Failed')
+              ),
+              const Spacer(),
+
+              if (_isAllComplete)
                 SizedBox(
                   width: double.infinity,
                   child: DiLangButton(
-                    label: 'Retry Model Download',
-                    icon: DiIcons.refresh,
-                    onPressed: _startProductionDownloadPipeline,
+                    label: 'Complete Onboarding',
+                    icon: DiIcons.check,
+                    onPressed: () async {
+                      await DiLangNativeBridge.setOnboardingStep('Completed');
+                      widget.onComplete();
+                    },
+                  ),
+                )
+              else ...[
+                if (_gemmaSha == 'Failed' || _whisperSha == 'Failed' || _piperSha == 'Failed')
+                  SizedBox(
+                    width: double.infinity,
+                    child: DiLangButton(
+                      label: 'Retry Model Download',
+                      icon: DiIcons.refresh,
+                      onPressed: _startProductionDownloadPipeline,
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: DiLangButton(
+                    label: 'Download Later in Settings',
+                    icon: DiIcons.settings,
+                    variant: DiLangButtonVariant.secondary,
+                    onPressed: () async {
+                      await DiLangNativeBridge.setOnboardingStep('Completed');
+                      widget.onComplete();
+                    },
                   ),
                 ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: DiLangButton(
-                  label: 'Download Later in Settings',
-                  icon: DiIcons.settings,
-                  variant: DiLangButtonVariant.secondary,
-                  onPressed: () async {
-                    await DiLangNativeBridge.setOnboardingStep('Completed');
-                    widget.onComplete();
-                  },
-                ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildModelRow(String name, bool isDone, String shaStatus) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.colors;
     return Row(
       children: [
         Icon(
           isDone ? DiIcons.check : DiIcons.time,
           size: 18,
-          color: isDone ? Colors.green : colors.onSurface.withValues(alpha: 0.5),
+          color: isDone ? colors.success : colors.textSecondary,
         ),
         const SizedBox(width: 10),
         Text(
           name,
           style: TextStyle(
             fontWeight: isDone ? FontWeight.bold : FontWeight.normal,
-            color: isDone ? Colors.white : colors.onSurface.withValues(alpha: 0.7),
+            color: isDone ? colors.textPrimary : colors.textSecondary,
           ),
         ),
         const Spacer(),
@@ -311,7 +306,7 @@ class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: isDone ? Colors.green : colors.onSurface.withValues(alpha: 0.5),
+            color: isDone ? colors.success : colors.textSecondary,
           ),
         ),
       ],

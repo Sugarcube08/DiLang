@@ -65,7 +65,6 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
             _buildSectionHeader('2. Glassmorphism & Depth'),
             const SizedBox(height: 12),
             DiLangCard(
-              isGlass: true,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -160,7 +159,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
             const SizedBox(height: 8),
             DiLangGradientProgress(
               progress: _progressValue,
-              gradient: AppGradients.success,
+              gradient: AppGradients.aquaMint,
             ),
             const SizedBox(height: 32),
           ],

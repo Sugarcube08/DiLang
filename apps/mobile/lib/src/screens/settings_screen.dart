@@ -11,6 +11,8 @@ import '../theme/di_icons.dart';
 import '../components/dilang_card.dart';
 import '../components/dilang_button.dart';
 import '../components/dilang_progress.dart';
+import '../components/budgie_circular_logo.dart';
+import '../components/glass_components.dart';
 import '../frb_generated.dart/api.dart' as ffi;
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -132,29 +134,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       return s.contains('piper') || s.contains('lessac');
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings & Model Center'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(DesignTokens.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User Profile Summary
-            Text('Learner Profile', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            DiLangCard(
-              child: Column(
-                children: [
-                  _buildProfileRow('Username', username, colors),
-                  const Divider(height: 16),
-                  _buildProfileRow('Native Language', nativeLang, colors),
-                  const Divider(height: 16),
-                  _buildProfileRow('Target Language', targetLang, colors),
-                ],
+    return AtmosphereBackground(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Settings & Model Center'),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(DesignTokens.space24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // User Profile Summary
+              Text('Learner Profile', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              DiLangCard(
+                child: Row(
+                  children: [
+                    const BudgieCircularLogo(size: 52),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const SizedBox(height: 2),
+                          Text('$nativeLang -> $targetLang', style: TextStyle(color: colors.textSecondary, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 24),
 
             // On-Device Model Download Center
@@ -251,18 +261,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildProfileRow(String label, String value, dynamic colors) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(color: colors.textSecondary, fontSize: 14)),
-        Text(value, style: TextStyle(color: colors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14)),
-      ],
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildModelItemCard({
     required String title,

@@ -44,11 +44,27 @@ abstract class AppShadows {
     ),
   ];
 
-  static const List<BoxShadow> darkFloating = [
+  static const List<BoxShadow> lightGlass = [
     BoxShadow(
-      color: Color.fromRGBO(0, 0, 0, 0.50),
-      blurRadius: 36,
-      offset: Offset(0, 14),
+      color: Color.fromRGBO(0, 0, 0, 0.05),
+      blurRadius: 20,
+      offset: Offset(0, 8),
+    ),
+  ];
+
+  static const List<BoxShadow> darkGlass = [
+    BoxShadow(
+      color: Color.fromRGBO(0, 0, 0, 0.40),
+      blurRadius: 24,
+      offset: Offset(0, 10),
+    ),
+  ];
+
+  static const List<BoxShadow> glowPrimary = [
+    BoxShadow(
+      color: Color.fromRGBO(0, 196, 180, 0.35),
+      blurRadius: 16,
+      offset: Offset(0, 4),
     ),
   ];
 }
