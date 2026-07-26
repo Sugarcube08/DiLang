@@ -4,7 +4,7 @@ import 'app_typography.dart';
 import 'design_tokens.dart';
 import 'theme_extensions.dart';
 
-/// Dark Theme Data definition adhering to Apple HI + Linear + Nothing OS simplicity.
+/// Dark Theme Data definition.
 ThemeData getDarkThemeData() {
   return ThemeData(
     useMaterial3: true,
@@ -52,7 +52,7 @@ ThemeData getDarkThemeData() {
       displayColor: AppColors.darkTextPrimary,
     ),
     extensions: const [
-      DiLangThemeExtension.dark,
+      DiLangColors.dark,
     ],
   );
 }

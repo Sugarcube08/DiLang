@@ -4,7 +4,7 @@ import 'app_typography.dart';
 import 'design_tokens.dart';
 import 'theme_extensions.dart';
 
-/// Light Theme Data definition adhering to Apple HI + Linear + Nothing OS simplicity.
+/// Light Theme Data definition.
 ThemeData getLightThemeData() {
   return ThemeData(
     useMaterial3: true,
@@ -52,7 +52,7 @@ ThemeData getLightThemeData() {
       displayColor: AppColors.lightTextPrimary,
     ),
     extensions: const [
-      DiLangThemeExtension.light,
+      DiLangColors.light,
     ],
   );
 }
