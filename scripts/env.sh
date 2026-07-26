@@ -7,8 +7,8 @@
 if [ -z "${DILANG_ENV_LOADED:-}" ]; then
   DILANG_ENV_LOADED=1
 
-  # Auto-detect Repository Root
-  export REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  # Auto-detect Physical Repository Root (Resolving Symlinks)
+  export REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 
   # Subsystem Directory Paths
   export CRATES_DIR="${REPO_ROOT}/crates"
