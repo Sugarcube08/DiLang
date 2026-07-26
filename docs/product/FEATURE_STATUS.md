@@ -4,13 +4,14 @@
 
 | Subsystem / Feature | Phase | Status | Document Reference |
 | :--- | :--- | :--- | :--- |
-| Repository Governance & Constitution | Phase 1 | **COMPLETED** | `README.md`, `AI_RULES.md` |
-| Flutter Presentation Shell Foundation | Phase 1 | **INITIALIZED** | `apps/dilang_flutter` |
-| Rust Core Workspace & FFI Bridge | Phase 1 | **INITIALIZED** | `Cargo.toml`, `crates/dilang_core` |
-| FSRS v4 Scheduler Engine | Phase 2 | Scheduled | `FSRS_ENGINE.md` |
-| SQLite SQLCipher Storage Layer | Phase 2 | Scheduled | `DATABASE_DESIGN.md` |
-| Local AI (Gemma 3 1B llama.cpp) | Phase 3 | Scheduled | `MODEL_PROVIDER_GUIDE.md` |
-| Offline Speech Pipeline (Whisper/Piper)| Phase 3 | Scheduled | `CONVERSATION_ENGINE.md` |
-| Vector Knowledge Graph (sqlite-vec) | Phase 4 | Scheduled | `MEMORY_SYSTEM.md` |
+| Repository Governance & Constitution | Milestone 0 | **COMPLETED** | `README.md`, `AI_RULES.md` |
+| Monorepo Structure & Toolchain Bootstrap | Milestone 0 | **VERIFIED & PASSED** | `crates/core`, `crates/ffi`, `apps/mobile` |
+| Rust Core Logging & SQLite Health Check | Milestone 0 | **VERIFIED & PASSED** | `crates/core/src/lib.rs` |
+| Flutter UI & Provider / Riverpod Setup | Milestone 0 | **VERIFIED & PASSED** | `apps/mobile/lib/main.dart` |
+| Architecture Modules & Database Schema | Milestone 1 | Scheduled | `DATABASE_DESIGN.md` |
+| On-Device LLM (Gemma 3 1B llama.cpp) | Milestone 2 | Scheduled | `MODEL_PROVIDER_GUIDE.md` |
+| Offline Speech STT Pipeline (Whisper.cpp) | Milestone 3 | Scheduled | `CONVERSATION_ENGINE.md` |
+| Offline Voice TTS Pipeline (Piper ONNX) | Milestone 4 | Scheduled | `CONVERSATION_ENGINE.md` |
+| Vector Knowledge Graph (sqlite-vec) | Milestone 5 | Scheduled | `MEMORY_SYSTEM.md` |
 | E2EE CRDT Synchronization | Phase 4 | Scheduled | `SYNC_ARCHITECTURE.md` |
 | WASM Plugin System | Phase 5 | Scheduled | `PLUGIN_SYSTEM.md` |
