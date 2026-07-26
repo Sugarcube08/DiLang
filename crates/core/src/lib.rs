@@ -6,6 +6,7 @@ use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
 pub mod analytics;
+pub mod analysis;
 pub mod api;
 pub mod app_runtime;
 pub mod conversation;
@@ -121,6 +122,33 @@ mod tests {
         assert!(!installed.unwrap().is_empty());
 
         assert!(engine.shutdown().is_ok());
+    }
+
+    #[test]
+    fn test_end_to_end_vertical_slice_learning_pipeline() {
+        let engine = DiLangEngineFacade::new();
+        assert!(engine.initialize().is_ok());
+
+        // 1. Start dialogue session
+        let conv = engine.conversation_start("cafe_order");
+        assert!(conv.is_ok());
+        let conv_id = conv.unwrap().id;
+
+        // 2. Process user reply through vertical learning pipeline
+        let reply = engine.conversation_reply(&conv_id, "Ich möchte einen Kaffee trinken bitte.");
+        assert!(reply.is_ok());
+        assert!(!reply.unwrap().is_empty());
+
+        // 3. Verify SQLite message history
+        let history = engine.get_conversation_history(&conv_id);
+        assert!(history.is_ok());
+        assert!(history.unwrap().len() >= 3);
+
+        // 4. Verify FSRS review card scheduling & analytics snapshot computation
+        let snapshot = engine.analytics_snapshot();
+        assert!(snapshot.is_ok());
+        let snap = snapshot.unwrap();
+        assert!(snap.total_known_words > 0);
     }
 
     #[test]

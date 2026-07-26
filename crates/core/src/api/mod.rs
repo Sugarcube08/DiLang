@@ -8,6 +8,11 @@ use crate::repositories::{
     SettingsRepositoryContract, SettingsRepositoryImpl,
 };
 use crate::conversation::{ConversationEngine, DefaultConversationEngine, MessageRecord, scenarios::ScenarioDefinition};
+use crate::analysis::LanguageAnalysisEngine;
+use crate::vocabulary::{VocabularyEngine, DefaultVocabularyEngine};
+use crate::grammar::{GrammarEngine, DefaultGrammarEngine};
+use crate::review::{ReviewEngine, FsrsReviewEngine};
+use crate::analytics::{AnalyticsEngine, EventDrivenAnalyticsEngine};
 use crate::lifecycle::AppLifecycleManager;
 use crate::infrastructure::{
     CapabilityRegistry, Capability, MetricsCollector, InternalMetrics,
@@ -16,6 +21,11 @@ use crate::infrastructure::{
 
 pub struct DiLangEngineFacade {
     conversation_engine: Box<dyn ConversationEngine>,
+    analysis_engine: LanguageAnalysisEngine,
+    vocabulary_engine: Box<dyn VocabularyEngine>,
+    grammar_engine: Box<dyn GrammarEngine>,
+    review_engine: Box<dyn ReviewEngine>,
+    analytics_engine: Box<dyn AnalyticsEngine>,
     _conversation_repo: Box<dyn ConversationRepositoryContract>,
     user_repo: Box<dyn UserRepositoryContract>,
     _settings_repo: Box<dyn SettingsRepositoryContract>,
@@ -28,6 +38,11 @@ impl DiLangEngineFacade {
     pub fn new() -> Self {
         Self {
             conversation_engine: Box::new(DefaultConversationEngine::new()),
+            analysis_engine: LanguageAnalysisEngine::new(),
+            vocabulary_engine: Box::new(DefaultVocabularyEngine::new()),
+            grammar_engine: Box::new(DefaultGrammarEngine::new()),
+            review_engine: Box::new(FsrsReviewEngine::new()),
+            analytics_engine: Box::new(EventDrivenAnalyticsEngine::new()),
             _conversation_repo: Box::new(ConversationRepositoryImpl::new()),
             user_repo: Box::new(UserRepositoryImpl::new()),
             _settings_repo: Box::new(SettingsRepositoryImpl::new()),
@@ -80,9 +95,31 @@ impl DiLangEngineFacade {
         self.conversation_engine.start_session(scenario_id)
     }
 
-    /// Reply to an ongoing conversation
+    /// Atomic Learning Pipeline: Turn -> LLM -> Analysis -> Vocab -> Grammar -> FSRS -> Analytics
     pub fn conversation_reply(&self, conversation_id: &str, user_text: &str) -> Result<String> {
-        self.conversation_engine.send_reply(conversation_id, user_text)
+        // 1. Dialogue turn via ConversationEngine
+        let reply_text = self.conversation_engine.send_reply(conversation_id, user_text)?;
+
+        // 2. Language Analysis Engine
+        let target_lang = self.get_active_user()
+            .ok()
+            .flatten()
+            .map(|u| u.target_language)
+            .unwrap_or_else(|| "German".to_string());
+        let analyzed = self.analysis_engine.analyze_text(&reply_text, &target_lang);
+
+        // 3. Vocabulary Extraction & Persistence Engine
+        if let Ok(extracted_terms) = self.vocabulary_engine.extract_and_persist(&analyzed) {
+            // 4. Schedule FSRS v4 Review Cards for extracted vocabulary
+            for vocab in extracted_terms {
+                let _ = self.review_engine.schedule_vocab_card(&vocab);
+            }
+        }
+
+        // 5. Grammar Extraction Engine
+        let _ = self.grammar_engine.extract_and_persist(&analyzed);
+
+        Ok(reply_text)
     }
 
     /// Retrieve full message history for a conversation
@@ -109,30 +146,18 @@ impl DiLangEngineFacade {
 
     /// Lookup vocabulary term
     pub fn vocabulary_lookup(&self, term: &str, target_lang: &str) -> Result<Option<Vocabulary>> {
-        Ok(Some(Vocabulary {
-            id: "v-001".to_string(),
-            term: term.to_string(),
-            lemma: term.to_string(),
-            pos: "noun".to_string(),
-            cefr_level: "A1".to_string(),
-            definition: format!("Definition for {} ({})", term, target_lang),
-            example_sentence: format!("Example sentence containing {}", term),
-        }))
+        self.vocabulary_engine.lookup(term, target_lang)
     }
 
     /// Fetch next due review card
     pub fn review_next(&self) -> Result<Option<ReviewCard>> {
-        Ok(None)
+        let cards = self.review_engine.fetch_due_cards(1)?;
+        Ok(cards.into_iter().next())
     }
 
     /// Compute analytics progress snapshot
     pub fn analytics_snapshot(&self) -> Result<ProgressSnapshot> {
-        Ok(ProgressSnapshot {
-            total_known_words: 150,
-            total_mastered_grammar: 12,
-            total_practice_hours: 4.5,
-            average_retention_rate: 0.92,
-        })
+        self.analytics_engine.compute_snapshot()
     }
 
     /// Query registered subsystem provider capability
