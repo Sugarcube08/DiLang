@@ -168,7 +168,7 @@ class DiLangNativeBridge {
   }
 
   static Future<String> sendDialogueTurn(String conversationId, String text) async {
-    _logger.info('Sending dialogue turn to Gemma LLM engine...');
+    _logger.info('Sending dialogue turn to Qwen LLM engine...');
     try {
       final res = await ffi.sendDialogueTurn(conversationId: conversationId, text: text);
       if (res.isNotEmpty && !res.startsWith('Error')) {
@@ -181,9 +181,9 @@ class DiLangNativeBridge {
     final history = _fallbackHistory[conversationId] ??= [];
     history.add({'sender': 'user', 'text': text});
 
-    final hasModel = _fallbackInstalledModels.any((m) => m['name'].toString().contains('gemma'));
+    final hasModel = _fallbackInstalledModels.any((m) => m['name'].toString().contains('qwen') || m['name'].toString().contains('gemma'));
     if (!hasModel) {
-      return 'AI engine unavailable. Please ensure Gemma 3 1B is installed.';
+      return 'AI engine unavailable. Please ensure Qwen3-0.6B Instruct is installed.';
     }
 
     final reply = 'Understood. Processing dialogue turn for: "$text"';

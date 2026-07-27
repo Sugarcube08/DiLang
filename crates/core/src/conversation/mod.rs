@@ -1,5 +1,5 @@
 //! Conversation Engine Interface
-//! On-Device LLM (Gemma 3 1B) & Dialogue Manager Implementation
+//! On-Device LLM (Qwen3-0.6B) & Dialogue Manager Implementation
 
 pub mod prompt_formatter;
 pub mod scenarios;
@@ -8,7 +8,7 @@ use crate::models::Conversation;
 use crate::storage::schema::get_connection;
 use anyhow::Result;
 use chrono::Utc;
-use prompt_formatter::GemmaPromptFormatter;
+use prompt_formatter::QwenPromptFormatter;
 use rusqlite::params;
 use scenarios::{ScenarioDefinition, ScenarioRegistry};
 use tracing::info;
@@ -95,12 +95,12 @@ impl ConversationEngine for DefaultConversationEngine {
             .map(|m| (m.sender.clone(), m.text.clone()))
             .collect();
 
-        // Format prompt using GemmaPromptFormatter
+        // Format prompt using QwenPromptFormatter
         let system_prompt = "You are a helpful language learning dialogue assistant. Keep replies concise and encouraging.";
         let formatted_prompt =
-            GemmaPromptFormatter::format(system_prompt, &history_tuples, user_text);
+            QwenPromptFormatter::format(system_prompt, &history_tuples, user_text);
         info!(
-            "Gemma 3 Prompt Formatted: Length {}",
+            "Qwen3-0.6B Prompt Formatted: Length {}",
             formatted_prompt.len()
         );
 

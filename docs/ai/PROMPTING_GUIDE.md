@@ -1,17 +1,17 @@
-# Gemma 3 Prompting Guide & Structural Schemas
+# Qwen3-0.6B Instruct Prompting Guide & Structural Schemas
 
 ## 1. Executive Summary
 
-DiLang utilizes Gemma 3 (4B / 27B GGUF) for offline dialogue roleplay, grammatical error diagnostics, dynamic task generation, and contextual translations. This guide defines prompt structures and structural JSON schemas.
+DiLang utilizes **Qwen3-0.6B Instruct (GGUF)** via `llama.cpp` for offline dialogue roleplay, grammatical explanations, hint generation, story generation, and adaptive responses. Translations are resolved using deterministic linguistic resources via the Translation Provider; Qwen serves solely as an adaptive fallback when constructions cannot be resolved deterministically.
 
 ---
 
 ## 2. Structural Prompt Template Architecture
 
-All Gemma 3 prompts use Gemma's official control tokens (`<start_of_turn>`, `<end_of_turn>`):
+All Qwen3-0.6B prompts use standard ChatML control tokens (`<|im_start|>`, `<|im_end|>`):
 
-```
-<start_of_turn>system
+```text
+<|im_start|>system
 System Directive: You are a strict language learning assistant persona.
 Target CEFR: {{target_cefr}}
 Target Language: {{target_language}}
@@ -22,8 +22,7 @@ Output Requirement: You MUST output ONLY valid JSON matching this schema:
 {
   "reply": "string",
   "phonetic_transcription": "string",
-  "literal_translation": "string",
-  "corrections": [
+  "explanations": [
     {
       "flawed_token": "string",
       "suggested_token": "string",
@@ -32,14 +31,14 @@ Output Requirement: You MUST output ONLY valid JSON matching this schema:
     }
   ]
 }
-<end_of_turn>
-<start_of_turn>user
+<|im_end|>
+<|im_start|>user
 Dialogue History:
 {{dialogue_history}}
 
 User Said: {{user_utterance}}
-<end_of_turn>
-<start_of_turn>model
+<|im_end|>
+<|im_start|>assistant
 ```
 
 ---
@@ -47,5 +46,5 @@ User Said: {{user_utterance}}
 ## 3. Context Window Management
 
 1. **Sliding Dialogue Window**: Max 6 previous conversation turns ($< 1024$ tokens total) are retained in context to guarantee generation speed on mid-range hardware.
-2. **Dynamic Context Compression**: Older dialogue turns are summarized into a concise 2-sentence background vector by the `dilang_memory` system.
+2. **Dynamic Context Compression**: Older dialogue turns are summarized into a concise 2-sentence background vector by the memory system.
 3. **GBNF Grammar Constraints**: For zero-error structural JSON, `llama.cpp` inference uses GBNF grammar files to constrain token generation to valid JSON syntax tokens.

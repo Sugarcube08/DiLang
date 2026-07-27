@@ -150,6 +150,12 @@ pub fn get_model_registry() -> String {
     }
 }
 
+pub fn get_supported_languages() -> String {
+    let engine = DiLangEngineFacade::new();
+    let langs = engine.get_supported_languages();
+    serde_json::to_string(&langs).unwrap_or_default()
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FfiDownloadProgress {
     pub model_id: String,
@@ -207,7 +213,7 @@ pub fn get_runtime_diagnostics() -> String {
         "max_cpu_threads": budget.max_cpu_threads,
         "max_ram_mb": budget.max_ram_mb,
         "gpu_available": budget.gpu_available,
-        "gemma_loader": "llama.cpp GGUF",
+        "qwen_loader": "llama.cpp GGUF",
         "whisper_loader": "whisper.cpp GGML",
         "piper_loader": "Piper ONNX",
     });

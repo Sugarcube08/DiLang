@@ -4,7 +4,7 @@
 
 | Epic Code | Epic Title | Primary Scope | Lead Subsystem |
 | :--- | :--- | :--- | :--- |
-| **EP-01** | Local AI Engine Foundation | Whisper, Gemma 3, Piper native integration | `crates/dilang_models` |
+| **EP-01** | Local AI Engine Foundation | Whisper, Qwen3-0.6B Instruct, Piper native integration | `crates/core` |
 | **EP-02** | FSRS-v4 Spaced Memory Core | 19-parameter scheduler & optimizer | `crates/dilang_fsrs` |
 | **EP-03** | Conversational Roleplay Workbench | FSM scenario engine & dialogue UI | `dilang_conversation` |
 | **EP-04** | Grammar Syntax Diagnostics | Tree-Sitter AST parser & rule engine | `dilang_grammar` |

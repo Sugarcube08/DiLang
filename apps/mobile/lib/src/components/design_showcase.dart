@@ -89,7 +89,7 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Gemma 3 1B On-Device Model',
+                              'Qwen3-0.6B Instruct On-Device Model',
                               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                     color: colors.textSecondary,
                                   ),

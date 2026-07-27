@@ -126,8 +126,8 @@ impl DiLangEngineFacade {
             .list_installed_models()
             .unwrap_or_default();
 
-        let has_gemma = models.iter().any(|m| {
-            (m.name.contains("gemma") || m.filename.contains("gguf"))
+        let has_qwen = models.iter().any(|m| {
+            (m.name.contains("qwen") || m.filename.contains("gguf"))
                 && std::path::Path::new(&m.path).exists()
         });
         let has_whisper = models.iter().any(|m| {
@@ -139,7 +139,7 @@ impl DiLangEngineFacade {
                 && std::path::Path::new(&m.path).exists()
         });
 
-        if !has_gemma || !has_whisper || !has_piper {
+        if !has_qwen || !has_whisper || !has_piper {
             info!("RUST: get_startup_state() -> NeedsModels (Installed models incomplete or missing on disk)");
             return StartupState::NeedsModels;
         }
@@ -290,6 +290,11 @@ impl DiLangEngineFacade {
     /// Retrieve Model Registry Entries
     pub fn get_model_registry(&self) -> Result<Vec<crate::infrastructure::RegistryEntry>> {
         crate::infrastructure::ModelRegistry::list_entries()
+    }
+
+    /// Retrieve 24-Language Unified Registry Entries
+    pub fn get_supported_languages(&self) -> Vec<crate::infrastructure::LanguageDescriptor> {
+        crate::infrastructure::LanguageRegistry::get_all_languages()
     }
 
     /// Perform HTTP streamed download for registry model, verify SHA-256, and register in SQLite

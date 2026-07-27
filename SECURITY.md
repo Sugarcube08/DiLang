@@ -35,7 +35,7 @@ DiLang's security posture is designed around local-first data isolation and safe
 └──────────────┼──────────────────────────────────────────────┘
                │ Native Execution Containment
 ┌──────────────▼──────────────────────────────────────────────┐
-│  Quantized Inference Engines (Whisper.cpp, Gemma, Piper)    │
+│  Quantized Inference Engines (Whisper.cpp, Qwen3-0.6B, Piper) │
 └─────────────────────────────────────────────────────────────┘
 ```
 

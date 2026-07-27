@@ -12,7 +12,7 @@ To empower millions of learners worldwide to achieve true conversational fluency
   ┌─────────────────────────────────────────────────────────────┐
   │ Horizon 1: Core Foundation & Offline AI Stack (Months 1-6)  │
   │ • FSRS-v4 Rust scheduling core                             │
-  │ • Local Gemma 3 4B + Whisper + Piper voice pipeline          │
+  │ • Local Qwen3-0.6B Instruct + Whisper + Piper voice pipeline│
   │ • Flutter cross-platform presentation foundation            │
   └──────────────────────────────┬──────────────────────────────┘
                                  │
@@ -35,7 +35,24 @@ To empower millions of learners worldwide to achieve true conversational fluency
 
 ---
 
-## 3. Core Key Performance Indicators (KPIs)
+## 3. Language Model (Context Capsule)
+
+**Qwen3-0.6B Instruct (GGUF)**
+
+Served locally through `llama.cpp`.
+
+Chosen for:
+- Better multilingual capability
+- Better instruction following
+- Lower memory footprint
+- Faster edge inference
+- Stronger performance-to-size ratio
+
+The provider architecture remains model-agnostic, allowing future replacement without affecting higher-level learning engines.
+
+---
+
+## 4. Core Key Performance Indicators (KPIs)
 
 1. **Fluency Velocity**: Mean time required for a user to reach CEFR B1 conversational competence ($< 150$ active practice hours).
 2. **Review Retention Accuracy**: FSRS-v4 model predicted vs actual recall accuracy ($\ge 90\%$).

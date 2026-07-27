@@ -14,7 +14,8 @@
 ## 🌟 Key Features & Philosophy
 
 - 🔒 **100% Offline & Private**: All inference, speech processing, and spaced repetition analytics execute locally. Your conversation logs, voice recordings, and learning history never leave your device.
-- 🤖 **On-Device LLM Intelligence**: Powered by quantized **Gemma 3 1B** models tailored for contextual grammar correction, interactive dialogue roleplay, and real-time explanation generation.
+- 🤖 **On-Device LLM Intelligence**: Powered by quantized **Qwen3-0.6B Instruct (GGUF)** models tailored for contextual grammar explanation, interactive dialogue roleplay, hints, and real-time response generation.
+- 🌐 **Deterministic Translation Provider**: Uses SQLite dictionaries, phrase knowledge bases, and morphological analyzers deterministically, using Qwen only as a fallback.
 - 🎙️ **On-Device Speech Processing**:
   - **Speech-to-Text (STT)**: High-accuracy streaming transcription via **Whisper.cpp**.
   - **Text-to-Speech (TTS)**: Low-latency neural speech synthesis via **Piper**.
@@ -27,7 +28,7 @@
 
 DiLang follows a modular, layer-separated architecture linked via zero-copy cross-language bindings powered by `flutter_rust_bridge`.
 
-```
+```text
 ┌──────────────────────────────────────────────────────────┐
 │                   Flutter App UI Layer                   │
 │              (Dart / Flutter Material 3 UI)             │
@@ -37,7 +38,7 @@ DiLang follows a modular, layer-separated architecture linked via zero-copy cros
 │                    Rust Engine Core                      │
 │                                                          │
 │  ┌────────────────────────────────────────────────────┐  │
-│  │    dilang_inference (Gemma 3 1B, Whisper, Piper)   │  │
+│  │    dilang_inference (Qwen3-0.6B, Whisper, Piper)   │  │
 │  └────────────────────────────────────────────────────┘  │
 │  ┌────────────────────────────────────────────────────┐  │
 │  │    dilang_storage  (SQLite, Vector Index, FSRS)    │  │

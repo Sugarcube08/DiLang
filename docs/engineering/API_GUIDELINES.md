@@ -8,7 +8,7 @@ Communication between the Flutter Dart frontend and the Rust Core backend is con
 
 ## 2. API Contract Principles
 
-1. **Opaque Pointers for Engine Instances**: Large native state structures (such as loaded Gemma 3 model weights or SQLite handle pools) are passed to Dart as opaque thread-safe Rust references (`Arc<RwLock<T>>`).
+1. **Opaque Pointers for Engine Instances**: Large native state structures (such as loaded Qwen3-0.6B model weights or SQLite handle pools) are passed to Dart as opaque thread-safe Rust references (`Arc<RwLock<T>>`).
 2. **Stream-based Async Outputs**: Operations producing continuous data tokens (speech audio playback chunks, streaming LLM response tokens) MUST utilize `StreamSink<T>` parameters.
 3. **Structured Enums for Statuses**: Complex return states must use Rust enums converted to Dart sealed classes.
 

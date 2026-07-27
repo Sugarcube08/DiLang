@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1920539025;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 2001286283;
 
 // Section: executor
 
@@ -420,6 +420,38 @@ fn wire__crate__api__get_startup_state_impl(
             move |context| {
                 transform_result_sse::<_, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(crate::api::get_startup_state())?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__get_supported_languages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_supported_languages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::get_supported_languages())?;
                     Ok(output_ok)
                 })())
             }
@@ -919,17 +951,18 @@ fn pde_ffi_dispatcher_primary_impl(
         9 => wire__crate__api__get_onboarding_step_impl(port, ptr, rust_vec_len, data_len),
         10 => wire__crate__api__get_runtime_diagnostics_impl(port, ptr, rust_vec_len, data_len),
         11 => wire__crate__api__get_startup_state_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__get_system_resource_budget_impl(port, ptr, rust_vec_len, data_len),
-        13 => wire__crate__api__install_model_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__api__list_installed_models_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api__ping_impl(port, ptr, rust_vec_len, data_len),
-        16 => wire__crate__api__query_capability_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api__send_dialogue_turn_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api__set_onboarding_step_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__shutdown_engine_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__api__start_conversation_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api__synthesize_speech_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__api__transcribe_audio_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__get_supported_languages_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__get_system_resource_budget_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api__install_model_impl(port, ptr, rust_vec_len, data_len),
+        15 => wire__crate__api__list_installed_models_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__api__ping_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__api__query_capability_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__send_dialogue_turn_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api__set_onboarding_step_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api__shutdown_engine_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__api__start_conversation_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api__synthesize_speech_impl(port, ptr, rust_vec_len, data_len),
+        23 => wire__crate__api__transcribe_audio_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }

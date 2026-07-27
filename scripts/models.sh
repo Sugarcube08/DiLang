@@ -15,7 +15,7 @@ log_header "DiLang Model Manager: ${ACTION}"
 case "${ACTION}" in
   list)
     log_info "Listing available & installed on-device models:"
-    echo "  - gemma-3-1b-it (Gemma 3 1B Q4_K_M Chat Model)"
+    echo "  - qwen3-0.6b-instruct (Qwen3-0.6B Instruct Q4_K_M Chat Model)"
     echo "  - whisper-base (Whisper STT Model)"
     echo "  - piper-en-us (Piper ONNX TTS Voice)"
     ;;
@@ -24,7 +24,7 @@ case "${ACTION}" in
     log_success "All installed models verified healthy."
     ;;
   download)
-    MODEL_NAME="${2:-gemma-3-1b-it}"
+    MODEL_NAME="${2:-qwen3-0.6b-instruct}"
     log_info "Downloading model weights for ${MODEL_NAME}..."
     log_success "Model ${MODEL_NAME} downloaded and registered."
     ;;

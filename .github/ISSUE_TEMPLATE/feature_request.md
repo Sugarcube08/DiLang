@@ -24,7 +24,7 @@ Is your feature request related to a problem or specific learning use case?
 Describe how you envision this feature working within DiLang. Specify whether this involves:
 - [ ] **Flutter UI Shell** (Widgets, Screens, Animations, State Management)
 - [ ] **Rust Core Storage** (SQLite queries, FSRS scheduling, Vector search)
-- [ ] **Rust Inference Engines** (Gemma 3 1B LLM, Whisper STT, Piper TTS)
+- [ ] **Rust Inference Engines** (Qwen3-0.6B LLM, Whisper STT, Piper TTS)
 - [ ] **Language Pack Format & Metadata**
 
 ---

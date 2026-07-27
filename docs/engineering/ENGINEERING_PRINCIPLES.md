@@ -9,7 +9,7 @@ DiLang is an open-source, local-first language learning system designed for mult
 ## 2. Fundamental Architectural Rules
 
 ### Principle 1: Local-First & Offline Sovereignty
-- **Zero Cloud Dependencies**: Core speech recognition (Whisper), speech synthesis (Piper), natural language understanding (Gemma 3), FSRS flashcard scheduling, and vector retrieval MUST run entirely locally on the user's client hardware.
+- **Zero Cloud Dependencies**: Core speech recognition (Whisper), speech synthesis (Piper), natural language understanding (Qwen3-0.6B Instruct), deterministic translation, FSRS flashcard scheduling, and vector retrieval MUST run entirely locally on the user's client hardware.
 - **No Mandatory Accounts**: All user progress, speech recordings, metrics, and memory graphs remain stored strictly within local SQLite files under user ownership.
 
 ### Principle 2: Rigid Boundary Separation (Rust Core vs. Flutter UI)

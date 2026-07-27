@@ -4,7 +4,7 @@
 
 1. **Immediate Feedback Loop**: Spoken audio input must present active waveform visual feedback within $50\text{ms}$ of speech detection to eliminate perceived latency.
 2. **Non-Intrusive Error Coaching**: Diagnostic grammar and vocabulary feedback should never block dialogue flow. Corrections are rendered as subtleInline annotations or expandable side-drawers.
-3. **Hands-Free Conversational Mode**: Full continuous voice interaction (Voice Activity Detection $\rightarrow$ Whisper STT $\rightarrow$ Gemma 3 LLM $\rightarrow$ Piper TTS) allows users to practice without manual screen tapping.
+3. **Hands-Free Conversational Mode**: Full continuous voice interaction (Voice Activity Detection $\rightarrow$ Whisper STT $\rightarrow$ Qwen3-0.6B LLM $\rightarrow$ Piper TTS) allows users to practice without manual screen tapping.
 
 ---
 

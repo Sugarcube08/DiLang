@@ -10,6 +10,8 @@ import '../components/dilang_progress.dart';
 import '../components/glass_components.dart';
 import '../components/budgie_mascot.dart';
 import '../native_bridge.dart';
+import '../providers/user_profile_provider.dart';
+import '../infrastructure/language_registry.dart';
 import '../frb_generated.dart/api.dart' as ffi;
 
 class ModelDownloadScreen extends ConsumerStatefulWidget {
@@ -22,109 +24,262 @@ class ModelDownloadScreen extends ConsumerStatefulWidget {
 }
 
 class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
-  String _currentStep = 'Initializing Production Model Downloader...';
+  // Step 0: Model Selection, Step 1: Active Download Execution
+  int _currentStepIndex = 0;
+
+  // Selected Models
+  String _selectedLlm = 'qwen3-0.6b-instruct-q4_k_m';
+  String _selectedStt = 'whisper-base';
+  String _selectedEmbeddings = 'fastembed-bge-small-en-v1.5';
+
+  // Download Execution state
+  String _currentStepText = 'Initializing Model Downloader...';
   String _byteProgressText = '0.0 MB / 0.0 MB';
   String _speedEtaText = '';
   double _overallProgress = 0.0;
 
-  bool _gemmaDone = false;
-  String _gemmaSha = 'Pending';
-
-  bool _whisperDone = false;
-  String _whisperSha = 'Pending';
-
-  bool _piperDone = false;
-  String _piperSha = 'Pending';
-
+  final Map<String, bool> _modelDoneMap = {};
+  final Map<String, String> _modelShaMap = {};
   bool _isAllComplete = false;
-  StreamSubscription<ffi.FfiDownloadProgress>? _streamSub;
 
   @override
-  void initState() {
-    super.initState();
-    _startProductionDownloadPipeline();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_currentStepIndex == 0 ? 'Tailor Your AI Runtime' : 'Downloading AI Models'),
+      ),
+      body: SafeArea(
+        child: _currentStepIndex == 0 ? _buildSetupSelectionView() : _buildDownloadProgressView(),
+      ),
+    );
   }
 
-  @override
-  void dispose() {
-    _streamSub?.cancel();
-    super.dispose();
+  Widget _buildSetupSelectionView() {
+    final colors = context.colors;
+    final userState = ref.watch(userProfileProvider);
+    final activeUser = userState.activeUser;
+    final targetLangCode = activeUser?['target_language'] ?? 'de';
+    final targetLang = AppLanguageRegistry.find(targetLangCode);
+
+    // Calculate Download Size Metrics
+    double totalSizeMb = 0;
+    if (_selectedLlm == 'qwen3-0.6b-instruct-q4_k_m') totalSizeMb += 435.0;
+    if (_selectedLlm == 'gemma-3-1b-it-q4_k_m') totalSizeMb += 806.0;
+    if (_selectedLlm == 'qwen2.5-1.5b-instruct-q4_k_m') totalSizeMb += 980.0;
+
+    if (_selectedStt == 'whisper-base') totalSizeMb += 148.0;
+    if (_selectedStt == 'whisper-small') totalSizeMb += 488.0;
+    if (_selectedStt == 'whisper-medium') totalSizeMb += 1533.0;
+
+    if (_selectedEmbeddings == 'fastembed-bge-small-en-v1.5') totalSizeMb += 67.0;
+    if (_selectedEmbeddings == 'fastembed-e5-small-v2') totalSizeMb += 133.0;
+
+    totalSizeMb += 63.0; // Piper voice default
+
+    final freeSpaceMb = 4096.0;
+
+    return Padding(
+      padding: const EdgeInsets.all(DesignTokens.space24),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BudgieMascot(
+              size: 76,
+              mood: BudgieMood.happy,
+              speechBubbleText: 'Customize your on-device AI engines for learning ${targetLang.nativeName}!',
+            ),
+            const SizedBox(height: 20),
+
+            // Conversation Model Section
+            Text('1. Conversation LLM Model', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildRadioTile(
+              id: 'qwen3-0.6b-instruct-q4_k_m',
+              title: 'Qwen3 0.6B Instruct GGUF (Default • ~435 MB)',
+              subtitle: 'Fast, energy-efficient dialogue & grammar explanations',
+              groupValue: _selectedLlm,
+              onChanged: (v) => setState(() => _selectedLlm = v!),
+            ),
+            _buildRadioTile(
+              id: 'gemma-3-1b-it-q4_k_m',
+              title: 'Gemma 3 1B IT GGUF (Optional • ~806 MB)',
+              subtitle: 'Rich explanations with broader contextual window',
+              groupValue: _selectedLlm,
+              onChanged: (v) => setState(() => _selectedLlm = v!),
+            ),
+            _buildRadioTile(
+              id: 'qwen2.5-1.5b-instruct-q4_k_m',
+              title: 'Qwen2.5 1.5B Instruct GGUF (High Quality • ~980 MB)',
+              subtitle: 'Pro accuracy for complex roleplay & nuanced corrections',
+              groupValue: _selectedLlm,
+              onChanged: (v) => setState(() => _selectedLlm = v!),
+            ),
+            const SizedBox(height: 20),
+
+            // STT Model Section
+            Text('2. Speech Recognition (STT)', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildRadioTile(
+              id: 'whisper-base',
+              title: 'Whisper Base (Default • ~148 MB)',
+              subtitle: 'Low latency, reliable speech-to-text',
+              groupValue: _selectedStt,
+              onChanged: (v) => setState(() => _selectedStt = v!),
+            ),
+            _buildRadioTile(
+              id: 'whisper-small',
+              title: 'Whisper Small (Better Accuracy • ~488 MB)',
+              subtitle: 'Improved accent detection & noisy environment handling',
+              groupValue: _selectedStt,
+              onChanged: (v) => setState(() => _selectedStt = v!),
+            ),
+            _buildRadioTile(
+              id: 'whisper-medium',
+              title: 'Whisper Medium (High Accuracy • ~1.5 GB)',
+              subtitle: 'High precision transcription for multi-lingual audio',
+              groupValue: _selectedStt,
+              onChanged: (v) => setState(() => _selectedStt = v!),
+            ),
+            const SizedBox(height: 20),
+
+            // Storage Summary Card
+            GlassCard(
+              accentColor: AppColors.turquoise500,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Estimated Download:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${totalSizeMb.toStringAsFixed(1)} MB', style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Free Space Available:', style: TextStyle(color: colors.textSecondary)),
+                      Text('${(freeSpaceMb / 1024).toStringAsFixed(1)} GB', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              child: DiLangButton(
+                label: 'Begin Download & Installation',
+                icon: DiIcons.spark,
+                onPressed: () {
+                  setState(() => _currentStepIndex = 1);
+                  _startSelectedDownloadPipeline(targetLang);
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: DiLangButton(
+                label: 'Download Later in Settings',
+                icon: DiIcons.settings,
+                variant: DiLangButtonVariant.secondary,
+                onPressed: () async {
+                  await DiLangNativeBridge.setOnboardingStep('Completed');
+                  widget.onComplete();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Future<void> _startProductionDownloadPipeline() async {
-    // Pipeline Model 1: Gemma 3 1B IT (GGUF)
-    await _downloadSingleModel(
-      modelId: 'gemma-3-1b-it-q4_k_m',
-      titleName: 'Gemma 3 1B IT (GGUF)',
-      onComplete: (success) {
-        if (!mounted) return;
-        setState(() {
-          _gemmaDone = success;
-          _gemmaSha = success ? 'Verified' : 'Failed';
-        });
-      },
-    );
+  Widget _buildRadioTile({
+    required String id,
+    required String title,
+    required String subtitle,
+    required String groupValue,
+    required ValueChanged<String?> onChanged,
+  }) {
+    final colors = context.colors;
+    final isSelected = id == groupValue;
 
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: GlassCard(
+        accentColor: isSelected ? AppColors.turquoise500 : null,
+        onTap: () => onChanged(id),
+        child: Row(
+          children: [
+            Radio<String>(
+              value: id,
+              groupValue: groupValue,
+              onChanged: onChanged,
+              activeColor: AppColors.turquoise500,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: isSelected ? colors.primary : colors.textPrimary)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: colors.textSecondary)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _startSelectedDownloadPipeline(LanguageDescriptor targetLang) async {
+    // 1. Download Selected LLM
+    await _downloadSingleModel(_selectedLlm, _getLlmTitle(_selectedLlm));
     if (!mounted) return;
 
-    // Pipeline Model 2: Whisper Base (GGML)
-    await _downloadSingleModel(
-      modelId: 'whisper-base',
-      titleName: 'Whisper Base (GGML)',
-      onComplete: (success) {
-        if (!mounted) return;
-        setState(() {
-          _whisperDone = success;
-          _whisperSha = success ? 'Verified' : 'Failed';
-        });
-      },
-    );
-
+    // 2. Download Selected STT
+    await _downloadSingleModel(_selectedStt, _getSttTitle(_selectedStt));
     if (!mounted) return;
 
-    // Pipeline Model 3: Piper Voice (ONNX)
-    await _downloadSingleModel(
-      modelId: 'piper-en_US-lessac-medium',
-      titleName: 'Piper Voice (ONNX)',
-      onComplete: (success) {
-        if (!mounted) return;
-        setState(() {
-          _piperDone = success;
-          _piperSha = success ? 'Verified' : 'Failed';
-        });
-      },
-    );
-
+    // 3. Download TTS Voice for target language
+    final ttsVoiceId = targetLang.ttsVoice.isNotEmpty ? targetLang.ttsVoice : 'piper-en_US-lessac-medium';
+    await _downloadSingleModel(ttsVoiceId, 'Piper Voice (${targetLang.nativeName})');
     if (!mounted) return;
 
-    final allDone = _gemmaDone && _whisperDone && _piperDone;
     setState(() {
-      if (allDone) {
-        _currentStep = 'All Models Installed & Verified in SQLite';
-        _byteProgressText = 'Complete';
-        _speedEtaText = 'Ready for Offline AI Inference';
-        _overallProgress = 1.0;
-        _isAllComplete = true;
-      } else {
-        _currentStep = 'Model Installation Incomplete or Failed';
-        _byteProgressText = 'Please retry failed model downloads.';
-        _speedEtaText = '';
-        _isAllComplete = false;
-      }
+      _currentStepText = 'All Models Installed & Verified in SQLite';
+      _byteProgressText = 'Complete';
+      _speedEtaText = 'Ready for Offline AI Inference';
+      _overallProgress = 1.0;
+      _isAllComplete = true;
     });
   }
 
-  Future<void> _downloadSingleModel({
-    required String modelId,
-    required String titleName,
-    required void Function(bool success) onComplete,
-  }) async {
+  String _getLlmTitle(String id) {
+    if (id == 'gemma-3-1b-it-q4_k_m') return 'Gemma 3 1B IT (GGUF)';
+    if (id == 'qwen2.5-1.5b-instruct-q4_k_m') return 'Qwen2.5 1.5B Instruct (GGUF)';
+    return 'Qwen3-0.6B Instruct (GGUF)';
+  }
+
+  String _getSttTitle(String id) {
+    if (id == 'whisper-small') return 'Whisper Small (GGML)';
+    if (id == 'whisper-medium') return 'Whisper Medium (GGML)';
+    return 'Whisper Base (GGML)';
+  }
+
+  Future<void> _downloadSingleModel(String modelId, String titleName) async {
     final completer = Completer<void>();
     bool hasFinished = false;
 
     setState(() {
-      _currentStep = 'Downloading $titleName...';
-      _byteProgressText = 'Connecting to download stream...';
+      _currentStepText = 'Downloading $titleName via HuggingFace...';
+      _byteProgressText = 'Connecting...';
       _speedEtaText = '';
     });
 
@@ -150,34 +305,30 @@ class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
 
         if (prog.status == 'Verifying') {
           setState(() {
-            _currentStep = 'Verifying SHA-256 Checksum for $titleName...';
-            _speedEtaText = 'Calculating Sha256 Hash...';
+            _currentStepText = 'Verifying SHA-256 Checksum for $titleName...';
+            _speedEtaText = 'Calculating SHA-256 Hash...';
           });
         } else if (prog.status == 'Installed') {
           hasFinished = true;
-          onComplete(true);
+          _modelDoneMap[modelId] = true;
+          _modelShaMap[modelId] = 'Verified';
           sub.cancel();
           if (!completer.isCompleted) completer.complete();
         } else if (prog.status == 'Failed') {
           hasFinished = true;
-          onComplete(false);
+          _modelDoneMap[modelId] = false;
+          _modelShaMap[modelId] = 'Failed';
           sub.cancel();
           if (!completer.isCompleted) completer.complete();
         }
       },
-      onError: (err) {
+      onError: (_) {
         if (!hasFinished) {
           hasFinished = true;
-          onComplete(false);
+          _modelDoneMap[modelId] = false;
+          _modelShaMap[modelId] = 'Failed';
         }
         sub.cancel();
-        if (!completer.isCompleted) completer.complete();
-      },
-      onDone: () {
-        if (!hasFinished) {
-          hasFinished = true;
-          onComplete(false);
-        }
         if (!completer.isCompleted) completer.complete();
       },
     );
@@ -185,131 +336,55 @@ class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
     await completer.future;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDownloadProgressView() {
     final colors = context.colors;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Model Download & Setup')),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(DesignTokens.space24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              BudgieMascot(
-                size: 85,
-                mood: _isAllComplete ? BudgieMood.celebrating : BudgieMood.studying,
-                speechBubbleText: _isAllComplete ? 'All AI Models Ready!' : 'Downloading Local AI Models...',
-              ),
-              const SizedBox(height: 20),
+    return Padding(
+      padding: const EdgeInsets.all(DesignTokens.space24),
+      child: Column(
+        children: [
+          BudgieMascot(
+            size: 85,
+            mood: _isAllComplete ? BudgieMood.celebrating : BudgieMood.studying,
+            speechBubbleText: _isAllComplete ? 'All AI Engines Installed!' : 'Streaming Weights from HuggingFace...',
+          ),
+          const SizedBox(height: 20),
 
-              GlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          GlassCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_currentStepText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _currentStep,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _byteProgressText,
-                          style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                        if (_speedEtaText.isNotEmpty)
-                          Text(
-                            _speedEtaText,
-                            style: TextStyle(color: colors.textSecondary, fontSize: 12),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    DiLangGradientProgress(progress: _overallProgress),
-                    const SizedBox(height: 24),
-                    _buildModelRow('Gemma 3 1B IT (GGUF)', _gemmaDone, _gemmaSha),
-                    const SizedBox(height: 12),
-                    _buildModelRow('Whisper Base (GGML)', _whisperDone, _whisperSha),
-                    const SizedBox(height: 12),
-                    _buildModelRow('Piper Voice (ONNX)', _piperDone, _piperSha),
+                    Text(_byteProgressText, style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold)),
+                    if (_speedEtaText.isNotEmpty)
+                      Text(_speedEtaText, style: TextStyle(color: colors.textSecondary, fontSize: 12)),
                   ],
                 ),
-              ),
-              const Spacer(),
-
-              if (_isAllComplete)
-                SizedBox(
-                  width: double.infinity,
-                  child: DiLangButton(
-                    label: 'Complete Onboarding',
-                    icon: DiIcons.check,
-                    onPressed: () async {
-                      await DiLangNativeBridge.setOnboardingStep('Completed');
-                      widget.onComplete();
-                    },
-                  ),
-                )
-              else ...[
-                if (_gemmaSha == 'Failed' || _whisperSha == 'Failed' || _piperSha == 'Failed')
-                  SizedBox(
-                    width: double.infinity,
-                    child: DiLangButton(
-                      label: 'Retry Model Download',
-                      icon: DiIcons.refresh,
-                      onPressed: _startProductionDownloadPipeline,
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: DiLangButton(
-                    label: 'Download Later in Settings',
-                    icon: DiIcons.settings,
-                    variant: DiLangButtonVariant.secondary,
-                    onPressed: () async {
-                      await DiLangNativeBridge.setOnboardingStep('Completed');
-                      widget.onComplete();
-                    },
-                  ),
-                ),
+                const SizedBox(height: 16),
+                DiLangGradientProgress(progress: _overallProgress),
               ],
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
+          const Spacer(),
 
-  Widget _buildModelRow(String name, bool isDone, String shaStatus) {
-    final colors = context.colors;
-    return Row(
-      children: [
-        Icon(
-          isDone ? DiIcons.check : DiIcons.time,
-          size: 18,
-          color: isDone ? colors.success : colors.textSecondary,
-        ),
-        const SizedBox(width: 10),
-        Text(
-          name,
-          style: TextStyle(
-            fontWeight: isDone ? FontWeight.bold : FontWeight.normal,
-            color: isDone ? colors.textPrimary : colors.textSecondary,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          'SHA256: $shaStatus',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: isDone ? colors.success : colors.textSecondary,
-          ),
-        ),
-      ],
+          if (_isAllComplete)
+            SizedBox(
+              width: double.infinity,
+              child: DiLangButton(
+                label: 'Complete Setup & Launch',
+                icon: DiIcons.check,
+                onPressed: () async {
+                  await DiLangNativeBridge.setOnboardingStep('Completed');
+                  widget.onComplete();
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

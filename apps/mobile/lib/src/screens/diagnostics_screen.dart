@@ -137,8 +137,8 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
                         ListTile(
                           dense: true,
                           leading: Icon(DiIcons.brain, color: colors.primary),
-                          title: const Text('LLM Engine (Gemma 3 1B)'),
-                          subtitle: Text(_diagnostics['gemma_loader']?.toString() ?? 'llama.cpp GGUF'),
+                          title: const Text('LLM Engine (Qwen3-0.6B Instruct)'),
+                          subtitle: Text(_diagnostics['qwen_loader']?.toString() ?? _diagnostics['gemma_loader']?.toString() ?? 'llama.cpp GGUF'),
                         ),
                         ListTile(
                           dense: true,

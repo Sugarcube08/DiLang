@@ -39,5 +39,5 @@
 ### 4.1 AI Engine Latency Benchmarks
 - Benchmark scripts measure inference performance on standard test devices (ARM64 Android, Apple Silicon, x86_64 Linux):
   - **Whisper STT**: Time to transcribe 5-second WAV audio sample ($< 300\text{ms}$).
-  - **Gemma 3 LLM**: Time-to-First-Token (TTFT $< 400\text{ms}$) and generation speed ($>20\text{ tokens/sec}$).
+  - **Qwen3-0.6B LLM**: Time-to-First-Token (TTFT $< 300\text{ms}$) and generation speed ($>25\text{ tokens/sec}$).
   - **Piper TTS**: Time to synthesize 15-word response string ($< 150\text{ms}$).

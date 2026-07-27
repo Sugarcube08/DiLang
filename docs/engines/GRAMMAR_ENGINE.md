@@ -8,7 +8,7 @@ The DiLang Grammar Engine (`dilang_grammar`) parses natural language utterances,
 
 ## 2. Syntax Analysis Architecture
 
-The Grammar Engine utilizes tree-sitter AST parsers coupled with rule-matching patterns to evaluate grammatical correctness deterministically before passing complex edge-cases to Gemma 3.
+The Grammar Engine utilizes tree-sitter AST parsers coupled with rule-matching patterns to evaluate grammatical correctness deterministically before passing complex edge-cases to Qwen3-0.6B.
 
 ```
 [ User Utterance ]

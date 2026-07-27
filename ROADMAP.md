@@ -16,7 +16,7 @@ This document outlines the multi-year vision and release phases for **DiLang**. 
 └──────────────────────────────┬──────────────────────────────┘
                                │
 ┌──────────────────────────────▼──────────────────────────────┐
-│ Phase 3: On-Device AI Inference (Gemma 3, Whisper, Piper)   │ (Q1 2027)
+│ Phase 3: On-Device AI Inference (Qwen3-0.6B, Whisper, Piper) │ (Q1 2027)
 └──────────────────────────────┬──────────────────────────────┘
                                │
 ┌──────────────────────────────▼──────────────────────────────┐
@@ -62,8 +62,10 @@ This document outlines the multi-year vision and release phases for **DiLang**. 
 **Focus**: Integrating quantized LLM, STT, and TTS engines into Rust (`dilang_inference`) for 100% offline execution.
 
 - [ ] **Large Language Model (LLM)**:
-  - Integrate **Gemma 3 1B** (GGUF 4-bit / 8-bit quantized) using `llama.cpp` Rust bindings.
-  - System prompts and grammar correction engine for real-time conversation feedback.
+  - Integrate **Qwen3-0.6B Instruct** (GGUF Q4_K_M quantized) using `llama.cpp` Rust bindings.
+  - System prompts and explanation generation for real-time conversation feedback.
+- [ ] **Translation Provider**:
+  - Integrate deterministic SQLite dictionary, phrase knowledge base, and morphological analyzer.
 - [ ] **Speech-to-Text (STT)**:
   - Integrate **Whisper.cpp** for low-latency streaming audio transcription.
   - VAD (Voice Activity Detection) integration to trim silences locally.

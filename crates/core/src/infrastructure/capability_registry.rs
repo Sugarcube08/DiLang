@@ -37,8 +37,8 @@ impl CapabilityRegistry {
         map.insert(
             Capability::Conversation,
             ProviderDescriptor {
-                provider_id: "gemma-llama-cpp".to_string(),
-                name: "Gemma 3 1B (llama.cpp)".to_string(),
+                provider_id: "qwen-llama-cpp".to_string(),
+                name: "Qwen3-0.6B Instruct (llama.cpp)".to_string(),
                 is_available: true,
             },
         );

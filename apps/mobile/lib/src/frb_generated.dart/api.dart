@@ -79,6 +79,9 @@ Future<String> queryCapability({required String capName}) =>
 Future<String> getModelRegistry() =>
     RustLib.instance.api.crateApiGetModelRegistry();
 
+Future<String> getSupportedLanguages() =>
+    RustLib.instance.api.crateApiGetSupportedLanguages();
+
 Stream<FfiDownloadProgress> downloadModelStream({required String modelId}) =>
     RustLib.instance.api.crateApiDownloadModelStream(modelId: modelId);
 

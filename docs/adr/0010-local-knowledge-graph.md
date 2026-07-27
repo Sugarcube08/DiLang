@@ -24,7 +24,7 @@ Implement a **Local Epistemic Memory System** combining an SQLite Directed Acycl
 
 ## Consequences
 ### Positive:
-- Highly relevant, personalized Gemma 3 dialogue prompts derived from user memory state.
+- Highly relevant, personalized Qwen3-0.6B dialogue prompts derived from user memory state.
 - Real-time visual visualization of the user's skill mastery tree.
 
 ### Negative:

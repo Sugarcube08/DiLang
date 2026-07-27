@@ -9,7 +9,7 @@ class CapabilityRegistry {
   static String getProviderName(AppCapability capability) {
     switch (capability) {
       case AppCapability.conversation:
-        return 'Gemma 3 1B (llama.cpp)';
+        return 'Qwen3-0.6B Instruct (llama.cpp)';
       case AppCapability.speechToText:
         return 'Whisper.cpp';
       case AppCapability.textToSpeech:

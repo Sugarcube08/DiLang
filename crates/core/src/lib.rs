@@ -153,7 +153,7 @@ mod tests {
 
         // 3. Install All Required Models
         assert!(engine
-            .install_model("gemma-3-1b-it", "v1.0", b"test_bytes")
+            .install_model("qwen3-0.6b-instruct-q4_k_m", "v1.0", b"test_bytes")
             .is_ok());
         assert!(engine
             .install_model("whisper-base", "v1.0", b"test_bytes")
@@ -189,7 +189,7 @@ mod tests {
         assert!(active_user.is_ok());
         assert!(active_user.unwrap().is_some());
 
-        let model = engine.install_model("gemma-3-1b-it", "v1.0", b"test_model_bytes");
+        let model = engine.install_model("qwen3-0.6b-instruct-q4_k_m", "v1.0", b"test_model_bytes");
         assert!(model.is_ok());
 
         let installed = engine.list_installed_models();
@@ -208,7 +208,7 @@ mod tests {
         let conv = engine.conversation_start("cafe_order");
         assert!(conv.is_ok());
         let conv_id = conv.unwrap().id;
-        let _ = engine.install_model("gemma-3-1b-it", "v1.0", b"test_model_bytes");
+        let _ = engine.install_model("qwen3-0.6b-instruct-q4_k_m", "v1.0", b"test_model_bytes");
 
         // 2. Process user reply through vertical learning pipeline
         let reply = engine.conversation_reply(&conv_id, "Ich möchte einen Kaffee trinken bitte.");

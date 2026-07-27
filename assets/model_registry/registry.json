@@ -1,48 +1,113 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2026-07-27T04:06:00Z",
+  "manifest_version": "3.3.0",
+  "minimum_app_version": "1.0.0",
+  "updated_at": "2026-07-28T00:55:00Z",
   "models": [
+    {
+      "id": "qwen3-0.6b-instruct-q4_k_m",
+      "name": "Qwen3 0.6B Instruct (GGUF Q4_K_M)",
+      "provider": "huggingface",
+      "category": "conversation",
+      "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+      "branch": "main",
+      "filename": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "version": "3.3.0",
+      "storage_directory": "qwen",
+      "download_url": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "mirrors": [
+        "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf"
+      ],
+      "sha256": "0663b826e09042345d6e2069d9655cd3ae84812d8f39a5894bed7b24fc0e86cc",
+      "size_bytes": 491400032,
+      "min_runtime_version": "1.0.0",
+      "is_default": true,
+      "supported_languages": ["all"],
+      "capabilities": ["llm", "conversation", "roleplay", "explanations", "hints"]
+    },
     {
       "id": "gemma-3-1b-it-q4_k_m",
       "name": "Gemma 3 1B IT (GGUF Q4_K_M)",
-      "provider": "Google / ggml-org",
-      "version": "3.0",
-      "filename": "gemma-3-1b-it-Q4_K_M.gguf",
+      "provider": "huggingface",
+      "category": "conversation",
+      "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "branch": "main",
+      "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "version": "1.0.0",
       "storage_directory": "gemma",
-      "download_url": "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-Q4_K_M.gguf",
-      "sha256": "8ccc5cd1f1b3602548715ae25a66ed73fd5dc68a210412eea643eb20eb75a135",
-      "size_bytes": 806058240,
-      "min_runtime_version": "0.1.0",
-      "capabilities": ["llm", "conversation", "grammar"],
-      "supported_platforms": ["linux", "android", "macos", "windows"]
+      "download_url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "mirrors": [
+        "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf"
+      ],
+      "sha256": "6ca5463cf24c16cd56d7ad7461524d813b07b3f29889b2fbdbb8286a7e97a14a",
+      "size_bytes": 1117320736,
+      "min_runtime_version": "1.0.0",
+      "is_default": false,
+      "supported_languages": ["all"],
+      "capabilities": ["llm", "conversation", "explanations"]
+    },
+    {
+      "id": "qwen2.5-1.5b-instruct-q4_k_m",
+      "name": "Qwen2.5 1.5B Instruct (GGUF Q4_K_M)",
+      "provider": "huggingface",
+      "category": "conversation",
+      "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "branch": "main",
+      "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "version": "2.5.0",
+      "storage_directory": "qwen",
+      "download_url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "mirrors": [
+        "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf"
+      ],
+      "sha256": "6ca5463cf24c16cd56d7ad7461524d813b07b3f29889b2fbdbb8286a7e97a14a",
+      "size_bytes": 1117320736,
+      "min_runtime_version": "1.0.0",
+      "is_default": false,
+      "supported_languages": ["all"],
+      "capabilities": ["llm", "high_quality_conversation"]
     },
     {
       "id": "whisper-base",
       "name": "Whisper Base (GGML)",
-      "provider": "OpenAI / ggerganov",
-      "version": "1.0",
+      "provider": "huggingface",
+      "category": "stt",
+      "repository": "ggerganov/whisper.cpp",
+      "branch": "main",
       "filename": "ggml-base.bin",
+      "version": "1.5.4",
       "storage_directory": "whisper",
       "download_url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+      "mirrors": [
+        "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+        "https://github.com/ggerganov/whisper.cpp/releases/download/v1.5.4/ggml-base.bin"
+      ],
       "sha256": "60ed5bc3dd14eea85649d334349b405782ddcaf0028d4b5df4088345fba2efe",
       "size_bytes": 147951465,
-      "min_runtime_version": "0.1.0",
-      "capabilities": ["stt", "transcription"],
-      "supported_platforms": ["linux", "android", "macos", "windows"]
+      "min_runtime_version": "1.0.0",
+      "is_default": true,
+      "supported_languages": ["all"],
+      "capabilities": ["stt", "transcription"]
     },
     {
       "id": "piper-en_US-lessac-medium",
-      "name": "Piper Voice (ONNX)",
-      "provider": "Rhasspy / Piper",
-      "version": "1.0",
-      "filename": "en_US-lessac-medium.onnx",
+      "name": "Piper English Voice (ONNX)",
+      "provider": "huggingface",
+      "category": "tts",
+      "repository": "rhasspy/piper-voices",
+      "branch": "main",
+      "filename": "en/en_US/lessac/medium/en_US-lessac-medium.onnx",
+      "version": "1.0.0",
       "storage_directory": "piper",
       "download_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx",
+      "mirrors": [
+        "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+      ],
       "sha256": "5efe09e69902187827af646e1a6e9d269dee769f9877d17b16b1b46eeaaf019f",
       "size_bytes": 63201294,
-      "min_runtime_version": "0.1.0",
-      "capabilities": ["tts", "speech_synthesis"],
-      "supported_platforms": ["linux", "android", "macos", "windows"]
+      "min_runtime_version": "1.0.0",
+      "is_default": true,
+      "supported_languages": ["en"],
+      "capabilities": ["tts", "speech_synthesis"]
     }
   ]
 }

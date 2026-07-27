@@ -8,7 +8,7 @@
 | **PBI-002** | Configure SQLite WAL mode & initial schema migrations | `EP-09` | 5 | P0 - Critical |
 | **PBI-003** | Set up `flutter_rust_bridge` v2 generator & codegen workflow | `EP-01` | 5 | P0 - Critical |
 | **PBI-004** | Build Whisper native C++ binding wrapper in `dilang_models` | `EP-01` | 8 | P0 - Critical |
-| **PBI-005** | Build Gemma 3 llama.cpp FFI context loader with mmap | `EP-01` | 13 | P0 - Critical |
+| **PBI-005** | Build Qwen3-0.6B llama.cpp FFI context loader with mmap | `EP-01` | 13 | P0 - Critical |
 | **PBI-006** | Implement Sudachi-RS Japanese & Jieba Chinese tokenizers | `EP-05` | 5 | P1 - Major |
 | **PBI-007** | Create Riverpod Flashcard Practice provider state machine | `EP-10` | 5 | P1 - Major |
 | **PBI-008** | Implement Tree-Sitter AST parser for French & Spanish syntax | `EP-04` | 8 | P1 - Major |

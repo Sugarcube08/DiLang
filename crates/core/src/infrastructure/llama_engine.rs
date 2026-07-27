@@ -1,4 +1,4 @@
-//! On-Device llama.cpp / GGUF Model Inference Engine
+//! On-Device llama.cpp / GGUF Model Inference Engine (Qwen3-0.6B Instruct)
 
 use super::errors::AppError;
 use super::model_manager::ModelManager;
@@ -11,13 +11,13 @@ use tracing::info;
 pub struct LlamaEngine;
 
 impl LlamaEngine {
-    pub fn get_gemma_model_path() -> CoreResult<PathBuf> {
+    pub fn get_qwen_model_path() -> CoreResult<PathBuf> {
         let models = ModelManager::new()
             .list_installed_models()
             .map_err(|e| AppError::internal(&format!("Failed to query installed models: {}", e)))?;
 
         for record in models {
-            if record.name.contains("gemma")
+            if record.name.contains("qwen")
                 || record.filename.contains("gguf")
                 || record.filename.contains("bin")
                 || !record.path.is_empty()
@@ -29,18 +29,22 @@ impl LlamaEngine {
             }
         }
 
-        let fallback_path = ModelManager::get_models_dir("gemma").join("gemma-3-1b-it-q4_k_m.gguf");
+        let fallback_path = ModelManager::get_models_dir("qwen").join("qwen3-0.6b-instruct-q4_k_m.gguf");
         if fallback_path.exists() {
             return Ok(fallback_path);
         }
 
         Err(AppError::internal(
-            "Gemma 3 1B IT model (GGUF) is not installed. Please complete model download in Model Manager."
+            "Qwen3-0.6B Instruct model (GGUF) is not installed. Please complete model download in Model Manager."
         ))
     }
 
+    pub fn get_gemma_model_path() -> CoreResult<PathBuf> {
+        Self::get_qwen_model_path()
+    }
+
     pub fn generate_response(prompt: &str) -> CoreResult<String> {
-        let model_path = Self::get_gemma_model_path()?;
+        let model_path = Self::get_qwen_model_path()?;
         info!(
             "LlamaEngine: Loading GGUF model from path: {:?}",
             model_path
@@ -77,7 +81,7 @@ impl LlamaEngine {
             "¡Excelente! He recibido tu mensaje. ¿Cómo puedo ayudarte hoy con tu aprendizaje?"
                 .to_string()
         } else {
-            format!("Hello! I am your local Gemma 3 1B AI assistant running offline via llama.cpp runtime. Processing prompt: '{}'", prompt.lines().last().unwrap_or("").trim())
+            format!("Hello! I am your local Qwen3-0.6B Instruct AI assistant running offline via llama.cpp runtime. Processing prompt: '{}'", prompt.lines().last().unwrap_or("").trim())
         };
 
         info!("LlamaEngine: Response generated successfully ({})", reply);

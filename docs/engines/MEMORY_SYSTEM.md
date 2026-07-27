@@ -76,4 +76,4 @@ Where:
 
 ## 5. Storage Contract
 
-The Memory System uses SQLite tables `skill_tree_nodes`, `skill_tree_edges`, and binary blob columns for 384-dimensional vector embeddings generated locally by dynamic Quantized MiniLM/Gemma embedding models.
+The Memory System uses SQLite tables `skill_tree_nodes`, `skill_tree_edges`, and binary blob columns for 384-dimensional vector embeddings generated locally by dynamic FastEmbed (BGE-small/e5-small) embedding models.

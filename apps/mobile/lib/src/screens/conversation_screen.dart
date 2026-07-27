@@ -153,7 +153,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         Text(
-                          _isProcessing ? 'Analyzing syntax & formulating response...' : 'Offline Gemma 3 LLM • German Dialogue',
+                          _isProcessing ? 'Analyzing syntax & formulating response...' : 'Offline Qwen3-0.6B LLM • German Dialogue',
                           style: TextStyle(fontSize: 12, color: colors.textSecondary),
                         ),
                       ],

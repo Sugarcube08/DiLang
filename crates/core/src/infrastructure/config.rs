@@ -4,6 +4,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AIConfig {
+    pub provider: String,
+    pub model: String,
+    pub format: String,
+    pub quantization: String,
+    pub backend: String,
     pub default_llm_model: String,
     pub quantization_profile: String,
     pub context_window: u32,
@@ -12,7 +17,12 @@ pub struct AIConfig {
 impl Default for AIConfig {
     fn default() -> Self {
         Self {
-            default_llm_model: "gemma-3-1b-it".to_string(),
+            provider: "qwen".to_string(),
+            model: "qwen3-0.6b-instruct".to_string(),
+            format: "gguf".to_string(),
+            quantization: "Q4_K_M".to_string(),
+            backend: "llama.cpp".to_string(),
+            default_llm_model: "qwen3-0.6b-instruct-q4_k_m".to_string(),
             quantization_profile: "Q4_K_M".to_string(),
             context_window: 2048,
         }

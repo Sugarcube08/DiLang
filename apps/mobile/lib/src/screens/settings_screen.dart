@@ -121,9 +121,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final targetLang = activeUser?['target_language']?.toString() ?? 'German';
 
     final installedModels = modelsState.models;
-    final isGemmaInstalled = installedModels.any((m) {
+    final isQwenInstalled = installedModels.any((m) {
       final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
-      return s.contains('gemma');
+      return s.contains('qwen') || s.contains('gemma');
     });
     final isWhisperInstalled = installedModels.any((m) {
       final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
@@ -207,10 +207,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
             // Model Cards
             _buildModelItemCard(
-              title: 'Gemma 3 1B IT (GGUF Q4_K_M)',
-              subtitle: 'On-device LLM for natural dialogue & grammar analysis (~806 MB)',
-              modelId: 'gemma-3-1b-it-q4_k_m',
-              isInstalled: isGemmaInstalled,
+              title: 'Qwen3-0.6B Instruct (GGUF Q4_K_M)',
+              subtitle: 'On-device LLM for natural dialogue & grammar analysis (~435 MB)',
+              modelId: 'qwen3-0.6b-instruct-q4_k_m',
+              isInstalled: isQwenInstalled,
               colors: colors,
             ),
             const SizedBox(height: 12),

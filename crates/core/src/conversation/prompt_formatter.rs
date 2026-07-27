@@ -1,25 +1,25 @@
-//! Gemma 3 1B Prompt Formatting Engine
+//! Qwen3-0.6B Instruct Prompt Formatting Engine (ChatML Standard)
 
-pub struct GemmaPromptFormatter;
+pub struct QwenPromptFormatter;
 
-impl GemmaPromptFormatter {
+impl QwenPromptFormatter {
     pub fn format(system_prompt: &str, history: &[(String, String)], user_message: &str) -> String {
         let mut prompt = String::new();
         prompt.push_str(&format!(
-            "<start_of_turn>system\n{}\n<end_of_turn>\n",
+            "<|im_start|>system\n{}\n<|im_end|>\n",
             system_prompt
         ));
 
         for (sender, msg) in history {
-            let role = if sender == "user" { "user" } else { "model" };
+            let role = if sender == "user" { "user" } else { "assistant" };
             prompt.push_str(&format!(
-                "<start_of_turn>{}\n{}\n<end_of_turn>\n",
+                "<|im_start|>{}\n{}\n<|im_end|>\n",
                 role, msg
             ));
         }
 
         prompt.push_str(&format!(
-            "<start_of_turn>user\n{}\n<end_of_turn>\n<start_of_turn>model\n",
+            "<|im_start|>user\n{}\n<|im_end|>\n<|im_start|>assistant\n",
             user_message
         ));
         prompt

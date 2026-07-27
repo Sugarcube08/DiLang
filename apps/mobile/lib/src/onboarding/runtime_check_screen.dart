@@ -66,7 +66,7 @@ class _RuntimeCheckScreenState extends State<RuntimeCheckScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Inspecting device CPU, RAM, and storage budgets for Gemma 3 1B on-device execution.',
+                    'Inspecting device CPU, RAM, and storage budgets for Qwen3-0.6B on-device execution.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -80,7 +80,7 @@ class _RuntimeCheckScreenState extends State<RuntimeCheckScreen> {
                         const Divider(height: 24),
                         _buildMetricRow('Memory Budget', '${_budget?['max_ram_mb'] ?? 4096} MB RAM', DiIcons.brain),
                         const Divider(height: 24),
-                        _buildMetricRow('Recommended Model', 'Gemma 3 1B Q4_K_M', DiIcons.spark),
+                        _buildMetricRow('Recommended Model', 'Qwen3-0.6B Instruct Q4_K_M', DiIcons.spark),
                       ],
                     ),
                   ),

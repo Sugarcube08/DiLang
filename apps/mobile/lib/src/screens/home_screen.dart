@@ -68,9 +68,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final targetLang = activeUser?['target_language']?.toString() ?? 'German';
 
     final installedModels = modelsState.models;
-    final isGemmaInstalled = installedModels.any((m) {
+    final isQwenInstalled = installedModels.any((m) {
       final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
-      return s.contains('gemma');
+      return s.contains('qwen') || s.contains('gemma');
     });
     final isWhisperInstalled = installedModels.any((m) {
       final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
@@ -81,7 +81,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return s.contains('piper') || s.contains('lessac');
     });
 
-    final hasUninstalledModels = !isGemmaInstalled || !isWhisperInstalled || !isPiperInstalled;
+    final hasUninstalledModels = !isQwenInstalled || !isWhisperInstalled || !isPiperInstalled;
 
     Widget mainContent = SingleChildScrollView(
       padding: const EdgeInsets.all(DesignTokens.space24),
@@ -159,7 +159,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Practice speaking $targetLang offline with Gemma 3 LLM',
+                        'Practice speaking $targetLang offline with Qwen3-0.6B LLM',
                         style: TextStyle(fontSize: 13, color: colors.textSecondary),
                       ),
                     ],
@@ -187,7 +187,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           GlassCard(
             child: Column(
               children: [
-                _buildModelRow('Gemma 3 1B LLM', isGemmaInstalled, colors),
+                _buildModelRow('Qwen3-0.6B LLM', isQwenInstalled, colors),
                 const Divider(height: 16),
                 _buildModelRow('Whisper Speech-to-Text', isWhisperInstalled, colors),
                 const Divider(height: 16),

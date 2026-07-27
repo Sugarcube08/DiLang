@@ -44,7 +44,7 @@ Please complete the following technical details:
 - **Flutter SDK Version**: `flutter --version` output
 - **Rust Toolchain Version**: `rustc --version` output
 - **Device Model & RAM**: (e.g. Google Pixel 8 [8GB RAM], MacBook Pro M2 [16GB RAM])
-- **Inference Model & Quantization**: (e.g. Gemma 3 1B Q4_K_M, Whisper Base.en, Piper Voice es_ES)
+- **Inference Model & Quantization**: (e.g. Qwen3-0.6B Instruct Q4_K_M, Whisper Base.en, Piper Voice es_ES)
 
 ---
 

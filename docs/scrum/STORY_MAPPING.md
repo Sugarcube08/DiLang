@@ -23,7 +23,7 @@
 
 ### Slice 2: V0.5 Alpha (Voice & AI Roleplay)
 - Whisper voice transcription & Piper speech synthesis.
-- Gemma 3 local dialogue roleplay scenarios.
+- Qwen3-0.6B local dialogue roleplay scenarios.
 - Grammar error inline annotations.
 
 ### Slice 3: V1.0 Production Release

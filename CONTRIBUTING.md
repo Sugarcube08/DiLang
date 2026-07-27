@@ -39,7 +39,7 @@ Signed-off-by: Jane Doe <jane.doe@example.com>
 
 You can automatically sign your commits by using the `-s` flag:
 ```bash
-git commit -s -m "feat(inference): integrate gemma 3 1b quantized backend"
+git commit -s -m "feat(inference): integrate qwen3 0.6b quantized backend"
 ```
 
 By adding a DCO sign-off, you certify the text defined at [DeveloperCertificate.org](https://developercertificate.org/).
