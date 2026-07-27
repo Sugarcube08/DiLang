@@ -11,7 +11,7 @@ import '../theme/di_icons.dart';
 import '../components/dilang_card.dart';
 import '../components/dilang_button.dart';
 import '../components/dilang_progress.dart';
-import '../components/budgie_circular_logo.dart';
+import '../components/toucan_circular_logo.dart';
 import '../components/glass_components.dart';
 import '../frb_generated.dart/api.dart' as ffi;
 
@@ -150,7 +150,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               DiLangCard(
                 child: Row(
                   children: [
-                    const BudgieCircularLogo(size: 52),
+                    const ToucanCircularLogo(size: 52),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(

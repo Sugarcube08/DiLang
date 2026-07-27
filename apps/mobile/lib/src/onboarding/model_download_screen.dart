@@ -8,7 +8,7 @@ import '../theme/app_colors.dart';
 import '../components/dilang_button.dart';
 import '../components/dilang_progress.dart';
 import '../components/glass_components.dart';
-import '../components/budgie_mascot.dart';
+import '../components/toucan_mascot.dart';
 import '../native_bridge.dart';
 import '../providers/user_profile_provider.dart';
 import '../infrastructure/language_registry.dart';
@@ -84,9 +84,9 @@ class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BudgieMascot(
+            ToucanMascot(
               size: 76,
-              mood: BudgieMood.happy,
+              mood: ToucanMood.happy,
               speechBubbleText: 'Customize your on-device AI engines for learning ${targetLang.nativeName}!',
             ),
             const SizedBox(height: 20),
@@ -343,9 +343,9 @@ class _ModelDownloadScreenState extends ConsumerState<ModelDownloadScreen> {
       padding: const EdgeInsets.all(DesignTokens.space24),
       child: Column(
         children: [
-          BudgieMascot(
+          ToucanMascot(
             size: 85,
-            mood: _isAllComplete ? BudgieMood.celebrating : BudgieMood.studying,
+            mood: _isAllComplete ? ToucanMood.celebrating : ToucanMood.studying,
             speechBubbleText: _isAllComplete ? 'All AI Engines Installed!' : 'Streaming Weights from HuggingFace...',
           ),
           const SizedBox(height: 20),

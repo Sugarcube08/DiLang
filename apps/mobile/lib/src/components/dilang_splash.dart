@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_colors.dart';
 
 class DiLangSplashScreen extends StatefulWidget {
@@ -23,14 +24,14 @@ class _DiLangSplashScreenState extends State<DiLangSplashScreen> with SingleTick
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1800),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic)),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.88, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic)),
     );
 
@@ -51,10 +52,8 @@ class _DiLangSplashScreenState extends State<DiLangSplashScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor: const Color(0xFF0F172A),
       body: Center(
         child: AnimatedBuilder(
           animation: _controller,
@@ -67,47 +66,52 @@ class _DiLangSplashScreenState extends State<DiLangSplashScreen> with SingleTick
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.secondary],
-                        ),
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: const [
+                        shape: BoxShape.circle,
+                        boxShadow: [
                           BoxShadow(
-                            color: Color.fromRGBO(94, 92, 230, 0.3),
-                            blurRadius: 24,
-                            offset: Offset(0, 8),
+                            color: AppColors.turquoise500.withValues(alpha: 0.35),
+                            blurRadius: 30,
+                            spreadRadius: 4,
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.record_voice_over_rounded,
-                          size: 48,
-                          color: Colors.white,
-                        ),
+                      child: SvgPicture.asset(
+                        'assets/logos/icon/logo.svg',
+                        width: 120,
+                        height: 120,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
+                    const SizedBox(height: 28),
+                    const Text(
                       'DiLang',
                       style: TextStyle(
-                        fontSize: 36,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: -1.0,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        letterSpacing: -0.5,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Think in Languages.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 2.0,
-                        color: AppColors.secondary,
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.turquoise500.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: const Text(
+                        'OFFLINE AI LANGUAGE PLATFORM',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.5,
+                          color: AppColors.turquoise400,
+                        ),
                       ),
                     ),
                   ],

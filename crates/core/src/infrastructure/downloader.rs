@@ -179,9 +179,9 @@ impl ModelDownloader {
             req = req.header("Range", format!("bytes={}-", existing_bytes));
         }
 
-        let mut response = req
-            .send()
-            .map_err(|e| AppError::internal(&format!("HTTP request failed for URL {}: {}", url, e)))?;
+        let mut response = req.send().map_err(|e| {
+            AppError::internal(&format!("HTTP request failed for URL {}: {}", url, e))
+        })?;
 
         if !response.status().is_success() {
             return Err(AppError::internal(&format!(
@@ -205,7 +205,9 @@ impl ModelDownloader {
                 .create(true)
                 .append(true)
                 .open(&part_path)
-                .map_err(|e| AppError::internal(&format!("Failed to open .part file for append: {}", e)))?
+                .map_err(|e| {
+                    AppError::internal(&format!("Failed to open .part file for append: {}", e))
+                })?
         } else {
             existing_bytes = 0;
             OpenOptions::new()
@@ -213,7 +215,9 @@ impl ModelDownloader {
                 .write(true)
                 .truncate(true)
                 .open(&part_path)
-                .map_err(|e| AppError::internal(&format!("Failed to open .part file for write: {}", e)))?
+                .map_err(|e| {
+                    AppError::internal(&format!("Failed to open .part file for write: {}", e))
+                })?
         };
 
         let total_bytes = entry.size_bytes.max(existing_bytes);
@@ -227,7 +231,10 @@ impl ModelDownloader {
                 Ok(0) => break,
                 Ok(bytes_read) => bytes_read,
                 Err(e) => {
-                    return Err(AppError::internal(&format!("Error reading HTTP stream: {}", e)));
+                    return Err(AppError::internal(&format!(
+                        "Error reading HTTP stream: {}",
+                        e
+                    )));
                 }
             };
 
@@ -275,7 +282,9 @@ impl ModelDownloader {
         let is_valid = config_clean.is_empty()
             || calc_clean == config_clean
             || (!remote_etag.is_empty() && calc_clean == remote_etag)
-            || (downloaded_bytes >= entry.size_bytes && entry.size_bytes > 0 && calc_clean.len() == 64);
+            || (downloaded_bytes >= entry.size_bytes
+                && entry.size_bytes > 0
+                && calc_clean.len() == 64);
 
         if !is_valid {
             let _ = std::fs::remove_file(&part_path);

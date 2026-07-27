@@ -27,6 +27,15 @@ if [ -z "${DILANG_ENV_LOADED:-}" ]; then
   export FRB_GEN_RUST="${FFI_CRATE_DIR}/src/frb_generated.rs"
   export FRB_GEN_DART="${MOBILE_APP_DIR}/lib/src/frb_generated.dart"
 
+  # Auto-detect stable Java LTS for Gradle Android compatibility
+  if [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
+    export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+    export PATH="${JAVA_HOME}/bin:${PATH}"
+  elif [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+    export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+    export PATH="${JAVA_HOME}/bin:${PATH}"
+  fi
+
   # Tools Pointers
   export CARGO_BIN="${CARGO_BIN:-cargo}"
   export FLUTTER_BIN="${FLUTTER_BIN:-flutter}"

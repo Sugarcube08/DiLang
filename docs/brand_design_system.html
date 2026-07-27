@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiLang — Budgie Brand Asset Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0F172A;
+      --bg-card: #1E293B;
+      --bg-card-hover: #334155;
+      --emerald: #10B981;
+      --emerald-light: #34D399;
+      --emerald-dark: #059669;
+      --lime: #84CC16;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 40px 24px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background-color: rgba(16, 185, 129, 0.15);
+      color: var(--emerald-light);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 12px;
+    }
+
+    h1 span { color: var(--emerald-light); }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Navigation Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--emerald-dark);
+      color: #FFF;
+      border-color: var(--emerald-light);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Section Headers */
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    /* Grid Layouts */
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+      border-color: var(--emerald);
+    }
+
+    .svg-wrapper {
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .svg-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .card-path {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: monospace;
+      background: rgba(0,0,0,0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      word-break: break-all;
+    }
+
+    /* Banner Wide Card */
+    .card-wide {
+      grid-column: 1 / -1;
+      height: auto;
+    }
+
+    .card-wide .svg-wrapper {
+      height: 380px;
+    }
+
+    /* Scalability Showcase */
+    .scale-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      background: #020617;
+      padding: 24px;
+      border-radius: 16px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .scale-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scale-item span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge">Master Brand Asset Design System</div>
+      <h1>DiLang <span>Budgie Mascot</span></h1>
+      <p class="subtitle">Canonical vector branding & character specification for DiLang — AI-Powered Offline Language Platform.</p>
+    </header>
+
+    <!-- Master Expressions Grid -->
+    <div class="section-title">
+      🦜 Mascot Expressions Matrix (12 Standard States)
+    </div>
+    <div class="asset-grid">
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_happy.svg" alt="Happy"></div>
+        <div class="card-title">Happy</div>
+        <div class="card-path">budgie_happy.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_thinking.svg" alt="Thinking"></div>
+        <div class="card-title">Thinking</div>
+        <div class="card-path">budgie_thinking.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_speaking.svg" alt="Speaking"></div>
+        <div class="card-title">Speaking</div>
+        <div class="card-path">budgie_speaking.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_listening.svg" alt="Listening"></div>
+        <div class="card-title">Listening</div>
+        <div class="card-path">budgie_listening.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_surprised.svg" alt="Surprised"></div>
+        <div class="card-title">Surprised</div>
+        <div class="card-path">budgie_surprised.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_celebrating.svg" alt="Celebrating"></div>
+        <div class="card-title">Celebrating</div>
+        <div class="card-path">budgie_celebrating.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_reading.svg" alt="Reading"></div>
+        <div class="card-title">Reading</div>
+        <div class="card-path">budgie_reading.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_sleeping.svg" alt="Sleeping"></div>
+        <div class="card-title">Sleeping</div>
+        <div class="card-path">budgie_sleeping.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_confused.svg" alt="Confused"></div>
+        <div class="card-title">Confused</div>
+        <div class="card-path">budgie_confused.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_encouraging.svg" alt="Encouraging"></div>
+        <div class="card-title">Encouraging</div>
+        <div class="card-path">budgie_encouraging.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_excited.svg" alt="Excited"></div>
+        <div class="card-title">Excited</div>
+        <div class="card-path">budgie_excited.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/expressions/budgie_focused.svg" alt="Focused"></div>
+        <div class="card-title">Focused</div>
+        <div class="card-path">budgie_focused.svg</div>
+      </div>
+    </div>
+
+    <!-- Icon Family -->
+    <div class="section-title">
+      📱 App Icon Family & Adaptive Formats
+    </div>
+    <div class="asset-grid">
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/icon/logo.svg" alt="App Launcher Icon"></div>
+        <div class="card-title">App Launcher Icon</div>
+        <div class="card-path">logos/icon/logo.svg</div>
+        <div class="scale-box">
+          <div class="scale-item"><img src="../assets/logos/icon/logo.svg" width="16" height="16"><span>16px</span></div>
+          <div class="scale-item"><img src="../assets/logos/icon/logo.svg" width="32" height="32"><span>32px</span></div>
+          <div class="scale-item"><img src="../assets/logos/icon/logo.svg" width="64" height="64"><span>64px</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/adaptive/ic_launcher_foreground.svg" alt="Adaptive Foreground"></div>
+        <div class="card-title">Android Adaptive FG</div>
+        <div class="card-path">logos/adaptive/ic_launcher_foreground.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/monochrome/logo_mono.svg" alt="Monochrome Icon"></div>
+        <div class="card-title">Monochrome Icon</div>
+        <div class="card-path">logos/monochrome/logo_mono.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/icons/notification_budgie.svg" alt="Notification Icon" width="64"></div>
+        <div class="card-title">Notification Icon (24dp)</div>
+        <div class="card-path">icons/notification_budgie.svg</div>
+      </div>
+    </div>
+
+    <!-- Logo Lockups -->
+    <div class="section-title">
+      🏷️ Logo Lockups & Typography Integration
+    </div>
+    <div class="asset-grid">
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/full/logo_primary.svg" alt="Primary Lockup"></div>
+        <div class="card-title">Primary Vertical Lockup</div>
+        <div class="card-path">logos/full/logo_primary.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/full/logo_horizontal.svg" alt="Horizontal Lockup"></div>
+        <div class="card-title">Horizontal Lockup</div>
+        <div class="card-path">logos/full/logo_horizontal.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/full/logo_dark.svg" alt="Dark Mode Lockup"></div>
+        <div class="card-title">Dark Mode Lockup</div>
+        <div class="card-path">logos/full/logo_dark.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/logos/full/logo_bubble.svg" alt="Bubble Lockup"></div>
+        <div class="card-title">Speech Bubble Lockup</div>
+        <div class="card-path">logos/full/logo_bubble.svg</div>
+      </div>
+    </div>
+
+    <!-- Features & AI Tutor -->
+    <div class="section-title">
+      🤖 AI Tutor & Onboarding Series
+    </div>
+    <div class="asset-grid">
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/illustrations/ai_tutor.svg" alt="AI Tutor"></div>
+        <div class="card-title">AI Tutor Hero</div>
+        <div class="card-path">illustrations/ai_tutor.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/onboarding/scene_1_welcome.svg" alt="Onboarding 1"></div>
+        <div class="card-title">Onboarding: Welcome</div>
+        <div class="card-path">onboarding/scene_1_welcome.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/onboarding/scene_2_globe.svg" alt="Onboarding 2"></div>
+        <div class="card-title">Onboarding: World Languages</div>
+        <div class="card-path">onboarding/scene_2_globe.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/onboarding/scene_3_speech.svg" alt="Onboarding 3"></div>
+        <div class="card-title">Onboarding: Offline Voice AI</div>
+        <div class="card-path">onboarding/scene_3_speech.svg</div>
+      </div>
+    </div>
+
+    <!-- Empty States -->
+    <div class="section-title">
+      🔍 Empty States & System Feedback
+    </div>
+    <div class="asset-grid">
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/empty_states/empty_offline.svg" alt="Offline"></div>
+        <div class="card-title">Empty State: Offline</div>
+        <div class="card-path">empty_states/empty_offline.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/empty_states/empty_downloads.svg" alt="Downloads"></div>
+        <div class="card-title">Empty State: Downloads</div>
+        <div class="card-path">empty_states/empty_downloads.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/empty_states/empty_search.svg" alt="Search"></div>
+        <div class="card-title">Empty State: Search</div>
+        <div class="card-path">empty_states/empty_search.svg</div>
+      </div>
+      <div class="card">
+        <div class="svg-wrapper"><img src="../assets/empty_states/empty_error.svg" alt="Error"></div>
+        <div class="card-title">Empty State: Error</div>
+        <div class="card-path">empty_states/empty_error.svg</div>
+      </div>
+    </div>
+
+    <!-- Brand Banner -->
+    <div class="section-title">
+      🖼️ Master Marketing Brand Banner
+    </div>
+    <div class="asset-grid">
+      <div class="card card-wide">
+        <div class="svg-wrapper"><img src="../assets/illustrations/brand_banner.svg" alt="Brand Banner"></div>
+        <div class="card-title">GitHub & Store Hero Banner (1200x630)</div>
+        <div class="card-path">illustrations/brand_banner.svg</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/app_runtime_provider.dart';
 import '../theme/theme_extensions.dart';
-import '../theme/di_icons.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -74,10 +74,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                DiIcons.brain,
-                size: 72,
-                color: colors.primary,
+              SvgPicture.asset(
+                'assets/logos/icon/logo.svg',
+                width: 96,
+                height: 96,
               ),
               const SizedBox(height: 24),
               Text(

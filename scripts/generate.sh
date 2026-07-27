@@ -25,4 +25,9 @@ fi
 log_info "Compiling Rust FFI cdylib package..."
 (cd "${REPO_ROOT}" && cargo build --package ffi)
 
+if check_cmd "cargo-ndk"; then
+  log_info "Compiling Rust FFI cdylib for Android (arm64-v8a) via cargo-ndk..."
+  (cd "${REPO_ROOT}" && cargo ndk -t arm64-v8a -o "${MOBILE_APP_DIR}/android/app/src/main/jniLibs" build --package ffi) || log_warn "Android NDK build warning."
+fi
+
 log_success "Code Generation Routine Complete."

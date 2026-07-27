@@ -29,7 +29,8 @@ impl LlamaEngine {
             }
         }
 
-        let fallback_path = ModelManager::get_models_dir("qwen").join("qwen3-0.6b-instruct-q4_k_m.gguf");
+        let fallback_path =
+            ModelManager::get_models_dir("qwen").join("qwen3-0.6b-instruct-q4_k_m.gguf");
         if fallback_path.exists() {
             return Ok(fallback_path);
         }

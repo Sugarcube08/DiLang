@@ -7,7 +7,7 @@ import '../theme/di_icons.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_gradients.dart';
 import '../components/glass_components.dart';
-import '../components/budgie_mascot.dart';
+import '../components/toucan_mascot.dart';
 
 class SessionTurnItem {
   final String speaker;
@@ -132,16 +132,16 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
         ),
         body: Column(
           children: [
-            // Budgie Learning Assistant Header Panel
+            // Toucan Learning Assistant Header Panel
             GlassContainer(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(14),
               borderRadius: BorderRadius.circular(18),
               child: Row(
                 children: [
-                  BudgieMascot(
+                  ToucanMascot(
                     size: 48,
-                    mood: _isProcessing ? BudgieMood.studying : BudgieMood.happy,
+                    mood: _isProcessing ? ToucanMood.studying : ToucanMood.happy,
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -149,7 +149,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Budgie Learning Assistant',
+                          'Toucan Learning Assistant',
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         Text(

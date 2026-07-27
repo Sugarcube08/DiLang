@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'budgie_circular_logo.dart';
+import 'toucan_circular_logo.dart';
 import 'glass_components.dart';
 import '../theme/app_colors.dart';
 
@@ -40,7 +40,7 @@ class AdaptiveLayout extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const BudgieCircularLogo(size: 42, showGlow: true),
+                      const ToucanCircularLogo(size: 42, showGlow: true),
                       const SizedBox(width: 14),
                       Text(
                         'DiLang',
@@ -100,7 +100,7 @@ class AdaptiveLayout extends StatelessWidget {
             NavigationRail(
               leading: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: BudgieCircularLogo(size: 36),
+                child: ToucanCircularLogo(size: 36),
               ),
               selectedIndex: selectedIndex,
               onDestinationSelected: onDestinationSelected,

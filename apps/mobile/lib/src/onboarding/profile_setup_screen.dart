@@ -5,7 +5,7 @@ import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/app_colors.dart';
 import '../components/glass_components.dart';
-import '../components/budgie_mascot.dart';
+import '../components/toucan_mascot.dart';
 import '../components/dilang_button.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
@@ -32,9 +32,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           child: Column(
             children: [
               const SizedBox(height: 12),
-              const BudgieMascot(
+              const ToucanMascot(
                 size: 110,
-                mood: BudgieMood.happy,
+                mood: ToucanMood.happy,
                 speechBubbleText: 'Hallo! What is your name?',
               ),
               const SizedBox(height: 24),

@@ -48,7 +48,11 @@ impl RegistryEntry {
     /// Formulates HuggingFace download URL dynamically if repository is present
     pub fn get_resolved_huggingface_url(&self) -> Option<String> {
         if let Some(repo) = &self.repository {
-            let branch = if self.branch.is_empty() { "main" } else { &self.branch };
+            let branch = if self.branch.is_empty() {
+                "main"
+            } else {
+                &self.branch
+            };
             Some(format!(
                 "https://huggingface.co/{}/resolve/{}/{}",
                 repo, branch, self.filename
@@ -168,8 +172,14 @@ impl ModelRegistry {
                 let quality = parts[3]; // e.g. medium
                 let lang_prefix = locale.split('_').next().unwrap_or("en");
 
-                let rel_path = format!("{}/{}/{}/{}/{}-{}-{}.onnx", lang_prefix, locale, speaker, quality, locale, speaker, quality);
-                let hf_url = format!("https://huggingface.co/rhasspy/piper-voices/resolve/main/{}", rel_path);
+                let rel_path = format!(
+                    "{}/{}/{}/{}/{}-{}-{}.onnx",
+                    lang_prefix, locale, speaker, quality, locale, speaker, quality
+                );
+                let hf_url = format!(
+                    "https://huggingface.co/rhasspy/piper-voices/resolve/main/{}",
+                    rel_path
+                );
 
                 return Ok(Some(RegistryEntry {
                     id: model_id.to_string(),
@@ -189,7 +199,12 @@ impl ModelRegistry {
                     is_default: false,
                     supported_languages: vec![lang_prefix.to_string()],
                     capabilities: vec!["tts".to_string(), "speech_synthesis".to_string()],
-                    supported_platforms: vec!["linux".to_string(), "android".to_string(), "macos".to_string(), "windows".to_string()],
+                    supported_platforms: vec![
+                        "linux".to_string(),
+                        "android".to_string(),
+                        "macos".to_string(),
+                        "windows".to_string(),
+                    ],
                 }));
             }
         }

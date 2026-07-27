@@ -30,13 +30,13 @@ abstract class AppColors {
   static const Color lavender400 = Color(0xFFC084FC);
   static const Color lavender500 = Color(0xFFA855F7); // AI Tutor Accent
 
-  // Budgie Mascot Palette
-  static const Color budgieBody = Color(0xFF00C4B4);
-  static const Color budgieWing = Color(0xFF0D9488);
-  static const Color budgieBelly = Color(0xFFE0F2FE);
-  static const Color budgieBeak = Color(0xFFF59E0B);
-  static const Color budgieCheek = Color(0xFFF43F5E);
-  static const Color budgieCrown = Color(0xFFFACC15);
+  // Toucan Mascot Palette
+  static const Color toucanBody = Color(0xFF00C4B4);
+  static const Color toucanWing = Color(0xFF0D9488);
+  static const Color toucanBelly = Color(0xFFE0F2FE);
+  static const Color toucanBeak = Color(0xFFF59E0B);
+  static const Color toucanCheek = Color(0xFFF43F5E);
+  static const Color toucanCrown = Color(0xFFFACC15);
 
   // Light Mode Surfaces & Neutrals
   static const Color lightBackground = Color(0xFFF8FAFC);

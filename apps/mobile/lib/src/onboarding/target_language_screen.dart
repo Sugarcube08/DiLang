@@ -5,7 +5,7 @@ import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
 import '../theme/app_colors.dart';
 import '../components/glass_components.dart';
-import '../components/budgie_mascot.dart';
+import '../components/toucan_mascot.dart';
 import '../components/dilang_button.dart';
 
 class TargetLanguageScreen extends StatefulWidget {
@@ -37,9 +37,9 @@ class _TargetLanguageScreenState extends State<TargetLanguageScreen> {
           padding: const EdgeInsets.all(DesignTokens.space24),
           child: Column(
             children: [
-              const BudgieMascot(
+              const ToucanMascot(
                 size: 90,
-                mood: BudgieMood.studying,
+                mood: ToucanMood.studying,
                 speechBubbleText: 'Which language do you want to master?',
               ),
               const SizedBox(height: 20),

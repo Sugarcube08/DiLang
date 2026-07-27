@@ -10,7 +10,7 @@ import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
 import '../theme/app_colors.dart';
 import '../components/glass_components.dart';
-import '../components/budgie_mascot.dart';
+import '../components/toucan_mascot.dart';
 import '../components/adaptive_layout.dart';
 import '../components/dilang_button.dart';
 
@@ -88,22 +88,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Budgie Mascot Banner & Header
+          // Basic Logo & User Welcome Banner
           GlassContainer(
             padding: const EdgeInsets.all(20),
             child: Row(
               children: [
-                const BudgieMascot(
-                  size: 76,
-                  mood: BudgieMood.happy,
+                const ToucanMascot(
+                  size: 72,
+                  showGlow: true,
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 18),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Willkommen, $username!',
+                        'Willkommen, $username! 👋',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -112,18 +112,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Ready for your daily $targetLang practice session?',
+                        'Daily $targetLang learning session ready offline.',
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
-                          _buildBadgeChip('🔥 5 Streak', AppColors.amber500),
+                          _buildBadgeChip('🔥 7 Streak', AppColors.coral500),
                           const SizedBox(width: 8),
-                          _buildBadgeChip('⚡ 140 XP', AppColors.turquoise500),
+                          _buildBadgeChip('⚡ 250 XP', AppColors.amber500),
                         ],
                       ),
                     ],
@@ -134,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Start Interactive AI Learning Session Banner
+          // Interactive AI Dialogue Hero Card
           GlassCard(
             accentColor: AppColors.turquoise500,
             onTap: () => context.push('/conversation'),
@@ -146,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     color: AppColors.turquoise500.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(DiIcons.mic, color: AppColors.turquoise500, size: 28),
+                  child: const Icon(DiIcons.mic, color: AppColors.turquoise500, size: 32),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -154,13 +154,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Interactive AI Dialogue Session',
+                        'Interactive AI Voice Session',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
-                        'Practice speaking $targetLang offline with Qwen3-0.6B LLM',
-                        style: TextStyle(fontSize: 13, color: colors.textSecondary),
+                        'Practice speaking $targetLang offline with local Qwen3 & Whisper',
+                        style: TextStyle(fontSize: 12, color: colors.textSecondary),
                       ),
                     ],
                   ),
@@ -171,7 +171,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          // On-Device AI Models Status
+          // Local AI Inference Models Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -209,7 +209,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Learning Metrics
+          // Learning Analytics
           Text('Learning Analytics', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           if (_isLoadingAnalytics)

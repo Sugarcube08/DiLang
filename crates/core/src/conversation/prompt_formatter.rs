@@ -11,11 +11,12 @@ impl QwenPromptFormatter {
         ));
 
         for (sender, msg) in history {
-            let role = if sender == "user" { "user" } else { "assistant" };
-            prompt.push_str(&format!(
-                "<|im_start|>{}\n{}\n<|im_end|>\n",
-                role, msg
-            ));
+            let role = if sender == "user" {
+                "user"
+            } else {
+                "assistant"
+            };
+            prompt.push_str(&format!("<|im_start|>{}\n{}\n<|im_end|>\n", role, msg));
         }
 
         prompt.push_str(&format!(

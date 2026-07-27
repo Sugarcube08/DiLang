@@ -15,7 +15,7 @@ abstract class AppGradients {
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient budgieCrown = LinearGradient(
+  static const LinearGradient toucanCrown = LinearGradient(
     colors: [AppColors.amber400, AppColors.amber500],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,

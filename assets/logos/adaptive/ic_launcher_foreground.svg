@@ -1,0 +1,93 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mascot Gradients -->
+    <linearGradient id="emeraldBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <linearGradient id="crownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A3E635" />
+      <stop offset="40%" stop-color="#6EE7B7" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+
+    <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#ECFDF5" />
+    </linearGradient>
+
+    <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDBA74" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+
+    <linearGradient id="wingGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <linearGradient id="wingGradRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <linearGradient id="featherLimeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#BEF264" />
+      <stop offset="100%" stop-color="#84CC16" />
+    </linearGradient>
+
+    <linearGradient id="tailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <linearGradient id="bgLauncherGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065F46" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <linearGradient id="skyBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7E22CE" />
+    </linearGradient>
+
+    <linearGradient id="coralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB7185" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+  </defs>
+  <g id="AdaptiveForeground" transform="translate(0, 15)">
+    <g id="Head">
+      <path d="M 152 240 C 152 130 198 80 256 80 C 314 80 360 130 360 240 C 360 320 318 345 256 345 C 194 345 152 320 152 240 Z" fill="url(#emeraldBodyGrad)" />
+      <path d="M 175 190 C 170 120 205 80 256 80 C 307 80 342 120 337 190 C 300 150 212 150 175 190 Z" fill="url(#crownGrad)" opacity="0.85" />
+      <ellipse cx="256" cy="115" rx="60" ry="18" fill="#FFFFFF" opacity="0.25" />
+      <ellipse cx="180" cy="270" rx="24" ry="15" fill="#FB7185" opacity="0.35" />
+      <ellipse cx="332" cy="270" rx="24" ry="15" fill="#FB7185" opacity="0.35" />
+    </g>
+    <g id="Face">
+      <path d="M 190 200 Q 205 190 220 200" fill="none" stroke="#047857" stroke-width="5" stroke-linecap="round" />
+      <path d="M 292 200 Q 307 190 322 200" fill="none" stroke="#047857" stroke-width="5" stroke-linecap="round" />
+      <circle cx="205" cy="240" r="26" fill="#0F172A" />
+      <circle cx="195" cy="230" r="9.5" fill="#FFFFFF" />
+      <circle cx="214" cy="249" r="4" fill="#FFFFFF" opacity="0.85" />
+      <circle cx="307" cy="240" r="26" fill="#0F172A" />
+      <circle cx="297" cy="230" r="9.5" fill="#FFFFFF" />
+      <circle cx="316" cy="249" r="4" fill="#FFFFFF" opacity="0.85" />
+      <path d="M 242 250 C 242 243 270 243 270 250 C 270 280 258 294 256 294 C 254 294 242 280 242 250 Z" fill="url(#beakGrad)" />
+    </g>
+  </g>
+</svg>

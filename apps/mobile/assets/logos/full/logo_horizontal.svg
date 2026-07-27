@@ -1,0 +1,204 @@
+<svg width="700" height="220" viewBox="0 0 700 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mascot Gradients -->
+    <linearGradient id="emeraldBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <linearGradient id="crownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A3E635" />
+      <stop offset="40%" stop-color="#6EE7B7" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+
+    <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#ECFDF5" />
+    </linearGradient>
+
+    <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDBA74" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+
+    <linearGradient id="wingGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <linearGradient id="wingGradRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <linearGradient id="featherLimeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#BEF264" />
+      <stop offset="100%" stop-color="#84CC16" />
+    </linearGradient>
+
+    <linearGradient id="tailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <linearGradient id="bgLauncherGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065F46" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <linearGradient id="skyBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7E22CE" />
+    </linearGradient>
+
+    <linearGradient id="coralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB7185" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(20, -10) scale(0.44)">
+    <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mascot Gradients -->
+    <linearGradient id="emeraldBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <linearGradient id="crownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A3E635" />
+      <stop offset="40%" stop-color="#6EE7B7" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+
+    <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#ECFDF5" />
+    </linearGradient>
+
+    <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDBA74" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+
+    <linearGradient id="wingGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <linearGradient id="wingGradRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <linearGradient id="featherLimeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#BEF264" />
+      <stop offset="100%" stop-color="#84CC16" />
+    </linearGradient>
+
+    <linearGradient id="tailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <linearGradient id="bgLauncherGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065F46" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <linearGradient id="skyBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7E22CE" />
+    </linearGradient>
+
+    <linearGradient id="coralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB7185" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+  </defs>
+  <g id="Mascot">
+    <g id="Shadow">
+      <ellipse cx="256" cy="458" rx="100" ry="16" fill="#0F172A" opacity="0.14" />
+    </g>
+    <g id="Feet">
+      <path d="M 200 435 C 190 445 195 455 210 455 C 220 455 225 445 222 435 Z" fill="#FB923C" />
+      <path d="M 214 435 C 210 448 218 456 228 454 C 235 450 234 440 228 435 Z" fill="#F97316" />
+      <path d="M 290 435 C 280 445 285 455 300 455 C 310 455 315 445 312 435 Z" fill="#FB923C" />
+      <path d="M 304 435 C 300 448 308 456 318 454 C 325 450 324 440 318 435 Z" fill="#F97316" />
+    </g>
+    <g id="Tail">
+      <path d="M 242 365 C 215 415 195 455 210 465 C 228 455 246 405 244 365 Z" fill="url(#featherLimeGrad)" />
+      <path d="M 270 365 C 297 415 317 455 302 465 C 284 455 266 405 268 365 Z" fill="url(#featherLimeGrad)" />
+      <path d="M 256 360 C 248 425 248 472 256 478 C 264 472 264 425 256 360 Z" fill="url(#tailGrad)" />
+    </g>
+    <g id="Body">
+      <path id="PearBody" d="M 160 290 C 138 360 168 432 256 432 C 344 432 374 360 352 290 C 334 230 310 205 256 205 C 202 205 178 230 160 290 Z" fill="url(#emeraldBodyGrad)" />
+      <path id="BellyPatch" d="M 188 315 C 178 370 198 418 256 418 C 314 418 334 370 324 315 C 316 275 292 260 256 260 C 220 260 196 275 188 315 Z" fill="url(#bellyGrad)" />
+    </g>
+    <g id="LeftWing">
+      <path d="M 160 260 C 110 270 95 320 120 360 C 145 385 170 370 165 330 Z" fill="url(#wingGradLeft)" />
+    </g>
+    <g id="RightWing">
+      <path d="M 352 260 C 397 285 407 340 377 385 C 362 405 337 390 337 360 C 337 320 342 280 352 260 Z" fill="url(#wingGradRight)" /><path d="M 360 280 Q 384 320 364 360" fill="none" stroke="#84CC16" stroke-width="4" stroke-linecap="round" opacity="0.9" />
+    </g>
+    <g id="Head">
+      <path id="HeadBase" d="M 142 170 C 142 92 192 52 256 52 C 320 52 370 92 370 170 C 370 232 328 252 256 252 C 184 252 142 232 142 170 Z" fill="url(#emeraldBodyGrad)" />
+      <path d="M 165 140 C 160 90 200 52 256 52 C 312 52 352 90 347 140 C 310 110 202 110 165 140 Z" fill="url(#crownGrad)" opacity="0.8" />
+      <ellipse cx="256" cy="85" rx="55" ry="18" fill="#FFFFFF" opacity="0.25" />
+      <ellipse id="CheekLeft" cx="178" cy="202" rx="22" ry="14" fill="#FB7185" opacity="0.3" />
+      <ellipse id="CheekRight" cx="334" cy="202" rx="22" ry="14" fill="#FB7185" opacity="0.3" />
+    </g>
+    <g id="Face">
+      <g id="Eyebrows">
+        <path d="M 190 144 Q 205 136 220 144" fill="none" stroke="#047857" stroke-width="4.5" stroke-linecap="round" /><path d="M 292 144 Q 307 136 322 144" fill="none" stroke="#047857" stroke-width="4.5" stroke-linecap="round" />
+      </g>
+      <g id="Eyes">
+        <g id="LeftEye">
+          <circle cx="205" cy="175" r="22" fill="#0F172A" /><circle cx="197" cy="167" r="8" fill="#FFFFFF" /><circle cx="212" cy="183" r="3.5" fill="#FFFFFF" opacity="0.85" />
+        </g>
+        <g id="RightEye">
+          <circle cx="307" cy="175" r="22" fill="#0F172A" /><circle cx="299" cy="167" r="8" fill="#FFFFFF" /><circle cx="314" cy="183" r="3.5" fill="#FFFFFF" opacity="0.85" />
+        </g>
+      </g>
+      <g id="Beak">
+        <path d="M 244 185 C 244 178 268 178 268 185 C 268 200 258 208 256 208 C 254 208 244 200 244 185 Z" fill="url(#beakGrad)" /><path d="M 246 204 C 246 222 266 222 266 204 Z" fill="#991B1B" /><path d="M 250 212 Q 256 218 262 212" fill="#FB7185" />
+      </g>
+    </g>
+    
+  </g>
+</svg>
+  </g>
+  <text x="260" y="125" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="72" letter-spacing="-2" fill="#0F172A">
+    Di<tspan fill="#10B981">Lang</tspan>
+  </text>
+  <text x="265" y="162" font-family="'Inter', system-ui, sans-serif" font-weight="600" font-size="18" letter-spacing="3" fill="#64748B">
+    OFFLINE AI PLATFORM
+  </text>
+</svg>

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/app_gradients.dart';
 import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
+import 'toucan_circular_logo.dart';
 import 'dilang_button.dart';
-import 'dilang_card.dart';
 import 'dilang_input.dart';
 import 'dilang_progress.dart';
 
@@ -44,7 +45,23 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader('1. Semantic Palette Colors'),
+            _buildSectionHeader('1. DiLang Official Logos'),
+            const SizedBox(height: 12),
+            Center(
+              child: Column(
+                children: [
+                  const ToucanCircularLogo(size: 80, showGlow: true),
+                  const SizedBox(height: 16),
+                  SvgPicture.asset(
+                    'assets/logos/full/logo_full.svg',
+                    height: 60,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            _buildSectionHeader('2. Semantic Palette Colors'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 12,
@@ -56,60 +73,11 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
                 _buildColorChip('Warning', colors.warning),
                 _buildColorChip('Error', colors.error),
                 _buildColorChip('Info', colors.info),
-                _buildColorChip('User Bubble', colors.conversationUser),
-                _buildColorChip('AI Bubble', colors.conversationAI),
               ],
             ),
             const SizedBox(height: 32),
 
-            _buildSectionHeader('2. Glassmorphism & Depth'),
-            const SizedBox(height: 12),
-            DiLangCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          gradient: AppGradients.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(DiIcons.brain, color: Colors.white, size: 24),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'AI Roleplay Engine',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Qwen3-0.6B Instruct On-Device Model',
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    color: colors.textSecondary,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Conversational practice with semantic themes, 24px backdrop blur, and 1px border stroke.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            _buildSectionHeader('3. Button System'),
+            _buildSectionHeader('3. Button System & Controls'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 12,
@@ -131,11 +99,6 @@ class _DesignSystemShowcaseScreenState extends State<DesignSystemShowcaseScreen>
                   label: 'Outlined',
                   icon: DiIcons.tune,
                   variant: DiLangButtonVariant.outlined,
-                  onPressed: () {},
-                ),
-                DiLangButton(
-                  label: 'Text Action',
-                  variant: DiLangButtonVariant.text,
                   onPressed: () {},
                 ),
               ],

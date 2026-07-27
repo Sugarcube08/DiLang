@@ -25,8 +25,8 @@ case "${TARGET}" in
     (cd "${MOBILE_APP_DIR}" && flutter build apk)
     ;;
   android)
-    log_info "Building Android App Bundle..."
-    (cd "${MOBILE_APP_DIR}" && flutter build appbundle)
+    log_info "Building Android App Bundle (.aab)..."
+    (cd "${MOBILE_APP_DIR}/android" && ./gradlew bundleRelease)
     ;;
   windows)
     log_info "Building Windows Desktop executable..."

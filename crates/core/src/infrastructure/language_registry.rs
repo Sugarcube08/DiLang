@@ -440,6 +440,8 @@ impl LanguageRegistry {
 
     pub fn find_by_code(code: &str) -> Option<LanguageDescriptor> {
         let clean = code.trim().to_lowercase();
-        Self::get_all_languages().into_iter().find(|l| l.code.to_lowercase() == clean || l.english_name.to_lowercase() == clean)
+        Self::get_all_languages()
+            .into_iter()
+            .find(|l| l.code.to_lowercase() == clean || l.english_name.to_lowercase() == clean)
     }
 }
