@@ -1,8 +1,16 @@
 use core;
 use core::api::DiLangEngineFacade;
+use std::path::PathBuf;
 
 pub fn ping() -> String {
     core::ping_core()
+}
+
+pub fn init_app_paths(base_path: String) -> String {
+    let path = PathBuf::from(&base_path);
+    core::infrastructure::ModelManager::set_custom_base_path(path.clone());
+    let _ = std::fs::create_dir_all(&path);
+    format!("Initialized storage path: {}", path.display())
 }
 
 pub fn check_db_health() -> String {
@@ -167,20 +175,46 @@ pub struct FfiDownloadProgress {
 }
 
 pub fn download_model_stream(model_id: String, sink: StreamSink<FfiDownloadProgress>) -> String {
-    let engine = DiLangEngineFacade::new();
-    match engine.download_registry_model(&model_id, |prog| {
-        let _ = sink.add(FfiDownloadProgress {
-            model_id: prog.model_id,
-            bytes_downloaded: prog.bytes_downloaded,
-            total_bytes: prog.total_bytes,
-            bytes_per_sec: prog.bytes_per_sec,
-            eta_seconds: prog.eta_seconds,
-            status: prog.status,
-        });
-    }) {
-        Ok(rec) => serde_json::to_string(&rec).unwrap_or_default(),
-        Err(err) => format!("Error: {}", err),
-    }
+    core::infrastructure::log_info(&format!("[FFI THREAD] Spawning model download worker thread for '{}'", model_id));
+    let model_id_clone = model_id.clone();
+    std::thread::spawn(move || {
+        core::infrastructure::log_info(&format!("[FFI WORKER] Worker thread running for '{}'", model_id_clone));
+        let engine = DiLangEngineFacade::new();
+        match engine.download_registry_model(&model_id_clone, |prog| {
+            let _ = sink.add(FfiDownloadProgress {
+                model_id: prog.model_id,
+                bytes_downloaded: prog.bytes_downloaded,
+                total_bytes: prog.total_bytes,
+                bytes_per_sec: prog.bytes_per_sec,
+                eta_seconds: prog.eta_seconds,
+                status: prog.status,
+            });
+        }) {
+            Ok(rec) => {
+                core::infrastructure::log_info(&format!("[FFI WORKER SUCCESS] Model '{}' downloaded and registered cleanly: {:?}", rec.name, rec.path));
+                let _ = sink.add(FfiDownloadProgress {
+                    model_id: model_id_clone.clone(),
+                    bytes_downloaded: rec.size_bytes,
+                    total_bytes: rec.size_bytes,
+                    bytes_per_sec: 0,
+                    eta_seconds: 0,
+                    status: "Installed".to_string(),
+                });
+            }
+            Err(err) => {
+                core::infrastructure::log_info(&format!("[FFI WORKER ERROR] Model download failed for '{}': {}", model_id_clone, err));
+                let _ = sink.add(FfiDownloadProgress {
+                    model_id: model_id_clone.clone(),
+                    bytes_downloaded: 0,
+                    total_bytes: 0,
+                    bytes_per_sec: 0,
+                    eta_seconds: 0,
+                    status: format!("Failed: {}", err),
+                });
+            }
+        }
+    });
+    "Started".to_string()
 }
 
 pub fn transcribe_audio(audio_bytes: Vec<u8>) -> String {

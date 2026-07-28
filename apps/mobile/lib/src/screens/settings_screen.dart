@@ -2,18 +2,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../native_bridge.dart';
 import '../providers/installed_models_provider.dart';
+import '../providers/model_download_provider.dart';
 import '../providers/user_profile_provider.dart';
 import '../theme/theme_extensions.dart';
-import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
-import '../components/dilang_card.dart';
+import '../theme/app_colors.dart';
 import '../components/dilang_button.dart';
 import '../components/dilang_progress.dart';
 import '../components/toucan_circular_logo.dart';
-import '../components/glass_components.dart';
-import '../frb_generated.dart/api.dart' as ffi;
+import '../components/responsive/responsive.dart';
+import '../components/model_download_components.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -23,90 +22,66 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  // Active download state tracking
-  String? _downloadingModelId;
-  String _downloadStatusText = '';
-  String _downloadSpeedEta = '';
-  double _downloadProgress = 0.0;
-  StreamSubscription<ffi.FfiDownloadProgress>? _activeStreamSub;
+  // Model category tab selection
+  String _selectedCategory = 'all'; // 'all', 'llm', 'stt', 'tts'
 
-  @override
-  void dispose() {
-    _activeStreamSub?.cancel();
-    super.dispose();
-  }
+  // Model catalog
+  final List<Map<String, dynamic>> _registryModels = const [
+    {
+      'id': 'qwen3-0.6b-instruct-q4_k_m',
+      'name': 'Qwen3 0.6B Instruct',
+      'category': 'llm',
+      'subtitle': 'Fast on-device LLM for natural dialogue & grammar analysis (~435 MB)',
+      'size': '~435 MB',
+      'tag': 'Recommended',
+    },
+    {
+      'id': 'gemma-3-1b-it-q4_k_m',
+      'name': 'Gemma 3 1B IT',
+      'category': 'llm',
+      'subtitle': 'High-capacity instruction LLM for advanced explanations (~1.04 GB)',
+      'size': '~1.04 GB',
+      'tag': 'High Quality',
+    },
+    {
+      'id': 'qwen2.5-1.5b-instruct-q4_k_m',
+      'name': 'Qwen2.5 1.5B Instruct',
+      'category': 'llm',
+      'subtitle': 'Deep multilingual LLM for complex language scenarios (~1.04 GB)',
+      'size': '~1.04 GB',
+      'tag': 'Pro',
+    },
+    {
+      'id': 'whisper-base',
+      'name': 'Whisper Base (GGML)',
+      'category': 'stt',
+      'subtitle': 'On-device Speech-to-Text for voice input & pronunciation (~148 MB)',
+      'size': '~148 MB',
+      'tag': 'Default STT',
+    },
+    {
+      'id': 'piper-en_US-lessac-medium',
+      'name': 'Piper Voice (ONNX)',
+      'category': 'tts',
+      'subtitle': 'On-device Text-to-Speech for audio synthesis (~63 MB)',
+      'size': '~63 MB',
+      'tag': 'Default TTS',
+    },
+  ];
 
   Future<void> _startModelDownload(String modelId, String titleName) async {
-    setState(() {
-      _downloadingModelId = modelId;
-      _downloadStatusText = 'Connecting to download stream for $titleName...';
-      _downloadSpeedEta = '';
-      _downloadProgress = 0.0;
-    });
-
-    _activeStreamSub?.cancel();
-    _activeStreamSub = DiLangNativeBridge.downloadModelStream(modelId).listen(
-      (prog) async {
-        if (!mounted) return;
-
-        final downloadedMb = (prog.bytesDownloaded.toInt() / (1024 * 1024)).toStringAsFixed(1);
-        final totalMb = (prog.totalBytes.toInt() / (1024 * 1024)).toStringAsFixed(1);
-        final speedMb = (prog.bytesPerSec.toInt() / (1024 * 1024)).toStringAsFixed(1);
-        final etaSecs = prog.etaSeconds.toInt();
-
-        final ratio = prog.totalBytes.toInt() > 0
-            ? (prog.bytesDownloaded.toInt() / prog.totalBytes.toInt()).clamp(0.0, 1.0)
-            : 0.0;
-
-        setState(() {
-          _downloadStatusText = '$downloadedMb MB / $totalMb MB';
-          _downloadSpeedEta = '$speedMb MB/s • ${etaSecs}s remaining';
-          _downloadProgress = ratio;
-        });
-
-        if (prog.status == 'Verifying') {
-          setState(() {
-            _downloadStatusText = 'Verifying SHA-256 Checksum for $titleName...';
-            _downloadSpeedEta = 'Calculating Hash...';
-          });
-        } else if (prog.status == 'Installed') {
-          _activeStreamSub?.cancel();
-          await ref.read(installedModelsProvider.notifier).refresh();
-          if (!mounted) return;
-          setState(() {
-            _downloadingModelId = null;
-            _downloadStatusText = '';
-            _downloadSpeedEta = '';
-            _downloadProgress = 0.0;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$titleName installed and verified successfully!')),
-          );
-        } else if (prog.status == 'Failed') {
-          _activeStreamSub?.cancel();
-          if (!mounted) return;
-          setState(() {
-            _downloadingModelId = null;
-            _downloadStatusText = '';
-            _downloadSpeedEta = '';
-            _downloadProgress = 0.0;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to download $titleName. Please try again.')),
-          );
-        }
-      },
-      onError: (err) {
-        if (!mounted) return;
-        _activeStreamSub?.cancel();
-        setState(() {
-          _downloadingModelId = null;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Download error: $err')),
-        );
-      },
-    );
+    final success = await ref.read(modelDownloadProvider.notifier).startDownload(modelId, titleName);
+    if (!mounted) return;
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$titleName installed and verified successfully!')),
+      );
+    } else {
+      final err = ref.read(modelDownloadProvider).error ?? 'Unknown error';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Download failed for $titleName: $err')),
+      );
+    }
   }
 
   @override
@@ -114,6 +89,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final colors = context.colors;
     final userState = ref.watch(userProfileProvider);
     final modelsState = ref.watch(installedModelsProvider);
+    final downloadState = ref.watch(modelDownloadProvider);
+
+    final downloadingModelId = downloadState.downloadingModelId;
+    final downloadStatusText = downloadState.statusText;
+    final downloadSpeedEta = downloadState.speedEtaText;
+    final downloadProgress = downloadState.progress;
 
     final activeUser = userState.activeUser;
     final username = activeUser?['username']?.toString() ?? 'Learner';
@@ -121,33 +102,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final targetLang = activeUser?['target_language']?.toString() ?? 'German';
 
     final installedModels = modelsState.models;
-    final isQwenInstalled = installedModels.any((m) {
-      final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
-      return s.contains('qwen') || s.contains('gemma');
-    });
-    final isWhisperInstalled = installedModels.any((m) {
-      final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
-      return s.contains('whisper') || s.contains('ggml-base');
-    });
-    final isPiperInstalled = installedModels.any((m) {
-      final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
-      return s.contains('piper') || s.contains('lessac');
-    });
 
-    return AtmosphereBackground(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Settings & Model Center'),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(DesignTokens.space24),
+    // Filter models by selected category
+    final filteredModels = _registryModels.where((m) {
+      if (_selectedCategory == 'all') return true;
+      return m['category'] == _selectedCategory;
+    }).toList();
+
+    Widget mainContent = SingleChildScrollView(
+      padding: context.responsivePadding,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: ResponsiveBreakpoints.maxContentWidth),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // User Profile Summary
               Text('Learner Profile', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
-              DiLangCard(
+              ResponsiveCard(
                 child: Row(
                   children: [
                     const ToucanCircularLogo(size: 52),
@@ -158,92 +131,112 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           Text(username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           const SizedBox(height: 2),
-                          Text('$nativeLang -> $targetLang', style: TextStyle(color: colors.textSecondary, fontSize: 13)),
+                          Text('$nativeLang ➔ $targetLang', style: TextStyle(color: colors.textSecondary, fontSize: 13)),
                         ],
                       ),
                     ),
                   ],
                 ),
               ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // On-Device Model Download Center
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Model Download Center', style: Theme.of(context).textTheme.titleLarge),
-                IconButton(
-                  icon: const Icon(DiIcons.refresh),
-                  onPressed: () {
-                    ref.read(installedModelsProvider.notifier).refresh();
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Download or update local AI models anytime for offline inference.',
-              style: TextStyle(color: colors.textSecondary, fontSize: 13),
-            ),
-            const SizedBox(height: 12),
+              // Model Download Center Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Model Download Center', style: Theme.of(context).textTheme.titleLarge),
+                  IconButton(
+                    icon: const Icon(DiIcons.refresh),
+                    tooltip: 'Refresh Installed Models',
+                    onPressed: () {
+                      ref.read(installedModelsProvider.notifier).refresh();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Select and download local AI models to customize your offline speech & text pipeline.',
+                style: TextStyle(color: colors.textSecondary, fontSize: 13),
+              ),
+              const SizedBox(height: 16),
 
-            // Active Download Progress Widget
-            if (_downloadingModelId != null) ...[
-              DiLangCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // Category Filter Tabs
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
                   children: [
-                    Text(_downloadStatusText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    const SizedBox(height: 4),
-                    if (_downloadSpeedEta.isNotEmpty)
-                      Text(_downloadSpeedEta, style: TextStyle(color: colors.primary, fontSize: 12)),
-                    const SizedBox(height: 12),
-                    DiLangGradientProgress(progress: _downloadProgress),
+                    _buildCategoryChip('all', 'All Models (${_registryModels.length})'),
+                    const SizedBox(width: 8),
+                    _buildCategoryChip('llm', 'LLM Dialogue'),
+                    const SizedBox(width: 8),
+                    _buildCategoryChip('stt', 'Speech-to-Text'),
+                    const SizedBox(width: 8),
+                    _buildCategoryChip('tts', 'Text-to-Speech'),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-            ],
 
-            // Model Cards
-            _buildModelItemCard(
-              title: 'Qwen3-0.6B Instruct (GGUF Q4_K_M)',
-              subtitle: 'On-device LLM for natural dialogue & grammar analysis (~435 MB)',
-              modelId: 'qwen3-0.6b-instruct-q4_k_m',
-              isInstalled: isQwenInstalled,
-              colors: colors,
-            ),
-            const SizedBox(height: 12),
-            _buildModelItemCard(
-              title: 'Whisper Base (GGML)',
-              subtitle: 'On-device Speech-to-Text for voice input (~148 MB)',
-              modelId: 'whisper-base',
-              isInstalled: isWhisperInstalled,
-              colors: colors,
-            ),
-            const SizedBox(height: 12),
-            _buildModelItemCard(
-              title: 'Piper Voice (ONNX)',
-              subtitle: 'On-device Text-to-Speech for audio synthesis (~63 MB)',
-              modelId: 'piper-en_US-lessac-medium',
-              isInstalled: isPiperInstalled,
-              colors: colors,
-            ),
-            const SizedBox(height: 32),
+              // Active Download Progress Widget
+              if (downloadState.isDownloading || downloadingModelId != null) ...[
+                ResponsiveCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(downloadStatusText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(height: 4),
+                      if (downloadSpeedEta.isNotEmpty)
+                        Text(downloadSpeedEta, style: TextStyle(color: colors.primary, fontSize: 12)),
+                      const SizedBox(height: 12),
+                      DiLangGradientProgress(progress: downloadProgress),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
-            // Advanced Diagnostics & Showcase Links
-            Text('Advanced Diagnostics & Tools', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            DiLangCard(
-              child: Material(
-                color: Colors.transparent,
+              // Filtered Model Cards List
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filteredModels.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final model = filteredModels[index];
+                  final modelId = model['id'] as String;
+
+                  final isInstalled = installedModels.any((m) {
+                    final s = '${m['id']} ${m['name']} ${m['filename']} ${m['path']}'.toLowerCase();
+                    return s.contains(modelId.toLowerCase()) || (m['id']?.toString() == modelId);
+                  });
+
+                  return _buildModelItemCard(
+                    title: model['name'] as String,
+                    subtitle: model['subtitle'] as String,
+                    modelId: modelId,
+                    sizeText: model['size'] as String,
+                    tagText: model['tag'] as String,
+                    isInstalled: isInstalled,
+                    colors: colors,
+                  );
+                },
+              ),
+              const SizedBox(height: 32),
+
+              // Advanced Diagnostics & Showcase Links
+              Text('Advanced Diagnostics & Tools', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              ResponsiveCard(
                 child: Column(
                   children: [
                     ListTile(
                       leading: Icon(DiIcons.tune, color: colors.primary),
                       title: const Text('Runtime Diagnostics'),
                       subtitle: const Text('Inspect RAM, CPU, SQLite path & active loaders'),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: Icon(
+                        context.isRtl ? Icons.chevron_left : Icons.chevron_right,
+                      ),
                       onTap: () => context.push('/diagnostics'),
                     ),
                     const Divider(height: 1),
@@ -251,38 +244,92 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       leading: Icon(DiIcons.spark, color: colors.primary),
                       title: const Text('Developer Showcase'),
                       subtitle: const Text('Design system tokens & component showcase'),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: Icon(
+                        context.isRtl ? Icons.chevron_left : Icons.chevron_right,
+                      ),
                       onTap: () => context.push('/developer-showcase'),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+
+    return ResponsiveScaffold(
+      selectedIndex: 2,
+      onDestinationSelected: (idx) {
+        if (idx == 0) context.go('/home');
+        if (idx == 1) context.push('/conversation');
+      },
+      destinations: const [
+        ResponsiveNavigationDestination(icon: DiIcons.spark, label: 'Learn'),
+        ResponsiveNavigationDestination(icon: DiIcons.mic, label: 'Speak'),
+        ResponsiveNavigationDestination(icon: DiIcons.settings, label: 'Settings'),
+      ],
+      appBar: ResponsiveAppBar(
+        title: const Text('Settings & Model Center'),
+      ),
+      body: mainContent,
+    );
+  }
+
+  Widget _buildCategoryChip(String categoryKey, String label) {
+    final isSelected = _selectedCategory == categoryKey;
+
+    return FilterChip(
+      selected: isSelected,
+      label: Text(label),
+      selectedColor: AppColors.turquoise500.withValues(alpha: 0.2),
+      checkmarkColor: AppColors.turquoise500,
+      labelStyle: TextStyle(
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected ? AppColors.turquoise500 : null,
+      ),
+      onSelected: (_) {
+        setState(() {
+          _selectedCategory = categoryKey;
+        });
+      },
+    );
+  }
 
   Widget _buildModelItemCard({
     required String title,
     required String subtitle,
     required String modelId,
+    required String sizeText,
+    required String tagText,
     required bool isInstalled,
     required dynamic colors,
   }) {
-    final isDownloading = _downloadingModelId == modelId;
+    final downloadState = ref.watch(modelDownloadProvider);
+    final isCurrentActive = downloadState.downloadingModelId == modelId;
+    final isDownloading = isCurrentActive && downloadState.isDownloading;
+    final isVerifying = isCurrentActive && downloadState.isVerifying;
+    final activeStage = isInstalled
+        ? ModelPipelineStage.installed
+        : (isCurrentActive ? downloadState.stage : ModelPipelineStage.idle);
 
-    return DiLangCard(
+    return ResponsiveCard(
+      accentColor: isInstalled
+          ? colors.success
+          : (isCurrentActive ? AppColors.amber500 : null),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(
-                isInstalled ? DiIcons.check : DiIcons.time,
-                color: isInstalled ? colors.success : colors.warning,
+                isInstalled
+                    ? DiIcons.check
+                    : (isCurrentActive ? DiIcons.spark : DiIcons.time),
+                color: isInstalled
+                    ? colors.success
+                    : (isCurrentActive ? AppColors.amber500 : colors.warning),
                 size: 20,
               ),
               const SizedBox(width: 10),
@@ -295,15 +342,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isInstalled ? colors.success : colors.warning).withValues(alpha: 0.1),
+                  color: (isInstalled
+                          ? colors.success
+                          : (isVerifying
+                              ? AppColors.amber500
+                              : (isDownloading ? AppColors.turquoise500 : colors.warning)))
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  isInstalled ? 'Installed' : 'Not Installed',
+                  isInstalled
+                      ? 'Installed ✓'
+                      : (isVerifying
+                          ? 'Verifying Integrity'
+                          : (isDownloading ? 'Downloading...' : 'Not Installed')),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isInstalled ? colors.success : colors.warning,
+                    color: isInstalled
+                        ? colors.success
+                        : (isVerifying
+                            ? AppColors.amber500
+                            : (isDownloading ? AppColors.turquoise500 : colors.warning)),
                   ),
                 ),
               ),
@@ -311,17 +371,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 6),
           Text(subtitle, style: TextStyle(color: colors.textSecondary, fontSize: 13)),
-          const SizedBox(height: 12),
-          if (!isInstalled)
-            SizedBox(
-              width: double.infinity,
-              child: DiLangButton(
-                label: isDownloading ? 'Downloading...' : 'Download Model',
-                icon: DiIcons.spark,
-                variant: DiLangButtonVariant.secondary,
-                onPressed: isDownloading ? null : () => _startModelDownload(modelId, title),
-              ),
+          const SizedBox(height: 10),
+
+          // Multi-Stage Checkpoints Row (Requirement 7)
+          InstallationCheckpointsRow(stage: activeStage),
+
+          if (isCurrentActive && (isDownloading || isVerifying)) ...[
+            const SizedBox(height: 14),
+            DualProgressIndicator(
+              downloadProgress: downloadState.progress,
+              verificationProgress: downloadState.verificationProgress,
+              isDownloading: isDownloading,
+              isVerifying: isVerifying,
+              downloadDetailText: downloadState.speedEtaText,
+              verificationDetailText: downloadState.shaProgressText,
             ),
+          ],
+
+          const SizedBox(height: 12),
+          context.isCompact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      '$sizeText • $tagText',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colors.textSecondary),
+                    ),
+                    if (!isInstalled) ...[
+                      const SizedBox(height: 10),
+                      DiLangButton(
+                        label: isVerifying
+                            ? 'Verifying SHA-256...'
+                            : (isDownloading ? 'Downloading...' : 'Download Model'),
+                        icon: isVerifying ? DiIcons.time : DiIcons.spark,
+                        variant: DiLangButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: (isDownloading || isVerifying)
+                            ? null
+                            : () => _startModelDownload(modelId, title),
+                      ),
+                    ],
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '$sizeText • $tagText',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (!isInstalled)
+                      DiLangButton(
+                        label: isVerifying
+                            ? 'Verifying SHA-256...'
+                            : (isDownloading ? 'Downloading...' : 'Download Model'),
+                        icon: isVerifying ? DiIcons.time : DiIcons.spark,
+                        variant: DiLangButtonVariant.secondary,
+                        onPressed: (isDownloading || isVerifying)
+                            ? null
+                            : () => _startModelDownload(modelId, title),
+                      ),
+                  ],
+                ),
         ],
       ),
     );

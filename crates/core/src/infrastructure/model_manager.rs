@@ -26,6 +26,11 @@ pub struct InstalledModelRecord {
     pub installed_at: String,
 }
 
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
+
+static CUSTOM_BASE_PATH: Lazy<Mutex<Option<PathBuf>>> = Lazy::new(|| Mutex::new(None));
+
 #[derive(Default)]
 pub struct ModelManager;
 
@@ -34,13 +39,38 @@ impl ModelManager {
         Self
     }
 
+    pub fn set_custom_base_path(path: PathBuf) {
+        if let Ok(mut lock) = CUSTOM_BASE_PATH.lock() {
+            *lock = Some(path);
+        }
+    }
+
     pub fn get_base_dir() -> PathBuf {
-        dirs::data_dir()
-            .map(|mut p| {
-                p.push("DiLang");
-                p
-            })
-            .unwrap_or_else(|| PathBuf::from("./dilang_data"))
+        if let Ok(lock) = CUSTOM_BASE_PATH.lock() {
+            if let Some(ref path) = *lock {
+                return path.clone();
+            }
+        }
+
+        if let Some(mut p) = dirs::data_dir() {
+            p.push("DiLang");
+            return p;
+        }
+
+        // Android fallback locations
+        let android_app_data = PathBuf::from("/data/data/com.dilang.mobile/files/DiLang");
+        if android_app_data.parent().map(|p| p.exists()).unwrap_or(false) {
+            return android_app_data;
+        }
+
+        let android_user0_data = PathBuf::from("/data/user/0/com.dilang.mobile/files/DiLang");
+        if android_user0_data.parent().map(|p| p.exists()).unwrap_or(false) {
+            return android_user0_data;
+        }
+
+        let mut temp = std::env::temp_dir();
+        temp.push("DiLang");
+        temp
     }
 
     pub fn get_models_dir(subdir: &str) -> PathBuf {
@@ -142,6 +172,45 @@ impl ModelManager {
         for rec in rows.flatten() {
             results.push(rec);
         }
+
+        // Auto-discover models present on disk in models/ directory
+        let base_models = Self::get_base_dir().join("models");
+        if base_models.exists() {
+            if let Ok(entries) = std::fs::read_dir(&base_models) {
+                for entry in entries.flatten() {
+                    let p = entry.path();
+                    if p.is_file() {
+                        let fname = p.file_name().unwrap_or_default().to_string_lossy().to_string();
+                        if (fname.ends_with(".gguf") || fname.ends_with(".bin") || fname.ends_with(".onnx")) && !fname.contains(".part") {
+                            let stem = fname
+                                .trim_end_matches(".gguf")
+                                .trim_end_matches(".bin")
+                                .trim_end_matches(".onnx")
+                                .to_string();
+                            let path_str = p.to_string_lossy().to_string();
+                            if !results.iter().any(|r| r.filename == fname || r.path == path_str || r.id == stem) {
+                                results.push(InstalledModelRecord {
+                                    id: stem.clone(),
+                                    provider: "Local".to_string(),
+                                    name: stem.clone(),
+                                    filename: fname,
+                                    version: "1.0".to_string(),
+                                    path: path_str,
+                                    sha256: "".to_string(),
+                                    size_bytes: std::fs::metadata(&p).map(|m| m.len()).unwrap_or(0),
+                                    runtime_compatibility: "v0.1.0".to_string(),
+                                    status: "Installed".to_string(),
+                                    last_verification: Utc::now().to_rfc3339(),
+                                    active: true,
+                                    installed_at: Utc::now().to_rfc3339(),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         Ok(results)
     }
 
@@ -211,6 +280,7 @@ impl ModelManager {
         };
 
         self.register_installed_model(&record)?;
+        super::downloader::log_info(&format!("[SQLITE REGISTER SUCCESS] Registered model '{}' in SQLite DB (Path: {})", model_name, target_path.display()));
         Ok(record)
     }
 }

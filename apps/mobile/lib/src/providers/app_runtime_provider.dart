@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import '../native_bridge.dart';
 
 class AppRuntimeState {
@@ -50,6 +51,12 @@ class AppRuntimeNotifier extends StateNotifier<AppRuntimeState> {
 
   Future<void> initializeRuntime(void Function(String) onProgress) async {
     try {
+      onProgress('Initializing Storage Paths...');
+      try {
+        final docsDir = await getApplicationDocumentsDirectory();
+        await DiLangNativeBridge.initAppPaths('${docsDir.path}/DiLang');
+      } catch (_) {}
+
       onProgress('Initializing SQLite Engine...');
       final dbHealth = await DiLangNativeBridge.checkDbHealth();
 

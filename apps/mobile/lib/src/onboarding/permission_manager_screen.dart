@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
-import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
 import '../components/toucan_mascot.dart';
 import '../components/dilang_button.dart';
-import '../components/dilang_card.dart';
+import '../components/responsive/responsive.dart';
 
 class PermissionManagerScreen extends StatefulWidget {
   final VoidCallback onNext;
@@ -58,10 +57,16 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
     final colors = context.colors;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Permissions Manager')),
+      appBar: const ResponsiveAppBar(title: Text('Permissions Manager')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(DesignTokens.space24),
+        child: ResponsiveForm(
+          actions: [
+            DiLangButton(
+              label: 'Continue to Model Download',
+              icon: context.isRtl ? Icons.arrow_back : DiIcons.play,
+              onPressed: _handleContinue,
+            ),
+          ],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -73,7 +78,7 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
               const SizedBox(height: 24),
               Text(
                 'Required Permissions',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colors.textPrimary,
                 ),
@@ -90,7 +95,7 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
               ),
               const SizedBox(height: 24),
 
-              DiLangCard(
+              ResponsiveCard(
                 child: ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(10),
@@ -112,16 +117,6 @@ class _PermissionManagerScreenState extends State<PermissionManagerScreen> {
                           onPressed: _requestMicPermission,
                           child: const Text('Grant'),
                         ),
-                ),
-              ),
-              const Spacer(),
-
-              SizedBox(
-                width: double.infinity,
-                child: DiLangButton(
-                  label: 'Continue to Model Download',
-                  icon: DiIcons.play,
-                  onPressed: _handleContinue,
                 ),
               ),
             ],

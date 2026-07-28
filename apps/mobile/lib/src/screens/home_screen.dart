@@ -4,15 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/user_profile_provider.dart';
 import '../providers/installed_models_provider.dart';
+import '../providers/model_download_provider.dart';
 import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
-import '../theme/design_tokens.dart';
 import '../theme/di_icons.dart';
 import '../theme/app_colors.dart';
 import '../components/glass_components.dart';
 import '../components/toucan_mascot.dart';
-import '../components/adaptive_layout.dart';
 import '../components/dilang_button.dart';
+import '../components/responsive/responsive.dart';
+import '../components/model_download_components.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -62,6 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     final userState = ref.watch(userProfileProvider);
     final modelsState = ref.watch(installedModelsProvider);
+    final downloadState = ref.watch(modelDownloadProvider);
 
     final activeUser = userState.activeUser;
     final username = activeUser?['username']?.toString() ?? 'Learner';
@@ -84,156 +86,234 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hasUninstalledModels = !isQwenInstalled || !isWhisperInstalled || !isPiperInstalled;
 
     Widget mainContent = SingleChildScrollView(
-      padding: const EdgeInsets.all(DesignTokens.space24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Basic Logo & User Welcome Banner
-          GlassContainer(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                const ToucanMascot(
-                  size: 72,
-                  showGlow: true,
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Willkommen, $username! 👋',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Daily $targetLang learning session ready offline.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
+      padding: context.responsivePadding,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: ResponsiveBreakpoints.maxContentWidth),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Welcome Banner
+              GlassContainer(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const ToucanMascot(
+                      size: 72,
+                      showGlow: true,
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildBadgeChip('🔥 7 Streak', AppColors.coral500),
-                          const SizedBox(width: 8),
-                          _buildBadgeChip('⚡ 250 XP', AppColors.amber500),
+                          Text(
+                            'Willkommen, $username! 👋',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Daily $targetLang learning session ready offline.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              _buildBadgeChip('🔥 7 Streak', AppColors.coral500),
+                              _buildBadgeChip('⚡ 250 XP', AppColors.amber500),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 16),
 
-          // Interactive AI Dialogue Hero Card
-          GlassCard(
-            accentColor: AppColors.turquoise500,
-            onTap: () => context.push('/conversation'),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.turquoise500.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(DiIcons.mic, color: AppColors.turquoise500, size: 32),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
+              // Live Background Download & Verification Card
+              if (downloadState.isDownloading || downloadState.isVerifying) ...[
+                ResponsiveCard(
+                  accentColor: downloadState.isVerifying ? AppColors.amber500 : AppColors.turquoise500,
+                  onTap: () => context.push('/settings'),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Interactive AI Voice Session',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                downloadState.isVerifying ? DiIcons.time : DiIcons.spark,
+                                color: downloadState.isVerifying ? AppColors.amber500 : AppColors.turquoise500,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${downloadState.isVerifying ? 'Verifying' : 'Downloading'}: ${downloadState.downloadingModelName}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: (downloadState.isVerifying ? AppColors.amber500 : AppColors.turquoise500).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              downloadState.stageStepText.isNotEmpty ? downloadState.stageStepText : 'Step 1/4',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: downloadState.isVerifying ? AppColors.amber500 : AppColors.turquoise500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
-                        'Practice speaking $targetLang offline with local Qwen3 & Whisper',
-                        style: TextStyle(fontSize: 12, color: colors.textSecondary),
+                        downloadState.statusText,
+                        style: TextStyle(color: colors.textSecondary, fontSize: 12),
+                      ),
+                      const SizedBox(height: 12),
+                      DualProgressIndicator(
+                        downloadProgress: downloadState.progress,
+                        verificationProgress: downloadState.verificationProgress,
+                        isDownloading: downloadState.isDownloading,
+                        isVerifying: downloadState.isVerifying,
+                        downloadDetailText: downloadState.speedEtaText,
+                        verificationDetailText: downloadState.shaProgressText,
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.turquoise500),
+                const SizedBox(height: 16),
               ],
-            ),
-          ),
-          const SizedBox(height: 24),
 
-          // Local AI Inference Models Status
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Local AI Inference Models', style: Theme.of(context).textTheme.titleLarge),
-              TextButton.icon(
-                icon: const Icon(DiIcons.settings, size: 16),
-                label: const Text('Model Center'),
-                onPressed: () => context.push('/settings'),
+              // Interactive AI Voice Hero Card
+              ResponsiveCard(
+                accentColor: AppColors.turquoise500,
+                onTap: () => context.push('/conversation'),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.turquoise500.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(DiIcons.mic, color: AppColors.turquoise500, size: 32),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Interactive AI Voice Session',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Practice speaking $targetLang offline with local Qwen3 & Whisper',
+                            style: TextStyle(fontSize: 12, color: colors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      context.isRtl ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.turquoise500,
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          GlassCard(
-            child: Column(
-              children: [
-                _buildModelRow('Qwen3-0.6B LLM', isQwenInstalled, colors),
-                const Divider(height: 16),
-                _buildModelRow('Whisper Speech-to-Text', isWhisperInstalled, colors),
-                const Divider(height: 16),
-                _buildModelRow('Piper Text-to-Speech', isPiperInstalled, colors),
-                if (hasUninstalledModels) ...[
-                  const Divider(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: DiLangButton(
-                      label: 'Download Missing Models in Settings',
-                      icon: DiIcons.spark,
-                      variant: DiLangButtonVariant.secondary,
-                      onPressed: () => context.push('/settings'),
+              const SizedBox(height: 24),
+
+              // Local AI Models Status
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Local AI Inference Models',
+                      style: Theme.of(context).textTheme.titleLarge,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Learning Analytics
-          Text('Learning Analytics', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          if (_isLoadingAnalytics)
-            const Center(child: CircularProgressIndicator())
-          else
-            GlassCard(
-              child: Column(
-                children: [
-                  _buildMetricRow('Vocabulary Known', '$_vocabCount words', colors),
-                  const Divider(height: 16),
-                  _buildMetricRow('Grammar Concepts', '$_grammarCount mastered', colors),
-                  const Divider(height: 16),
-                  _buildMetricRow('Sessions Completed', '$_conversationsCount sessions', colors),
-                  const Divider(height: 16),
-                  _buildMetricRow('SRS Reviews Due', '$_reviewsCount cards', colors),
+                  TextButton.icon(
+                    icon: const Icon(DiIcons.settings, size: 16),
+                    label: const Text('Model Center'),
+                    onPressed: () => context.push('/settings'),
+                  ),
                 ],
               ),
-            ),
-          const SizedBox(height: 100),
-        ],
+              const SizedBox(height: 8),
+              GlassCard(
+                child: Column(
+                  children: [
+                    _buildModelRow('Qwen3-0.6B LLM', isQwenInstalled, colors),
+                    const Divider(height: 16),
+                    _buildModelRow('Whisper Speech-to-Text', isWhisperInstalled, colors),
+                    const Divider(height: 16),
+                    _buildModelRow('Piper Text-to-Speech', isPiperInstalled, colors),
+                    if (hasUninstalledModels) ...[
+                      const Divider(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: DiLangButton(
+                          label: 'Download Missing Models in Settings',
+                          icon: DiIcons.spark,
+                          variant: DiLangButtonVariant.secondary,
+                          onPressed: () => context.push('/settings'),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Learning Analytics Section
+              Text('Learning Analytics', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              if (_isLoadingAnalytics)
+                const Center(child: CircularProgressIndicator())
+              else
+                GlassCard(
+                  child: Column(
+                    children: [
+                      _buildMetricRow('Vocabulary Known', '$_vocabCount words', colors),
+                      const Divider(height: 16),
+                      _buildMetricRow('Grammar Concepts', '$_grammarCount mastered', colors),
+                      const Divider(height: 16),
+                      _buildMetricRow('Sessions Completed', '$_conversationsCount sessions', colors),
+                      const Divider(height: 16),
+                      _buildMetricRow('SRS Reviews Due', '$_reviewsCount cards', colors),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 100),
+            ],
+          ),
+        ),
       ),
     );
 
-    return AdaptiveLayout(
+    return ResponsiveScaffold(
       selectedIndex: _selectedNavIndex,
       onDestinationSelected: (idx) {
         setState(() => _selectedNavIndex = idx);
@@ -241,38 +321,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         if (idx == 2) context.push('/settings');
       },
       destinations: const [
-        AdaptiveDestination(icon: DiIcons.spark, label: 'Learn'),
-        AdaptiveDestination(icon: DiIcons.mic, label: 'Speak'),
-        AdaptiveDestination(icon: DiIcons.settings, label: 'Settings'),
+        ResponsiveNavigationDestination(icon: DiIcons.spark, label: 'Learn'),
+        ResponsiveNavigationDestination(icon: DiIcons.mic, label: 'Speak'),
+        ResponsiveNavigationDestination(icon: DiIcons.settings, label: 'Settings'),
       ],
-      body: Scaffold(
-        appBar: AppBar(
-          title: const Text('DiLang'),
-          actions: [
-            IconButton(
-              icon: const Icon(DiIcons.settings),
-              tooltip: 'Settings',
-              onPressed: () => context.push('/settings'),
-            ),
-          ],
-        ),
-        body: mainContent,
-        bottomNavigationBar: MediaQuery.of(context).size.width < 600
-            ? GlassNavigationBar(
-                currentIndex: _selectedNavIndex,
-                onTap: (idx) {
-                  setState(() => _selectedNavIndex = idx);
-                  if (idx == 1) context.push('/conversation');
-                  if (idx == 2) context.push('/settings');
-                },
-                items: const [
-                  GlassNavItem(icon: DiIcons.spark, label: 'Learn'),
-                  GlassNavItem(icon: DiIcons.mic, label: 'Speak'),
-                  GlassNavItem(icon: DiIcons.settings, label: 'Settings'),
-                ],
-              )
-            : null,
+      appBar: ResponsiveAppBar(
+        title: const Text('DiLang'),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(DiIcons.settings),
+            tooltip: 'Settings',
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
       ),
+      body: mainContent,
     );
   }
 
@@ -295,8 +359,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Expanded(
+          child: Text(
+            name,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               isInstalled ? DiIcons.check : DiIcons.time,
@@ -322,8 +394,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: colors.textSecondary, fontSize: 14)),
-        Text(value, style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold, fontSize: 15)),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(color: colors.textSecondary, fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          value,
+          style: const TextStyle(color: AppColors.turquoise500, fontWeight: FontWeight.bold, fontSize: 15),
+        ),
       ],
     );
   }

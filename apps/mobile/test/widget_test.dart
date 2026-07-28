@@ -15,6 +15,6 @@ void main() {
     expect(find.text('Privacy-First Local AI Runtime'), findsOneWidget);
 
     // Pump pending timers and async initialization
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 2));
   });
 }

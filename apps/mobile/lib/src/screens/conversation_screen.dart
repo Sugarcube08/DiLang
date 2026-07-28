@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
 import '../theme/design_tokens.dart';
@@ -7,7 +8,8 @@ import '../theme/di_icons.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_gradients.dart';
 import '../components/glass_components.dart';
-import '../components/toucan_mascot.dart';
+import '../components/audio_waveform_visualizer.dart';
+import '../components/responsive/responsive.dart';
 
 class SessionTurnItem {
   final String speaker;
@@ -30,6 +32,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   String? _sessionId;
   bool _isInitializing = true;
   bool _isProcessing = false;
+  bool _isListeningMode = false;
   final List<SessionTurnItem> _sessionTurns = [];
 
   @override
@@ -125,38 +128,41 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
     final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return AtmosphereBackground(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Interactive AI Session'),
-        ),
-        body: Column(
+    Widget mainBody = Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: ResponsiveBreakpoints.maxFormWidth),
+        child: Column(
           children: [
-            // Toucan Learning Assistant Header Panel
+            // Animated AI Voice Room Hero Banner
             GlassContainer(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(14),
-              borderRadius: BorderRadius.circular(18),
-              child: Row(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              borderRadius: BorderRadius.circular(24),
+              child: Column(
                 children: [
-                  ToucanMascot(
-                    size: 48,
-                    mood: _isProcessing ? ToucanMood.studying : ToucanMood.happy,
+                  AudioWaveformVisualizer(
+                    isListening: _isListeningMode,
+                    isSpeaking: _isProcessing,
+                    onMicTap: () {
+                      setState(() {
+                        _isListeningMode = !_isListeningMode;
+                      });
+                    },
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Toucan Learning Assistant',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                        Text(
-                          _isProcessing ? 'Analyzing syntax & formulating response...' : 'Offline Qwen3-0.6B LLM • German Dialogue',
-                          style: TextStyle(fontSize: 12, color: colors.textSecondary),
-                        ),
-                      ],
+                  const SizedBox(height: 12),
+                  Text(
+                    _isListeningMode
+                        ? 'Listening to your speech input...'
+                        : (_isProcessing
+                            ? 'Qwen3 LLM formulating response...'
+                            : 'Tap mic or type to speak with Toucan Tutor'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: _isListeningMode
+                          ? AppColors.coral500
+                          : (_isProcessing ? AppColors.turquoise500 : colors.textSecondary),
                     ),
                   ),
                 ],
@@ -175,12 +181,16 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                         final turn = _sessionTurns[index];
                         final isLearner = turn.speaker == 'learner';
 
+                        final alignment = context.isRtl
+                            ? (isLearner ? Alignment.centerLeft : Alignment.centerRight)
+                            : (isLearner ? Alignment.centerRight : Alignment.centerLeft);
+
                         return Align(
-                          alignment: isLearner ? Alignment.centerRight : Alignment.centerLeft,
+                          alignment: alignment,
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.80,
+                              maxWidth: context.screenWidth * 0.80,
                             ),
                             child: GlassContainer(
                               padding: const EdgeInsets.all(16),
@@ -249,7 +259,10 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.arrow_upward_rounded, color: AppColors.turquoise500),
+                        : Icon(
+                            context.isRtl ? Icons.arrow_back_rounded : Icons.arrow_upward_rounded,
+                            color: AppColors.turquoise500,
+                          ),
                     onPressed: _submitTurn,
                   ),
                 ],
@@ -258,6 +271,23 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
           ],
         ),
       ),
+    );
+
+    return ResponsiveScaffold(
+      selectedIndex: 1,
+      onDestinationSelected: (idx) {
+        if (idx == 0) context.go('/home');
+        if (idx == 2) context.push('/settings');
+      },
+      destinations: const [
+        ResponsiveNavigationDestination(icon: DiIcons.spark, label: 'Learn'),
+        ResponsiveNavigationDestination(icon: DiIcons.mic, label: 'Speak'),
+        ResponsiveNavigationDestination(icon: DiIcons.settings, label: 'Settings'),
+      ],
+      appBar: const ResponsiveAppBar(
+        title: Text('Interactive AI Session'),
+      ),
+      body: mainBody,
     );
   }
 }

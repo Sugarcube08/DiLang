@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../native_bridge.dart';
 import '../theme/theme_extensions.dart';
-import '../theme/design_tokens.dart';
 import '../theme/app_colors.dart';
-import '../components/glass_components.dart';
 import '../components/toucan_mascot.dart';
 import '../components/dilang_button.dart';
+import '../components/responsive/responsive.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -23,12 +22,32 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final colors = context.colors;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Welcome to DiLang'),
+      appBar: const ResponsiveAppBar(
+        title: Text('Welcome to DiLang'),
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(DesignTokens.space24),
+        child: ResponsiveForm(
+          actions: [
+            DiLangButton(
+              label: 'Continue',
+              icon: context.isRtl ? Icons.arrow_back : Icons.arrow_forward,
+              onPressed: () async {
+                final name = _nameController.text.trim();
+                if (name.isNotEmpty) {
+                  await DiLangNativeBridge.createUserProfile(
+                    username: name,
+                    nativeLang: 'English',
+                    targetLang: 'German',
+                  );
+                  await DiLangNativeBridge.setOnboardingStep('Languages');
+                }
+                if (context.mounted) {
+                  context.go('/onboarding/native-language');
+                }
+              },
+            ),
+          ],
           child: Column(
             children: [
               const SizedBox(height: 12),
@@ -38,7 +57,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 speechBubbleText: 'Hallo! What is your name?',
               ),
               const SizedBox(height: 24),
-              GlassCard(
+              ResponsiveCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -61,28 +80,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       ),
                     ),
                   ],
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: DiLangButton(
-                  label: 'Continue',
-                  icon: Icons.arrow_forward,
-                  onPressed: () async {
-                    final name = _nameController.text.trim();
-                    if (name.isNotEmpty) {
-                      await DiLangNativeBridge.createUserProfile(
-                        username: name,
-                        nativeLang: 'English',
-                        targetLang: 'German',
-                      );
-                      await DiLangNativeBridge.setOnboardingStep('Languages');
-                    }
-                    if (context.mounted) {
-                      context.go('/onboarding/native-language');
-                    }
-                  },
                 ),
               ),
             ],

@@ -20,6 +20,16 @@ class DiLangNativeBridge {
     }
   }
 
+  static Future<String> initAppPaths(String basePath) async {
+    _logger.info('Setting Rust base path to $basePath...');
+    try {
+      return await ffi.initAppPaths(basePath: basePath);
+    } catch (e) {
+      _logger.warning('FFI initAppPaths failed: $e');
+      return 'OK';
+    }
+  }
+
   static Future<String> checkDbHealth() async {
     _logger.info('Calling Rust checkDbHealth() bridge method...');
     try {

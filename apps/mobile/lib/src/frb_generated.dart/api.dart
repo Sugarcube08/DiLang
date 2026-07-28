@@ -10,6 +10,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 Future<String> ping() => RustLib.instance.api.crateApiPing();
 
+Future<String> initAppPaths({required String basePath}) =>
+    RustLib.instance.api.crateApiInitAppPaths(basePath: basePath);
+
 Future<String> checkDbHealth() => RustLib.instance.api.crateApiCheckDbHealth();
 
 Future<String> getOnboardingStep() =>

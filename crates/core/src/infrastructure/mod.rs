@@ -1,5 +1,6 @@
 //! Phase 5 Shared Infrastructure Subsystem Baseline
 
+pub mod asset_system;
 pub mod capability_registry;
 pub mod config;
 pub mod downloader;
@@ -17,9 +18,13 @@ pub mod result;
 pub mod scheduler;
 pub mod whisper_engine;
 
+pub use asset_system::{
+    AssetCategory, AssetId, AssetState, CapabilityStatus, GenericAsset, SystemCapability,
+    UnifiedAssetManager,
+};
 pub use capability_registry::{Capability, CapabilityRegistry, ProviderDescriptor};
 pub use config::{AppConfig, ConfigManager};
-pub use downloader::{DownloadProgress, FileVerifier, ModelDownloader};
+pub use downloader::{log_info, DownloadProgress, FileVerifier, ModelDownloader};
 pub use errors::{AppError, ErrorSeverity};
 pub use feature_flags::FeatureFlags;
 pub use language_registry::{LanguageDescriptor, LanguageRegistry};

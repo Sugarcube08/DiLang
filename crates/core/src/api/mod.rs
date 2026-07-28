@@ -121,36 +121,18 @@ impl DiLangEngineFacade {
             return StartupState::NeedsLanguages;
         }
 
-        let models = self
-            .model_manager
-            .list_installed_models()
-            .unwrap_or_default();
-
-        let has_qwen = models.iter().any(|m| {
-            (m.name.contains("qwen") || m.filename.contains("gguf"))
-                && std::path::Path::new(&m.path).exists()
-        });
-        let has_whisper = models.iter().any(|m| {
-            (m.name.contains("whisper") || m.filename.contains("bin"))
-                && std::path::Path::new(&m.path).exists()
-        });
-        let has_piper = models.iter().any(|m| {
-            (m.name.contains("piper") || m.filename.contains("onnx"))
-                && std::path::Path::new(&m.path).exists()
-        });
-
-        if !has_qwen || !has_whisper || !has_piper {
-            info!("RUST: get_startup_state() -> NeedsModels (Installed models incomplete or missing on disk)");
+        let asset_mgr = crate::infrastructure::asset_system::UnifiedAssetManager::new();
+        if !asset_mgr.check_overall_readiness() {
+            info!("RUST: get_startup_state() -> NeedsModels (System capabilities incomplete or assets missing on disk)");
             return StartupState::NeedsModels;
         }
 
-        if step == "Completed" {
-            info!("RUST: get_startup_state() -> Ready (onboarding_step = Completed and all models verified)");
-            return StartupState::Ready;
+        if step != "Completed" {
+            let _ = self.set_onboarding_step("Completed");
         }
 
-        info!("RUST: get_startup_state() -> NeedsModels (Onboarding step pending model download)");
-        StartupState::NeedsModels
+        info!("RUST: get_startup_state() -> Ready (all required system capabilities verified & ready)");
+        StartupState::Ready
     }
 
     /// Create User Profile & Learning Goal in SQLite

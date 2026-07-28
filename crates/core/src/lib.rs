@@ -98,11 +98,11 @@ pub fn get_db_path() -> Option<PathBuf> {
             p.push("database.db");
             p
         }),
-        _ => dirs::data_dir().map(|mut p| {
-            p.push("DiLang");
+        _ => {
+            let mut p = infrastructure::ModelManager::get_base_dir();
             p.push("database.db");
-            p
-        }),
+            Some(p)
+        }
     }
 }
 

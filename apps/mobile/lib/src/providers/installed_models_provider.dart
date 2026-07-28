@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../native_bridge.dart';
 
@@ -36,6 +37,7 @@ class InstalledModelsNotifier extends StateNotifier<InstalledModelsState> {
       final jsonStr = await DiLangNativeBridge.listInstalledModels();
       if (jsonStr.isNotEmpty && !jsonStr.startsWith('Error')) {
         final list = jsonDecode(jsonStr) as List<dynamic>;
+        debugPrint('[InstalledModelsNotifier] Loaded ${list.length} installed models from Rust SQLite/Disk');
         state = state.copyWith(models: list, isLoading: false);
       } else {
         state = state.copyWith(models: [], isLoading: false);
